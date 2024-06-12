@@ -1,0 +1,66 @@
+#:kivy 2.3.0
+
+<SideBar>
+
+    MDScreenManager:
+
+        MDScreen:
+
+            MDBoxLayout:
+                padding: '12dp'
+
+                MDBoxLayout:
+                    id: closed_nav
+                    size_hint_x: None
+                    adaptive_height: True
+                    md_bg_color: app.theme_cls.secondaryContainerColor
+                    width: '50dp'
+                    orientation: 'vertical'
+                    pos_hint: {'center_y': .5}
+                    radius: '12dp'
+                    padding: ['6dp', ]
+                    spacing: '12dp'
+
+                    MDIconButton:
+                        on_release:
+                            self.toggled = True
+                            side_nav.set_state('toggle')
+                        icon: 'menu'
+
+                    MDIconButton:
+                        on_release: ''
+                        icon: 'home'
+
+                    MDIconButton:
+                        on_release: ''
+                        icon: 'wrench'
+
+
+                    MDIconButton:
+                        on_release: ''
+                        icon: 'alert'
+
+
+    MDNavigationDrawer:
+        id: side_nav
+        width: '225dp'
+        pos_hint: {'center_x': .108, 'center_y': .5} if root.toggled else {'center_y': .5}
+        md_bg_color: app.theme_cls.secondaryContainerColor
+        radius: '8dp'
+
+        MDNavigationDrawerMenu:
+            id: side_nav_menu
+            padding: 0, 0, '12dp', 0
+            spacing: '12dp'
+
+            MDButton:
+                style: 'text'
+                theme_width: 'Custom'
+                size_hint_x: 1
+                radius: 0
+                on_release:
+                    self.togged = False
+                    side_nav.set_state('toggle')
+                
+                MDButtonIcon:
+                    icon: 'backburger'

@@ -49,6 +49,7 @@ from materialyoucolor.utils.platform_utils import SCHEMES
 
 
 # Local imports.
+from components import SideBar
 from utils import DatabaseManager, Logger
 from views import MainScreen
 
