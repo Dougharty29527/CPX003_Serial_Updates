@@ -23,15 +23,15 @@ class DatabaseManager:
 
     _logger = Logger(__name__)
     log = _logger.log_message
+    _dir = os.path.dirname(__file__)
 
     def __init__(self, db_name='app.db', table_name='gm'):
         self.conn = None
         self.db_name = db_name
         self.table_name = table_name
-        self._db_directory = os.path.join('data', 'db')
+        self._db_directory = os.path.join('data', 'db', self.db_name)
         if not os.path.exists(self._db_directory):
             os.makedirs(self._db_directory)
-        self.db_path = os.path.join(self._db_directory, self.db_name)
         self.create_table_if_not_exists()
 
     @classmethod
