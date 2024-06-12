@@ -73,7 +73,8 @@ class ControlPanel(MDApp):
 
     def load_translations(self):
         ''' Load the translations from the database. '''
-        return self.db.translations.load_translations('EN')
+        self.translation_db = self.db.translations()
+        return self.translation_db.load_translations('EN')
 
     def screen_config(self):
         ''' Return a list of screen classes and names. '''

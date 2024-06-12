@@ -20,7 +20,7 @@ class DatabaseManager:
     ----------------
     This class is used to handle the database connections.
     '''
-    
+
     _logger = Logger(__name__)
     log = _logger.log_message
 
@@ -31,6 +31,7 @@ class DatabaseManager:
         self._db_directory = os.path.join('data', 'db')
         if not os.path.exists(self._db_directory):
             os.makedirs(self._db_directory)
+        self.db_path = os.path.join(self._db_directory, self.db_name)
         self.create_table_if_not_exists()
 
     @classmethod
@@ -63,9 +64,9 @@ class DatabaseManager:
     def create_connection(self):
         ''' Create a connection to the database. '''
         try:
-            return sqlite3.connect(self.db_name)
+            return sqlite3.connect(self.db_path)
         except sqlite3.DatabaseError as e:
-            print('error', f'Error connecting to database: {e}')
+            self.log('error', f'Error connecting to database: {e}')
             raise
 
     def close_connection(self, exc_type, exc_value, traceback):
