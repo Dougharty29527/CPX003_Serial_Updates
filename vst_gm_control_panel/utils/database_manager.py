@@ -29,9 +29,9 @@ class DatabaseManager:
         self.conn = None
         self.db_name = db_name
         self.table_name = table_name
-        self._db_directory = os.path.join('data', 'db', self.db_name)
-        if not os.path.exists(self._db_directory):
-            os.makedirs(self._db_directory)
+        if not os.path.exists(os.path.join(self._dir, 'data', 'db')):
+            os.makedirs(os.path.join(self._dir, 'data', 'db'))
+        self.db_path = os.path.join('data', 'db', self.db_name)
         self.create_table_if_not_exists()
 
     @classmethod

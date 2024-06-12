@@ -78,7 +78,7 @@ class ControlPanel(MDApp):
         self.sm = ScreenManager(transition=NoTransition())
 
     def load_all_kv_files(self):
-        ''' Load all KV files. '''
+        ''' Load all .kv files in the application directory. '''
         for root, _, files in os.walk(self._dir):
             for file in files:
                 if file.endswith('.kv'):
