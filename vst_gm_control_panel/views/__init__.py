@@ -1,3 +1,3 @@
 ''' Screen Modules. '''
 
-from .main_screen import MainScreen
+from .py.main_screen import MainScreen
