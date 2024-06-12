@@ -49,3 +49,48 @@ from materialyoucolor.utils.platform_utils import SCHEMES
 
 # Local imports.
 from utils import DatabaseManager, Logger
+from views import MainScreen
+
+
+class ControlPanel(MDApp):
+    '''
+    Main Application
+    ----------------
+    This class is used to configure the main application.
+    '''
+
+    _logger = Logger(__name__)
+    log = _logger.log_message
+    lang = StringProperty('EN')
+    current_time = StringProperty()
+    current_date = StringProperty()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.db = DatabaseManager()
+        self.translations = self.load_translations()
+        self.sm = ScreenManager(transition=NoTransition())
+
+    def load_translations(self):
+        ''' Load the translations from the database. '''
+        return self.db.translations.load_translations('EN')
+
+    def screen_config(self):
+        ''' Return a list of screen classes and names. '''
+        return [
+            (MainScreen, 'main')
+        ]
+
+    def setup_screens(self):
+        ''' Load the screens into the screen manager. '''
+        for cls, name in self.screen_config():
+            self.sm.add_widget(cls(name=name))
+
+    def build(self):
+        ''' Build the application. '''
+        self.setup_screens()
+        return self.sm
+
+
+if __name__ == '__main__':
+    ControlPanel().run()

@@ -154,7 +154,7 @@ class DatabaseManager:
         )
         return result if result else default_value
 
-    def get_all_translations(self, language, default_value=None):
+    def load_translations(self, language, default_value=None):
         ''' Get all translations for a language from the database. '''
         results = self.execute_query(
             f'SELECT key, value FROM {self.table_name} WHERE language = ?;',
