@@ -67,6 +67,10 @@ class ControlPanel(MDApp):
     current_date = StringProperty()
     _dir = os.path.dirname(__file__)
 
+    SCREEN_CONFIG = {
+        'Main': MainScreen
+    }
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.db = DatabaseManager()
@@ -74,26 +78,20 @@ class ControlPanel(MDApp):
 
     def load_all_kv_files(self):
         ''' Load all KV files. '''
-        for root, _, files in os.walk(os.path.dirname(__file__)):
+        for root, _, files in os.walk(self._dir):
             for file in files:
                 if file.endswith('.kv'):
                     Builder.load_file(os.path.join(root, file))
 
-    def screen_config(self):
-        ''' Return a list of screen names and classes. '''
-        return {
-            'Main': MainScreen
-        }
-
     def configure_screen_manager(self):
         ''' Configure the screen manager. '''
-        for screen_name, screen_class in self.screen_config().items():
-            self.sm.add_widget(screen_class(name=screen_name))
+        for screen_name, screen_class in self.SCREEN_CONFIG.items():
+            self.sm.add_widget(screen_class(self, name=screen_name))
 
     def build(self):
         ''' Build the application. '''
         self.title = 'VST: Green Machine Control Panel'
-        self.icon = os.path.join('assets', 'images', 'vst_dark.png')
+        self.icon = os.path.join(self._dir, 'assets', 'images', 'vst_dark.png')
         self.theme_cls.primary_palette = 'Steelblue'
         self.theme_cls.theme_style = 'Dark'
         self.load_all_kv_files()

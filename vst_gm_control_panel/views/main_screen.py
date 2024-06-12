@@ -1,21 +1,26 @@
-''' Main Screen. '''
-
 from kivy.lang import Builder
 from kivymd.uix.screen import MDScreen
+
+''' 
+Main Screen.
+
+This module defines the MainScreen class, which represents the main screen of the application.
+'''
+
 
 
 class MainScreen(MDScreen):
     '''
-    Class for the Main Screen.
+    Main Screen
+    -----------
+    This class sets up the Main Screen.
     '''
 
-    def __init__(self, **kwargs):
+    def __init__(self, app, **kwargs):
+        '''
+        Parameters:
+            app (App): The main application instance.
+            name (str, optional): The name of the screen. Defaults to None.
+        '''
         super().__init__(**kwargs)
-        ''' Return the KV string. '''
-        return Builder.load_string(KV)
-
-    
-KV = '''
-<MainScreen>
-    md_bg_color: "yellow"
-'''
+        self.app = app
