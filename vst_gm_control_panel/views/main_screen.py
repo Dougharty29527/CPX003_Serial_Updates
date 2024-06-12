@@ -1,11 +1,7 @@
 ''' Main Screen. '''
 
+from kivy.lang import Builder
 from kivymd.uix.screen import MDScreen
-
-KV = '''
-<MainScreen>
-    md_bg_color: self.theme_cls.onPrimaryColor
-'''
 
 
 class MainScreen(MDScreen):
@@ -15,8 +11,11 @@ class MainScreen(MDScreen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.title = 'Main'
+        ''' Return the KV string. '''
+        return Builder.load_string(KV)
 
-    def build(self):
-        ''' Load the .kv file. '''
-        Builder.load_string(KV)
+    
+KV = '''
+<MainScreen>
+    md_bg_color: "yellow"
+'''

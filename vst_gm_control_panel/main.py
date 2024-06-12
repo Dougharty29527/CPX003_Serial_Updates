@@ -47,6 +47,7 @@ from kivymd.uix.navigationrail import MDNavigationRailItem
 from kivymd.uix.screen import MDScreen
 from materialyoucolor.utils.platform_utils import SCHEMES
 
+
 # Local imports.
 from utils import DatabaseManager, Logger
 from views import MainScreen
@@ -64,34 +65,41 @@ class ControlPanel(MDApp):
     lang = StringProperty('EN')
     current_time = StringProperty()
     current_date = StringProperty()
+    _dir = os.path.dirname(__file__)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.db = DatabaseManager()
-        self.translations = self.load_translations()
         self.sm = ScreenManager(transition=NoTransition())
 
-    def load_translations(self):
-        ''' Load the translations from the database. '''
-        self.translation_db = self.db.translations()
-        return self.translation_db.load_translations('EN')
+    def load_all_kv_files(self):
+        ''' Load all KV files. '''
+        for root, _, files in os.walk(os.path.dirname(__file__)):
+            for file in files:
+                if file.endswith('.kv'):
+                    Builder.load_file(os.path.join(root, file))
 
     def screen_config(self):
-        ''' Return a list of screen classes and names. '''
-        return [
-            (MainScreen, 'main')
-        ]
+        ''' Return a list of screen names and classes. '''
+        return {
+            'Main': MainScreen
+        }
 
-    def setup_screens(self):
-        ''' Load the screens into the screen manager. '''
-        for cls, name in self.screen_config():
-            self.sm.add_widget(cls(name=name))
+    def configure_screen_manager(self):
+        ''' Configure the screen manager. '''
+        for screen_name, screen_class in self.screen_config().items():
+            self.sm.add_widget(screen_class(name=screen_name))
 
     def build(self):
         ''' Build the application. '''
-        self.setup_screens()
+        self.title = 'VST: Green Machine Control Panel'
+        self.icon = os.path.join('assets', 'images', 'vst_dark.png')
+        self.theme_cls.primary_palette = 'Steelblue'
+        self.theme_cls.theme_style = 'Dark'
+        self.load_all_kv_files()
+        self.configure_screen_manager()
         return self.sm
-
+        
 
 if __name__ == '__main__':
     ControlPanel().run()
