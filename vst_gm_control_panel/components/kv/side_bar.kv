@@ -22,45 +22,31 @@
                     spacing: '12dp'
 
                     MDIconButton:
+                        icon: 'menu-close'
                         on_release:
                             self.toggled = True
                             side_nav.set_state('toggle')
-                        icon: 'menu'
-
-                    MDIconButton:
-                        on_release: ''
-                        icon: 'home'
-
-                    MDIconButton:
-                        on_release: ''
-                        icon: 'wrench'
-
-
-                    MDIconButton:
-                        on_release: ''
-                        icon: 'alert'
 
 
     MDNavigationDrawer:
         id: side_nav
         width: '225dp'
-        pos_hint: {'center_x': .108, 'center_y': .5} if root.toggled else {'center_y': .5}
+        # pos_hint: {'center_x': .108, 'center_y': .5} if root.toggled else {'center_y': .5}
         md_bg_color: app.theme_cls.secondaryContainerColor
         radius: '8dp'
+
+        MDIconButton:
+            icon: 'backburger'
+            on_release:
+                self.toggled = False
+                side_nav.set_state('toggle')
+            pos_hint: {'top': 1}
 
         MDNavigationDrawerMenu:
             id: side_nav_menu
             padding: 0, 0, '12dp', 0
             spacing: '12dp'
 
-            MDButton:
-                style: 'text'
-                theme_width: 'Custom'
-                size_hint_x: 1
-                radius: 0
-                on_release:
-                    self.togged = False
-                    side_nav.set_state('toggle')
-                
-                MDButtonIcon:
-                    icon: 'backburger'
+        MDIconButton:
+            icon: 'account-cog'
+            pos_hint: {'bottom': 1, 'right': 1}

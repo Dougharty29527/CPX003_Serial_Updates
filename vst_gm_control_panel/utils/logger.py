@@ -17,9 +17,8 @@ import os
 
 class Logger:
     '''
-    Logger
-    ------
-    Class to handle logging across the entire application.
+    Logger:
+    - Class to handle logging across the entire application.
     '''
 
     def __init__(self, name, level=logging.INFO):
