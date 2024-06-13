@@ -1,7 +1,7 @@
 '''
-=======================================================
-                File Logging Module
-=======================================================
+============================
+    File Logging Module
+============================
     Instructions:
     - Initialize the Logger with a name and an optional logging level.
     - Use the `log_message` method to log a message to the log file.

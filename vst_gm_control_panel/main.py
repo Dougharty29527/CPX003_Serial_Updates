@@ -1,9 +1,17 @@
 #!/usr/bin/python3
 
 '''
-============================================================
-        VST: Green Machine Control Panel Application
-============================================================
+:::     :::  :::::::: ::::::::::: 
+:+:     :+: :+:    :+:    :+:     
++:+     +:+ +:+           +:+     
++#+     +:+ +#++:++#++    +#+     
+ +#+   +#+         +#+    +#+     
+  #+#+#+#   #+#    #+#    #+#     
+    ###      ########     ###  
+ 
+========================================
+Green Machine Control Panel Application
+========================================
 
 Author: Tommy Wallace
 Date: June 2024
@@ -61,8 +69,6 @@ class ControlPanel(MDApp):
     This class is used to configure the main application.
     '''
 
-    _logger = Logger(__name__)
-    log = _logger.log_message
     lang = StringProperty('EN')
     current_time = StringProperty()
     current_date = StringProperty()
