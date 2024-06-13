@@ -1,14 +1,14 @@
 #!/usr/bin/python3
 
 '''
-:::     :::  :::::::: ::::::::::: 
-:+:     :+: :+:    :+:    :+:     
-+:+     +:+ +:+           +:+     
-+#+     +:+ +#++:++#++    +#+     
- +#+   +#+         +#+    +#+     
-  #+#+#+#   #+#    #+#    #+#     
-    ###      ########     ###  
- 
+'##::::'##::'######::'########:
+ ##:::: ##:'##... ##:... ##..::
+ ##:::: ##: ##:::..::::: ##::::
+ ##:::: ##:. ######::::: ##::::
+. ##:: ##:::..... ##:::: ##::::
+:. ## ##:::'##::: ##:::: ##::::
+::. ###::::. ######::::: ##::::
+:::...::::::......::::::..:::::
 ========================================
 Green Machine Control Panel Application
 ========================================
@@ -27,10 +27,11 @@ Features:
 - Automated alerts and maintenance notifications
 
 Usage:
-To start the application, ensure you have Python 3.9 or higher installed, 
-and run the following command in your terminal:
+- To start the application, ensure you have Python 3.9 or higher installed, 
+    and run the following command in your terminal:
     
-python3 main.py
+        python3 main.py
+
 '''
 
 # Standard imports.

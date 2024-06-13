@@ -1,12 +1,14 @@
 '''
-============================
-    File Logging Module
-============================
-    Instructions:
-    - Initialize the Logger with a name and an optional logging level.
-    - Use the `log_message` method to log a message to the log file.
-    - Use the `get_log_file_path` method to get the path to the log file.
-    - Use the `get_last_entries` method to get the last n entries from the log file.
+--------------------
+File Logging Module
+--------------------
+
+Instructions:
+- Initialize the Logger with a name and an optional logging level.
+- Use the `log_message` method to log a message to the log file.
+- Use the `get_log_file_path` method to get the path to the log file.
+- Use the `get_last_entries` method to get the last n entries from the log file.
+
 '''
 
 import logging
