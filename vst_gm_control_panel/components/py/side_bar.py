@@ -9,7 +9,12 @@ from typing import List, Optional
 from kivy.app import App
 from kivy.properties import BooleanProperty
 from kivymd.uix.button import MDIconButton
-from kivymd.uix.navigationdrawer import MDNavigationLayout
+from kivymd.uix.navigationdrawer import (
+    MDNavigationLayout,
+    MDNavigationDrawerItem,
+    MDNavigationDrawerItemLeadingIcon,
+    MDNavigationDrawerItemText
+)
 
 
 class SideBar(MDNavigationLayout):
@@ -28,38 +33,13 @@ class SideBar(MDNavigationLayout):
         '''
         Initialize the SideBar.
         '''
-        self.closed_nav_append()
-
-    def closed_nav_config(self) -> dict:
-        '''
-        Func:
-        - Configuration for Closed Nav Buttons.
-        Returns:
-        - dict: Configuration for Closed Nav Buttons.
-        '''
-        return {
-                'main_screen': 'home',
-                'maintenance_screen': 'wrench',
-                'faults_screen': 'alert-circle'
-            }
-
-    def closed_nav_append(self):
-        '''
-        Func:
-        - Iterates over the configuration dictionary and creates buttons for each entry.
-        '''
-        for key, value in self.closed_nav_config().items():
-            button = MDIconButton(
-                icon=value,
-                on_release=lambda _, key=key: self.switch_screen(key)
-            )
-            self.ids.closed_nav.add_widget(button)
+        self.sidebar_append()
 
     def switch_screen(self, screen_name: Optional[str] = None) -> None:
         '''
-        Func:
+        Purpose:
         - Interacts with parent app to switch screens.
-        Params:
+        Parameters:
         - instance: screen name (str).
         '''
         app = App.get_running_app()
@@ -69,3 +49,43 @@ class SideBar(MDNavigationLayout):
         else:
             # app.sm.current = 'main_screen'
             print('main_screen')
+
+    def sidebar_container_config(self) -> dict:
+        '''
+        Purpose:
+        - Configuration for Closed Nav Buttons.
+        Returns:
+        - dict: Configuration for Closed Nav Buttons.
+        '''
+        return {
+                'main_screen': {
+                    'name': 'Main',
+                    'icon': 'home'
+                },
+                'maintenance_screen': {
+                    'name': 'Maintenance',
+                    'icon': 'wrench'
+                },
+                'faults_screen': {
+                    'name': 'Faults',
+                    'icon': 'alert'
+                }
+            }
+
+    def sidebar_append(self):
+        '''
+        Purpose:
+        - Iterates over the configuration dictionary and creates buttons for the sidebar.
+        '''
+        for key, value in self.sidebar_container_config().items():
+            collapsed_items = MDIconButton(
+                icon=value['icon'],
+                on_release=lambda _, key=key: self.switch_screen(key)
+            )
+            expanded_items = MDNavigationDrawerItem(
+                MDNavigationDrawerItemLeadingIcon(icon=value['icon']),
+                MDNavigationDrawerItemText(text=value['name']),
+                
+            )
+            self.ids.closed_nav.add_widget(collapsed_items)
+            self.ids.open_nav_drawer.add_widget(expanded_items)

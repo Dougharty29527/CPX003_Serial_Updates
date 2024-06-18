@@ -25,26 +25,28 @@
                         icon: 'menu-close'
                         on_release:
                             self.toggled = True
-                            side_nav.set_state('toggle')
+                            open_nav.set_state('toggle')
 
 
     MDNavigationDrawer:
-        id: side_nav
-        width: '225dp'
-        md_bg_color: app.theme_cls.secondaryContainerColor
-        radius: '8dp'
-
-        MDIconButton:
-            icon: 'backburger'
-            on_release:
-                self.toggled = False
-                side_nav.set_state('toggle')
-            pos_hint: {'top': 1}
+        id: open_nav
+        # width: '225dp'
+        # md_bg_color: app.theme_cls.secondaryContainerColor
+        radius: 0, '16dp', '16dp', 0
 
         MDNavigationDrawerMenu:
-            id: side_nav_menu
-            padding: 0, 0, '12dp', 0
-            spacing: '12dp'
+            id: open_nav_drawer
+
+            MDNavigationDrawerHeader:
+                padding: '16dp', 0, '16dp', '16dp'
+                spacing: '16dp'
+
+                MDIconButton:
+                    icon: 'backburger'
+                    on_release:
+                        self.toggled = False
+                        open_nav.set_state('toggle')
+                    pos_hint: {'top': 1}
 
         MDIconButton:
             icon: 'account-cog'
