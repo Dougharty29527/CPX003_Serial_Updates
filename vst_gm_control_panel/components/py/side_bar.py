@@ -46,7 +46,8 @@ class SideBar(MDNavigationLayout):
 
     def closed_nav_append(self):
         '''
-        Append Closed Nav Buttons.
+        Func:
+        - Iterates over the configuration dictionary and creates buttons for each entry.
         '''
         for key, value in self.closed_nav_config().items():
             button = MDIconButton(
