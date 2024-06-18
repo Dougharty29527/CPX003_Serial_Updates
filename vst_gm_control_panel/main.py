@@ -1,15 +1,6 @@
 #!/usr/bin/python3
 
 '''
-'##::::'##::'######::'########:
- ##:::: ##:'##... ##:... ##..::
- ##:::: ##: ##:::..::::: ##::::
- ##:::: ##:. ######::::: ##::::
-. ##:: ##:::..... ##:::: ##::::
-:. ## ##:::'##::: ##:::: ##::::
-::. ###::::. ######::::: ##::::
-:::...::::::......::::::..:::::
-
 ========================================
 Green Machine Control Panel Application
 ========================================
@@ -75,6 +66,8 @@ class ControlPanel(MDApp):
     current_time = StringProperty()
     current_date = StringProperty()
     _dir = os.path.dirname(__file__)
+    height = 800
+    width = 480
 
     SCREEN_CONFIG = {
         'Main': MainScreen
@@ -84,6 +77,7 @@ class ControlPanel(MDApp):
         super().__init__(**kwargs)
         self.db = DatabaseManager()
         self.sm = ScreenManager(transition=NoTransition())
+        Window.size = (self.height, self.width)
 
     def load_all_kv_files(self):
         ''' Load all .kv files in the application directory. '''

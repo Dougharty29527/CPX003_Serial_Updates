@@ -25,6 +25,7 @@ class SideBar(MDNavigationLayout):
 
     menu = None
     toggled: BooleanProperty = BooleanProperty(False)
+    app = App.get_running_app()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -42,12 +43,11 @@ class SideBar(MDNavigationLayout):
         Parameters:
         - instance: screen name (str).
         '''
-        app = App.get_running_app()
         if screen_name:
             print(screen_name)
-            # app.sm.current = screen_name
+            # self.app.sm.current = screen_name
         else:
-            # app.sm.current = 'main_screen'
+            # self.app.sm.current = 'main_screen'
             print('main_screen')
 
     def sidebar_container_config(self) -> dict:
@@ -83,8 +83,14 @@ class SideBar(MDNavigationLayout):
                 on_release=lambda _, key=key: self.switch_screen(key)
             )
             expanded_items = MDNavigationDrawerItem(
-                MDNavigationDrawerItemLeadingIcon(icon=value['icon']),
-                MDNavigationDrawerItemText(text=value['name']),
+                MDNavigationDrawerItemLeadingIcon(
+                    icon=value['icon']
+                ),
+                MDNavigationDrawerItemText(
+                    text=value['name'],
+                    font_style='Title',
+                    role='medium'
+                ),
                 
             )
             self.ids.closed_nav.add_widget(collapsed_items)
