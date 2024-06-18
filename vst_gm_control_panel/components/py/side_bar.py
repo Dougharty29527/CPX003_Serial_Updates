@@ -14,9 +14,8 @@ from kivymd.uix.navigationdrawer import MDNavigationLayout
 
 class SideBar(MDNavigationLayout):
     ''' 
-    Side Nav Bar
-    ------------
-    This class sets up the expandable and collapsable side navigation bar.
+    SideBar:
+    - Class to set up the expandable and collapsable side navigation bar.
     '''
 
     menu = None
