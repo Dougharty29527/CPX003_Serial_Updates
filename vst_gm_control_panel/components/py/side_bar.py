@@ -91,6 +91,7 @@ class SideBar(MDNavigationLayout):
                     font_style='Title',
                     role='medium'
                 ),
+                on_press=lambda _, key=key: self.switch_screen(key)
                 
             )
             self.ids.closed_nav.add_widget(collapsed_items)

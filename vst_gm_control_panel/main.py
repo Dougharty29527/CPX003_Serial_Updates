@@ -77,7 +77,6 @@ class ControlPanel(MDApp):
         super().__init__(**kwargs)
         self.db = DatabaseManager()
         self.sm = ScreenManager(transition=NoTransition())
-        Window.size = (self.height, self.width)
 
     def load_all_kv_files(self):
         ''' Load all .kv files in the application directory. '''
@@ -97,6 +96,7 @@ class ControlPanel(MDApp):
         self.icon = os.path.join(self._dir, 'assets', 'images', 'vst_dark.png')
         self.theme_cls.primary_palette = 'Steelblue'
         self.theme_cls.theme_style = 'Dark'
+        Window.size = (self.height, self.width)
         self.load_all_kv_files()
         self.configure_screen_manager()
         return self.sm
