@@ -71,6 +71,10 @@ class SideBar(MDNavigationLayout):
                 'faults_screen': {
                     'name': 'Faults',
                     'icon': 'alert'
+                },
+                'test_screen': {
+                    'name': 'Test',
+                    'icon': 'test-tube'
                 }
             }
 
@@ -79,8 +83,11 @@ class SideBar(MDNavigationLayout):
         Purpose:
         - Iterates over the configuration dictionary and creates buttons for the sidebar.
         '''
-        scrn_height = dp(self.app.height)
-        print(scrn_height)
+        expanded_item_total = 0
+        screen_height = dp(self.app.height)
+        total_expanded_icon_height = dp(
+            self.ids.close_nav_button.height + self.ids.settings_button.height
+        )
         for key, value in self.sidebar_container_config().items():
             collapsed_items = MDIconButton(
                 icon=value['icon'],
@@ -95,8 +102,12 @@ class SideBar(MDNavigationLayout):
                     font_style='Title',
                     role='medium'
                 ),
-                on_press=lambda _, key=key: self.switch_screen(key)
-                
+                on_press=lambda _, key=key: self.switch_screen(key)   
             )
+            expanded_item_total += 1
+            total_expanded_icon_height += dp(expanded_items.height)
             self.ids.closed_nav.add_widget(collapsed_items)
             self.ids.open_nav_drawer.add_widget(expanded_items)
+        screen_minus_icons = screen_height - total_expanded_icon_height
+        new_expanded_padding = screen_minus_icons / expanded_item_total
+        self.ids.open_nav_drawer.spacing = new_expanded_padding / 2

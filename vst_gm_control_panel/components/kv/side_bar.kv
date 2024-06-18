@@ -22,6 +22,7 @@
                     spacing: '12dp'
 
                     MDIconButton:
+                        id: open_nav_button
                         icon: 'menu-close'
                         on_release:
                             self.toggled = True
@@ -32,15 +33,13 @@
         id: open_nav
         width: '260dp'
         #md_bg_color: app.theme_cls.secondaryContainerColor
-        radius: 0, '16dp', '16dp', 0
+        radius: 0, '16dp', 0, 0
 
         MDNavigationDrawerMenu:
             id: open_nav_drawer
-            padding: '8dp'
-            spacing: '24dp'
+            padding: '16dp', 0, '16dp', 0
 
             MDNavigationDrawerHeader:
-                padding: 0, 0, 0, '16dp'
 
                 # MDLabel:
                 #     text: 'VST'
@@ -53,6 +52,7 @@
                 #     text_color: self.theme_cls.primaryColor
 
                 MDIconButton:
+                    id: close_nav_button
                     icon: 'backburger'
                     on_release:
                         self.toggled = False
@@ -60,5 +60,6 @@
                     pos_hint: {'top': 1}
 
         MDIconButton:
+            id: settings_button
             icon: 'account-cog'
             pos_hint: {'bottom': 1, 'right': 1}
