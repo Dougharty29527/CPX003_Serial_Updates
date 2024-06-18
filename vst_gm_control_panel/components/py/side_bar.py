@@ -7,6 +7,7 @@ from typing import List, Optional
 
 # Kivy imports.
 from kivy.app import App
+from kivy.metrics import dp
 from kivy.properties import BooleanProperty
 from kivymd.uix.button import MDIconButton
 from kivymd.uix.navigationdrawer import (
@@ -24,8 +25,8 @@ class SideBar(MDNavigationLayout):
     '''
 
     menu = None
+    app = None
     toggled: BooleanProperty = BooleanProperty(False)
-    app = App.get_running_app()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -34,6 +35,7 @@ class SideBar(MDNavigationLayout):
         '''
         Initialize the SideBar.
         '''
+        self.app = App.get_running_app()
         self.sidebar_append()
 
     def switch_screen(self, screen_name: Optional[str] = None) -> None:
@@ -77,6 +79,8 @@ class SideBar(MDNavigationLayout):
         Purpose:
         - Iterates over the configuration dictionary and creates buttons for the sidebar.
         '''
+        scrn_height = dp(self.app.height)
+        print(scrn_height)
         for key, value in self.sidebar_container_config().items():
             collapsed_items = MDIconButton(
                 icon=value['icon'],
