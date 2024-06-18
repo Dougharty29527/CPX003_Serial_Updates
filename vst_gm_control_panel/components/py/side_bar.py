@@ -20,7 +20,7 @@ class SideBar(MDNavigationLayout):
     '''
 
     menu = None
-    toggled = BooleanProperty(False)
+    toggled: BooleanProperty = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -31,26 +31,41 @@ class SideBar(MDNavigationLayout):
         '''
         self.closed_nav_append()
 
-    def closed_nav_config(self):
+    def closed_nav_config(self) -> dict:
         '''
-        Closed Nav Buttons.
+        Func:
+        - Configuration for Closed Nav Buttons.
+        Returns:
+        - dict: Configuration for Closed Nav Buttons.
         '''
         return {
-            'main': {
-                'icon': 'home'
-            },
-            'maintenance': {
-                'icon': 'wrench'
-            },
-            'faults': {
-                'icon': 'alert'
+                'main_screen': 'home',
+                'maintenance_screen': 'wrench',
+                'faults_screen': 'alert-circle'
             }
-        }
 
     def closed_nav_append(self):
         '''
         Append Closed Nav Buttons.
         '''
-        for k, v in self.closed_nav_config().items():
-            button = MDIconButton(icon=v['icon'])
+        for key, value in self.closed_nav_config().items():
+            button = MDIconButton(
+                icon=value,
+                on_release=lambda _, key=key: self.switch_screen(key)
+            )
             self.ids.closed_nav.add_widget(button)
+
+    def switch_screen(self, screen_name: Optional[str] = None) -> None:
+        '''
+        Func:
+        - Interacts with parent app to switch screens.
+        Params:
+        - instance: screen name (str).
+        '''
+        app = App.get_running_app()
+        if screen_name:
+            print(screen_name)
+            # app.sm.current = screen_name
+        else:
+            # app.sm.current = 'main_screen'
+            print('main_screen')
