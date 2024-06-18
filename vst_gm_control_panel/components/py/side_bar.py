@@ -1,8 +1,15 @@
-''' side_bar.py '''
+'''
+Side Bar Python Component for handling dynamic changes.
+'''
 
+# Standard imports.
+from typing import List, Optional
+
+# Kivy imports.
+from kivy.app import App
 from kivy.properties import BooleanProperty
-from kivymd.uix.navigationdrawer import MDNavigationLayout
 from kivymd.uix.button import MDIconButton
+from kivymd.uix.navigationdrawer import MDNavigationLayout
 
 
 class SideBar(MDNavigationLayout):
@@ -18,7 +25,13 @@ class SideBar(MDNavigationLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def closed_nav_button_config(self):
+    def on_kv_post(self, base_widget):
+        '''
+        Initialize the SideBar.
+        '''
+        self.closed_nav_append()
+
+    def closed_nav_config(self):
         '''
         Closed Nav Buttons.
         '''
@@ -38,9 +51,6 @@ class SideBar(MDNavigationLayout):
         '''
         Append Closed Nav Buttons.
         '''
-        for k, v in self.closed_nav_button_config().items():
+        for k, v in self.closed_nav_config().items():
             button = MDIconButton(icon=v['icon'])
             self.ids.closed_nav.add_widget(button)
-
-    def on_kv_post(self, base_widget):
-        self.closed_nav_append()
