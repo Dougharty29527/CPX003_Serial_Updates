@@ -60,23 +60,36 @@ class SideBar(MDNavigationLayout):
         - dict: Configuration for Closed Nav Buttons.
         '''
         return {
-                'main_screen': {
-                    'name': 'Main',
-                    'icon': 'home'
-                },
-                'maintenance_screen': {
-                    'name': 'Maintenance',
-                    'icon': 'wrench'
-                },
-                'faults_screen': {
-                    'name': 'Faults',
-                    'icon': 'alert'
-                },
-                'test_screen': {
-                    'name': 'Test',
-                    'icon': 'test-tube'
-                }
+                'main_screen': {'name': 'Main', 'icon': 'home'},
+                'maintenance_screen': {'name': 'Maintenance', 'icon': 'wrench'},
+                'faults_screen': {'name': 'Faults', 'icon': 'alert'},
+                'test_screen': {'name': 'Test', 'icon': 'test-tube'}
             }
+
+    def calculate_spacing(self, total_icon_height, item_count) -> float:
+        screen_height = self.app.height
+        static_expanded_icon_height = (
+            self.ids.close_nav_button.height + self.ids.settings_button.height
+        )
+        remaining_space = screen_height - total_icon_height
+        return remaining_space / item_count / 2
+
+    def create_button(self, screen_name, icon, name, expanded=False):
+        if expanded:
+            return MDNavigationDrawerItem(
+                MDNavigationDrawerItemLeadingIcon(
+                    icon=icon
+                ),
+                MDNavigationDrawerItemText(
+                    text=name,
+                    font_style='Title',
+                    role='medium'
+                ),
+                on_press=lambda _: self.switch_screen(screen_name)
+            )
+        else:
+            return MDIconButton(icon=icon, on_release=lambda _: self.switch_screen(screen_name))
+        
 
     def sidebar_append(self):
         '''
@@ -84,30 +97,16 @@ class SideBar(MDNavigationLayout):
         - Iterates over the configuration dictionary and creates buttons for the sidebar.
         '''
         expanded_item_total = 0
-        screen_height = dp(self.app.height)
-        total_expanded_icon_height = dp(
-            self.ids.close_nav_button.height + self.ids.settings_button.height
-        )
+        new_icon_height = 0
+        expanded_icons_height = 0
+
         for key, value in self.sidebar_container_config().items():
-            collapsed_items = MDIconButton(
-                icon=value['icon'],
-                on_release=lambda _, key=key: self.switch_screen(key)
-            )
-            expanded_items = MDNavigationDrawerItem(
-                MDNavigationDrawerItemLeadingIcon(
-                    icon=value['icon']
-                ),
-                MDNavigationDrawerItemText(
-                    text=value['name'],
-                    font_style='Title',
-                    role='medium'
-                ),
-                on_press=lambda _, key=key: self.switch_screen(key)   
-            )
+            collapsed_items = self.create_button(key, value['icon'], value['name'])
+            expanded_items = self.create_button(key, value['icon'], value['name'], expanded=True)
             expanded_item_total += 1
-            total_expanded_icon_height += dp(expanded_items.height)
+            expanded_icons_height += expanded_items.height
             self.ids.closed_nav.add_widget(collapsed_items)
             self.ids.open_nav_drawer.add_widget(expanded_items)
-        screen_minus_icons = screen_height - total_expanded_icon_height
-        new_expanded_padding = screen_minus_icons / expanded_item_total
-        self.ids.open_nav_drawer.spacing = new_expanded_padding / 2
+
+        new_expanded_padding = self.calculate_spacing(expanded_icons_height, expanded_item_total)
+        self.ids.open_nav_drawer.spacing = new_expanded_padding
