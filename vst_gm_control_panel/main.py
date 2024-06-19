@@ -40,11 +40,7 @@ from kivy.properties import BooleanProperty, StringProperty
 from kivy.uix.screenmanager import NoTransition, ScreenManager
 from kivy.utils import hex_colormap
 from kivymd.app import MDApp
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.button import MDButton, MDButtonIcon, MDButtonText
 from kivymd.uix.menu import MDDropdownMenu
-from kivymd.uix.navigationdrawer import MDNavigationLayout
-from kivymd.uix.navigationrail import MDNavigationRailItem
 from kivymd.uix.screen import MDScreen
 from materialyoucolor.utils.platform_utils import SCHEMES
 
@@ -57,53 +53,88 @@ from views import MainScreen
 
 class ControlPanel(MDApp):
     '''
-    Main Application
-    ----------------
-    This class is used to configure the main application.
+    Main Application:
+    - This class is used to configure the main application.
     '''
 
-    current_time = StringProperty()
-    current_date = StringProperty()
-    _dir = os.path.dirname(__file__)
-    _logger = Logger(__name__)
-    _db = DatabaseManager()
-    _translations_db = _db.translations()
-    _user_db = _db.user()
-    height = 800
-    width = 480
+    HEIGHT: int = 800
+    WIDTH: int = 480
 
-    SCREEN_CONFIG = {
+    SCREEN_CONFIG = Dict[str, Type[MDScreen]] ={
         'Main': MainScreen
     }
 
+    language = StringProperty()
+    current_time = StringProperty()
+    current_date = StringProperty()
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.language = self._user_db.get_setting('language', 'EN')
+        self._dir = os.path.dirname(__file__)
+        self._logger = Logger(__name__)
+        self.log = self._logger.log
+        self._db = DatabaseManager()
+        self._translations_db = self._db.translations()
+        self._user_db = self._db.user()
         self.sm = ScreenManager(transition=NoTransition())
 
-    def load_all_kv_files(self):
-        ''' Load all .kv files in the application directory. '''
+    def load_all_kv_files(self) -> None:
+        '''
+        Purpose:
+        - Load all .kv files in the application directory.
+        '''
         for root, _, files in os.walk(self._dir):
             for file in files:
                 if file.endswith('.kv'):
                     Builder.load_file(os.path.join(root, file))
 
-    def configure_screen_manager(self):
-        ''' Configure the screen manager. '''
+    def configure_screen_manager(self) -> None:
+        '''
+        Purpose:
+        - Configure the Screen Manager.
+        '''
         for screen_name, screen_class in self.SCREEN_CONFIG.items():
             self.sm.add_widget(screen_class(self, name=screen_name))
 
-    def translate(self, key):
-        ''' Translate the given key. '''
+    def load_user_language(self) -> None:
+        '''
+        Purpose:
+        - Load the user's preferred language.
+        '''
+        self.language = self._user_db.get_setting('language')
+
+    def save_user_language(self) -> None:
+        '''
+        Purpose:
+        - Save the user's preferred language.
+        '''
+        self._user_db.add_setting('language', self.language)
+        
+
+    def translate(self, key) -> str:
+        '''
+        Purpose:
+        - Translate a key to the current language.
+        Parameters:
+        - key: The key to translate (str).
+        Returns:
+        - str: The translated key.
+        '''
         return self._translations_db.translate(self.language, key)
 
-    def build(self):
-        ''' Build the application. '''
+    def build(self) -> ScreenManager:
+        '''
+        Purpose:
+        - Build the main application.
+        Returns:
+        - ScreenManager: The main application.
+        '''
         self.title = 'VST: Green Machine Control Panel'
         self.icon = os.path.join(self._dir, 'assets', 'images', 'vst_dark.png')
         self.theme_cls.primary_palette = 'Steelblue'
         self.theme_cls.theme_style = 'Dark'
-        Window.size = (self.height, self.width)
+        Window.size = (self.HEIGHT, self.WIDTH)
+        self.load_user_language()
         self.load_all_kv_files()
         self.configure_screen_manager()
         return self.sm

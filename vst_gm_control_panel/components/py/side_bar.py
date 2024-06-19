@@ -75,7 +75,7 @@ class SideBar(MDNavigationLayout):
         Returns:
         - float: The calculated spacing.
         '''
-        screen_height = self.app.height
+        screen_height = self.app.HEIGHT
         static_expanded_icon_height = (
             self.ids.close_nav_button.height + self.ids.settings_button.height
         )

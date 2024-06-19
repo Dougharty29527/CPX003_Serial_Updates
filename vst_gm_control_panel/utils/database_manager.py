@@ -1,7 +1,6 @@
 '''
-Database Manager
-----------------
-This module is used to manage the application's SQLite3 database.
+Database Manager:
+- This module is used to manage the application's SQLite3 database.
 '''
 
 # Standard imports.
