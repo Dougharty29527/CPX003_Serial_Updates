@@ -32,7 +32,7 @@
 
     MDNavigationDrawer:
         id: open_nav
-        width: '260dp'
+        # width: '260dp'
         #md_bg_color: app.theme_cls.secondaryContainerColor
         radius: 0, '12dp', 0, 0
 
@@ -42,23 +42,12 @@
 
             MDNavigationDrawerHeader:
 
-                # MDLabel:
-                #     text: 'VST'
-                #     font_style: 'Display'
-                #     role: 'small'
-                #     theme_line_height: 'Custom'
-                #     line_height: 0
-                #     adaptive_height: True
-                #     theme_text_color: 'Custom'
-                #     text_color: self.theme_cls.primaryColor
-
                 MDIconButton:
                     id: close_nav_button
                     icon: 'backburger'
                     on_release:
                         self.toggled = False
                         open_nav.set_state('toggle')
-                    pos_hint: {'top': 1}
 
         MDIconButton:
             id: settings_button
