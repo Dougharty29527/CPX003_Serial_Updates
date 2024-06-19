@@ -79,6 +79,16 @@ class ControlPanel(MDApp):
         self.dropdown_menu = DropdownMenu()
         self.sm = ScreenManager(transition=NoTransition())
 
+    def restart_app(self, *args):
+        Clock.schedule_once(self._restart, 0)
+
+    def _restart(self, dt):
+        self.stop()
+        Clock.schedule_once(self._start, 0)
+
+    def _start(self, dt):
+        self.run()
+
     def load_all_kv_files(self) -> None:
         '''
         Purpose:
@@ -124,6 +134,7 @@ class ControlPanel(MDApp):
         '''
         self.language = selected_language
         self.save_user_language()
+        self.restart_app()
 
     def translate(self, key) -> str:
         '''
