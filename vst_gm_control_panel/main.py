@@ -123,8 +123,8 @@ class ControlPanel(MDApp):
         - selected_language: The selected language (str).
         '''
         self.language = selected_language
-        SideBar().update_items()
         self.save_user_language()
+        self.walk_widget_tree(MDApp.get_running_app().root)
 
     def translate(self, key) -> str:
         '''
@@ -145,7 +145,10 @@ class ControlPanel(MDApp):
         if hasattr(widget, 'ids'):
             for key, val in widget.ids.items():
                 if hasattr(val, 'text'):
-                    print(f'{key}: {val.text}')
+                    translated_text = self.translate(key)
+                    if translated_text is not None:
+                        val.text = translated_text
+                        print(f'{key}: {val.text}')
             for child in widget.children:
                 self.walk_widget_tree(child)
 
@@ -174,7 +177,7 @@ class ControlPanel(MDApp):
         self.load_user_language()
         self.load_all_kv_files()
         self.configure_screen_manager()
-        Clock.schedule_once(lambda dt: self.walk_widget_tree(MDApp.get_running_app().root), 0)
+        # Clock.schedule_once(lambda dt: self.walk_widget_tree(MDApp.get_running_app().root), 0)
         return self.sm
 
 
