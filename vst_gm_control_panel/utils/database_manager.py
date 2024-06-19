@@ -11,7 +11,7 @@ import os
 import sqlite3
 
 # Local imports.
-from utils import Logger
+from .logger import Logger
 
 
 class DatabaseManager:
@@ -123,7 +123,11 @@ class DatabaseManager:
             f'SELECT value FROM {self.table_name} WHERE key = ?;',
             (key,)
         )
-        return result if result else default_value
+        if result is None:
+            result = default_value
+            self.add_setting(key, result)
+        print(f'Key: {key}, Value: {result}')
+        return result
 
     def get_all_settings(self, default_value=None):
         ''' Get all settings from the database. '''
@@ -147,7 +151,7 @@ class DatabaseManager:
             (language, key,)
         )
 
-    def get_translation(self, language, key, default_value=None):
+    def translate(self, language, key, default_value=None):
         ''' Get a translation from the database. '''
         result = self.execute_query(
             f'SELECT value FROM {self.table_name} WHERE language = ? AND key = ?;',

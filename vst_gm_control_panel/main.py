@@ -62,9 +62,10 @@ class ControlPanel(MDApp):
     This class is used to configure the main application.
     '''
 
-    lang = StringProperty('EN')
     current_time = StringProperty()
     current_date = StringProperty()
+    _db = DatabaseManager()
+    _translations_db = _db.translations()
     _dir = os.path.dirname(__file__)
     height = 800
     width = 480
@@ -75,7 +76,9 @@ class ControlPanel(MDApp):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.db = DatabaseManager()
+        self.user_db = self._db.user()
+        self.language = self.user_db.get_setting('language', 'EN')
+        print(self.language)
         self.sm = ScreenManager(transition=NoTransition())
 
     def load_all_kv_files(self):
@@ -89,6 +92,10 @@ class ControlPanel(MDApp):
         ''' Configure the screen manager. '''
         for screen_name, screen_class in self.SCREEN_CONFIG.items():
             self.sm.add_widget(screen_class(self, name=screen_name))
+
+    def translate(self, key):
+        ''' Translate the given key. '''
+        return self._translations_db.translate(self.language, key)
 
     def build(self):
         ''' Build the application. '''

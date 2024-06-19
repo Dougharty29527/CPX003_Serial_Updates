@@ -60,9 +60,9 @@ class SideBar(MDNavigationLayout):
         - dict: Configuration for Closed Nav Buttons.
         '''
         return {
-                'main_screen': {'name': 'Main', 'icon': 'home'},
-                'maintenance_screen': {'name': 'Maintenance', 'icon': 'wrench'},
-                'faults_screen': {'name': 'Faults & Alarms', 'icon': 'alert'}
+                'main_screen': {'name': 'main', 'icon': 'home'},
+                'maintenance_screen': {'name': 'maintenance', 'icon': 'wrench'},
+                'faults_screen': {'name': 'faults', 'icon': 'alert'}
             }
 
     def calculate_spacing(self, total_icon_height: float, item_count: int) -> float:
@@ -104,7 +104,9 @@ class SideBar(MDNavigationLayout):
                     icon=icon
                 ),
                 MDNavigationDrawerItemText(
-                    text=name
+                    text=self.app.translate(name),
+                    font_style='Title',
+                    role='medium'
                 ),
                 on_press=lambda _: self.switch_screen(screen_name)
             )
