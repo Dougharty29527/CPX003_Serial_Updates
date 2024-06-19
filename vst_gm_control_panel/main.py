@@ -60,7 +60,7 @@ class ControlPanel(MDApp):
     HEIGHT: int = 800
     WIDTH: int = 480
 
-    SCREEN_CONFIG = Dict[str, Type[MDScreen]] ={
+    SCREEN_CONFIG = {
         'Main': MainScreen
     }
 
@@ -72,7 +72,7 @@ class ControlPanel(MDApp):
         super().__init__(**kwargs)
         self._dir = os.path.dirname(__file__)
         self._logger = Logger(__name__)
-        self.log = self._logger.log
+        self.log = self._logger.log_message
         self._db = DatabaseManager()
         self._translations_db = self._db.translations()
         self._user_db = self._db.user()
