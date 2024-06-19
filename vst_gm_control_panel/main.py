@@ -41,6 +41,9 @@ from kivy.uix.screenmanager import NoTransition, ScreenManager
 from kivymd.app import MDApp
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.screen import MDScreen
+from kivymd.uix.widget import Widget
+
+# Third party imports.
 from materialyoucolor.utils.platform_utils import SCHEMES
 
 
@@ -101,12 +104,26 @@ class ControlPanel(MDApp):
         '''
         self.language = self._user_db.get_setting('language')
 
-    def save_user_language(self) -> None:
+    def save_user_language(self, user_language=None) -> None:
         '''
         Purpose:
         - Save the user's preferred language.
+        Parameters:
+        - user_language (optional): The user's preferred language (str).
         '''
+        if user_language:
+            self.language = user_language
         self._user_db.add_setting('language', self.language)
+
+    def switch_language(self, selected_language) -> None:
+        '''
+        Purpose:
+        - Switch the language and go back to the settings menu.
+        Parameters:
+        - selected_language: The selected language (str).
+        '''
+        self.language = selected_language
+        self.save_user_language()
 
     def translate(self, key) -> str:
         '''
@@ -118,6 +135,18 @@ class ControlPanel(MDApp):
         - str: The translated key.
         '''
         return self._translations_db.translate(self.language, key)
+
+    def walk_widget_tree(self, widget):
+        '''
+        Purpose:
+        - Walk the widget tree.
+        '''
+        if hasattr(widget, 'ids'):
+            for key, val in widget.ids.items():
+                if hasattr(val, 'text'):
+                    print(f'{key}: {val.text}')
+            for child in widget.children:
+                self.walk_widget_tree(child)
 
     def configure_application(self) -> None:
         '''
@@ -144,6 +173,7 @@ class ControlPanel(MDApp):
         self.load_user_language()
         self.load_all_kv_files()
         self.configure_screen_manager()
+        Clock.schedule_once(lambda dt: self.walk_widget_tree(MDApp.get_running_app().root), 0)
         return self.sm
 
 

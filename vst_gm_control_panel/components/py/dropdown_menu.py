@@ -75,7 +75,7 @@ class DropdownMenu(MDDropdownMenu):
         - menu_button: The button that triggered the menu (MDFloatingActionButton).
         '''
         print(f'Switching to {selected_language}')
-        self.app.language = selected_language
+        self.app.switch_language(selected_language)
 
     def switch_palette(self, selected_palette) -> None:
         '''
