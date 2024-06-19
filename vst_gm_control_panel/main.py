@@ -45,7 +45,7 @@ from materialyoucolor.utils.platform_utils import SCHEMES
 
 
 # Local imports.
-from components import SettingsMenu, SideBar
+from components import DropdownMenu, SideBar
 from utils import DatabaseManager, Logger
 from views import MainScreen
 
@@ -73,7 +73,7 @@ class ControlPanel(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._dir = os.path.dirname(__file__)
-        self.settings = SettingsMenu()
+        self.dropdown_menu = DropdownMenu()
         self.sm = ScreenManager(transition=NoTransition())
 
     def load_all_kv_files(self) -> None:

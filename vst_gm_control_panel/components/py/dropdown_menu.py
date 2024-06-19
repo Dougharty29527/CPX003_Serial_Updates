@@ -1,5 +1,5 @@
 '''
-Settings Menu Component.
+Menu Component.
 '''
 
 # Kivy imports.
@@ -11,7 +11,7 @@ from kivy.utils import hex_colormap
 from materialyoucolor.utils.platform_utils import SCHEMES
 
 
-class SettingsMenu(MDDropdownMenu):
+class DropdownMenu(MDDropdownMenu):
     '''
     SettingsMenu:
     - Class to set up the settings menu.
@@ -39,7 +39,7 @@ class SettingsMenu(MDDropdownMenu):
         )
         self.menu.open()
 
-    def dismiss_current_menu(self) -> None:
+    def dismiss_current_menu(self, *args) -> None:
         '''
         Purpose:
         - Dismiss the current menu.
@@ -52,7 +52,7 @@ class SettingsMenu(MDDropdownMenu):
             {'text': 'Set Palette', 'on_release': self.set_palette},
             {'text': 'Set Language', 'on_release': self.set_language},
             {'text': 'Switch Theme', 'on_release': self.switch_theme},
-            {'text': 'Close', 'on_release': lambda: self.dismiss_current_menu(self.settings)}        
+            {'text': 'Close', 'on_release': lambda: self.dismiss_current_menu(self.menu)}        
         ]
         self.open_menu(menu_button, settings_menu)
     
