@@ -7,6 +7,9 @@ from kivymd.app import MDApp
 from kivymd.uix.menu import MDDropdownMenu
 from kivy.utils import hex_colormap
 
+# Third party imports.
+from materialyoucolor.utils.platform_utils import SCHEMES
+
 
 class SettingsMenu(MDDropdownMenu):
     '''
@@ -14,12 +17,10 @@ class SettingsMenu(MDDropdownMenu):
     - Class to set up the settings menu.
     '''
 
-    app = None
-    settings: MDDropdownMenu = None
-    languages: MDDropdownMenu = None
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        app = None
+        self.menu = None
 
     def on_kv_post(self, base_widget):
         '''
@@ -27,51 +28,45 @@ class SettingsMenu(MDDropdownMenu):
         '''
         self.app = MDApp.get_running_app()
 
+    def open_menu(self, menu_button, items) -> None:
+        self.dismiss_current_menu()
+        menu_items = []
+        for item in items:
+            menu_items.append(item)
+        self.menu = MDDropdownMenu(
+            caller=menu_button,
+            items=menu_items,
+        )
+        self.menu.open()
+
+    def dismiss_current_menu(self) -> None:
+        '''
+        Purpose:
+        - Dismiss the current menu.
+        '''
+        if self.menu:
+            self.menu.dismiss()
+
     def settings_menu(self, menu_button) -> None:
-        '''
-        Purpose:
-        - Open the settings menu.
-        Parameters:
-        - menu_button: The button that triggered the menu (MDFloatingActionButton).
-        '''
-        menu_items = [
+        settings_menu = [
             {'text': 'Set Palette', 'on_release': self.set_palette},
+            {'text': 'Set Language', 'on_release': self.set_language},
             {'text': 'Switch Theme', 'on_release': self.switch_theme},
-            {'text': 'Switch Language', 'on_release': lambda: self.select_language(menu_button)},
-            {'text': 'Close', 'on_release': lambda: self.dismiss_current_menu(self.settings)},
+            {'text': 'Close', 'on_release': lambda: self.dismiss_current_menu(self.settings)}        
         ]
-
-        if self.settings:
-            self.settings.dismiss()
-        self.settings = MDDropdownMenu(
-            caller=menu_button,
-            items=menu_items,
-        )
-        self.settings.open()
-
-    def select_language(self, menu_button) -> None:
+        self.open_menu(menu_button, settings_menu)
+    
+    def switch_theme(self) -> None:
         '''
         Purpose:
-        - Open the language selection menu.
-        Parameters:
-        - menu_button: The button that triggered the menu (MDFloatingActionButton).
+        - Switch the theme of the application.
         '''
-        if self.settings:
-            self.settings.dismiss()  # Close the current menu if it exists
-        menu_items = [
-            {'text': 'Back', 'on_release': lambda: self.go_back_to_settings_menu(menu_button)},
-            {'text': 'English', 'on_release': lambda: self.switch_language_and_go_back('EN', menu_button)},
-            {'text': 'Español', 'on_release': lambda: self.switch_language_and_go_back('ES', menu_button)},
-        ]
-        if self.languages:
-            self.languages.dismiss()
-        self.languages = MDDropdownMenu(
-            caller=menu_button,
-            items=menu_items,
-        )
-        self.languages.open()
+        if self.app.theme_cls.theme_style == 'Light':
+            self.app.theme_cls.theme_style = 'Dark'
+        else:
+            self.app.theme_cls.theme_style = 'Light'
 
-    def switch_language_and_go_back(self, language, menu_button) -> None:
+    def switch_language(self, selected_language) -> None:
         '''
         Purpose:
         - Switch the language and go back to the settings menu.
@@ -79,46 +74,8 @@ class SettingsMenu(MDDropdownMenu):
         - language: The selected language (str).
         - menu_button: The button that triggered the menu (MDFloatingActionButton).
         '''
-        self.on_lang(language)
-        if self.languages:
-            self.languages.dismiss()
-        self.settings_menu(menu_button)
-
-    def on_lang(self, language) -> None:
-        '''
-        Purpose:
-        - Switch the language.
-        Parameters:
-        - language: The selected language (str).
-        '''
-        for widget in self.walk():
-            if hasattr(widget, 'text'):
-                widget.text = self.translate(widget.text)
-        if language:
-            self.lang = language
-            self.save_user_language_setting()
-            self.get_datetime()
-
-    def go_back_to_settings_menu(self, menu_button) -> None:
-        '''
-        Purpose:
-        - Go back to the settings menu.
-        Parameters:
-        - menu_button: The button that triggered the menu (MDFloatingActionButton).
-        '''
-        if self.languages:
-            self.languages.dismiss()
-        self.settings_menu(menu_button)
-
-    def dismiss_current_menu(self, menu) -> None:
-        '''
-        Purpose:
-        - Dismiss the current menu.
-        Parameters:
-        - menu: The menu to dismiss (MDDropdownMenu).
-        '''
-        if menu:
-            menu.dismiss()
+        print(f'Switching to {selected_language}')
+        self.app.language = selected_language
 
     def switch_palette(self, selected_palette) -> None:
         '''
@@ -127,14 +84,7 @@ class SettingsMenu(MDDropdownMenu):
         Parameters:
         - selected_palette: The selected palette (str).
         '''
-        self.theme_cls.primary_palette = selected_palette
-    
-    def switch_theme(self) -> None:
-        '''
-        Purpose:
-        - Switch the theme of the application.
-        '''
-        self.theme_cls.theme_style = 'Dark' if self.theme_cls.theme_style == 'Light' else 'Light'
+        self.app.theme_cls.primary_palette = selected_palette
 
     def set_palette(self) -> None:
         '''
@@ -146,7 +96,32 @@ class SettingsMenu(MDDropdownMenu):
             name_color.capitalize() for name_color in hex_colormap.keys()
         ]
 
-        menu_items = [{'text': name_palette, 'on_release': lambda x=name_palette: self.switch_palette(x)} for name_palette in available_palettes]
+        menu_items = [
+            {
+                'text': name_palette,
+                'on_release': lambda x=name_palette: self.switch_palette(x)
+            } for name_palette in available_palettes]
+        MDDropdownMenu(
+            caller=instance_from_menu,
+            items=menu_items,
+        ).open()
+
+    def set_language(self) -> None:
+        '''
+        Purpose:
+        - Set the language of the application.
+        '''
+        instance_from_menu = self.get_instance_from_menu('Set Language')
+        available_languages = {
+            'EN': 'English',
+            'ES': 'Español'
+        }
+        menu_items = [
+            {
+                'text': language_name,
+                'on_release': lambda x=language_code: self.switch_language(x)
+            } for language_code, language_name in available_languages.items()
+        ]
         MDDropdownMenu(
             caller=instance_from_menu,
             items=menu_items,
@@ -161,6 +136,6 @@ class SettingsMenu(MDDropdownMenu):
         Returns:
         - The instance from the menu.
         '''
-        rv = self.settings.ids.md_menu
+        rv = self.menu.ids.md_menu
         index = next(i for i, data in enumerate(rv.data) if data['text'] == name_item)
         return rv.view_adapter.get_view(index, rv.data[0], rv.layout_manager.view_opts[index]['viewclass'])
