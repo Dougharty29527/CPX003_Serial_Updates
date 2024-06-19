@@ -6,7 +6,7 @@ Side Bar Python Component for handling dynamic changes.
 from typing import List, Optional, Union
 
 # Kivy imports.
-from kivy.app import App
+from kivymd.app import MDApp
 from kivy.metrics import dp
 from kivy.properties import BooleanProperty
 from kivymd.uix.button import MDIconButton
@@ -35,7 +35,7 @@ class SideBar(MDNavigationLayout):
         '''
         Initialize the SideBar.
         '''
-        self.app = App.get_running_app()
+        self.app = MDApp.get_running_app()
         self.sidebar_append()
 
     def switch_screen(self, screen_name: Optional[str] = None) -> None:

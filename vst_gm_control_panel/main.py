@@ -38,7 +38,6 @@ from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.properties import BooleanProperty, StringProperty
 from kivy.uix.screenmanager import NoTransition, ScreenManager
-from kivy.utils import hex_colormap
 from kivymd.app import MDApp
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.screen import MDScreen
@@ -46,7 +45,7 @@ from materialyoucolor.utils.platform_utils import SCHEMES
 
 
 # Local imports.
-from components import SideBar
+from components import SettingsMenu, SideBar
 from utils import DatabaseManager, Logger
 from views import MainScreen
 
@@ -68,14 +67,13 @@ class ControlPanel(MDApp):
     current_time = StringProperty()
     current_date = StringProperty()
 
+    _logger = Logger(__name__)
+    _db = DatabaseManager()
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._dir = os.path.dirname(__file__)
-        self._logger = Logger(__name__)
-        self.log = self._logger.log_message
-        self._db = DatabaseManager()
-        self._translations_db = self._db.translations()
-        self._user_db = self._db.user()
+        self.settings = SettingsMenu()
         self.sm = ScreenManager(transition=NoTransition())
 
     def load_all_kv_files(self) -> None:
@@ -109,7 +107,6 @@ class ControlPanel(MDApp):
         - Save the user's preferred language.
         '''
         self._user_db.add_setting('language', self.language)
-        
 
     def translate(self, key) -> str:
         '''
@@ -122,6 +119,17 @@ class ControlPanel(MDApp):
         '''
         return self._translations_db.translate(self.language, key)
 
+    def configure_application(self) -> None:
+        '''
+        Purpose:
+        - Configure the application.
+        '''
+        self.title = 'VST: Green Machine Control Panel'
+        self.icon = os.path.join(self._dir, 'assets', 'images', 'vst_light.png')
+        self.theme_cls.primary_palette = 'Steelblue'
+        self.theme_cls.theme_style = 'Dark'
+        Window.size = (self.HEIGHT, self.WIDTH)
+
     def build(self) -> ScreenManager:
         '''
         Purpose:
@@ -129,16 +137,15 @@ class ControlPanel(MDApp):
         Returns:
         - ScreenManager: The main application.
         '''
-        self.title = 'VST: Green Machine Control Panel'
-        self.icon = os.path.join(self._dir, 'assets', 'images', 'vst_dark.png')
-        self.theme_cls.primary_palette = 'Steelblue'
-        self.theme_cls.theme_style = 'Dark'
-        Window.size = (self.HEIGHT, self.WIDTH)
+        self.log = self._logger.log_message
+        self._translations_db = self._db.translations()
+        self._user_db = self._db.user()
+        self.configure_application()
         self.load_user_language()
         self.load_all_kv_files()
         self.configure_screen_manager()
         return self.sm
-        
+
 
 if __name__ == '__main__':
     ControlPanel().run()
