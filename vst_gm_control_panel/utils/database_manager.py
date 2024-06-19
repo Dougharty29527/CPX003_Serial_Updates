@@ -68,7 +68,14 @@ class DatabaseManager:
             raise
 
     def close_connection(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
-        ''' Close the connection to the database. '''
+        '''
+        Purpose:
+        - Close the connection to the database.
+        Parameters:
+        - exc_type: The exception type (Any).
+        - exc_value: The exception value (Any).
+        - traceback: The traceback (Any).
+        '''
         if self.conn:
             if exc_type or exc_value or traceback:
                 self.conn.rollback()
@@ -80,8 +87,24 @@ class DatabaseManager:
             except sqlite3.DatabaseError as e:
                 self.log('error', f'Error closing database connection: {e}')
 
-    def execute_query(self, query: str, params: Tuple =(), fetchall: bool =False, default_value: Any =None) -> Union[Dict, Any]:
-        ''' Execute a query on the database. '''
+    def execute_query(
+        self,
+        query: str,
+        params: Tuple =(),
+        fetchall: bool = False,
+        default_value: Any = None
+    ) -> Union[Dict, Any]:
+        '''
+        Purpose:
+        - Execute a query on the database.
+        Parameters:
+        - query: The query to execute (str).
+        - params: The parameters for the query (Tuple).
+        - fetchall: Whether to fetch all results or not (bool).
+        - default_value: The default value to return if no results are found (Any).
+        Returns:
+        - Dict or Any: The results of the query.
+        '''
         try:
             with self as cursor:
                 cursor.execute(query, params)
@@ -95,28 +118,50 @@ class DatabaseManager:
             raise
 
     def create_table_if_not_exists(self) -> None:
-        ''' Create the table if it does not exist. '''
+        '''
+        Purpose:
+        - Create the table if it does not exist.
+        '''
         self.execute_query(
-            f'''CREATE TABLE IF NOT EXISTS {self.table_name} 
+            f'''CREATE TABLE IF NOT EXISTS {self.table_name}
             (id INTEGER PRIMARY KEY, key TEXT UNIQUE, value TEXT);'''
         )
 
     def add_setting(self, key: str, value: str) -> None:
-        ''' Add a setting to the database. '''
+        '''
+        Purpose:
+        - Add a setting to the database.
+        Parameters:
+        - key: The key for the setting (str).
+        - value: The value for the setting (str).
+        '''
         self.execute_query(
             f'INSERT OR REPLACE INTO {self.table_name} (key, value) VALUES (?, ?);',
             (key, value)
         )
 
     def remove_setting(self, key: str) -> None:
-        ''' Remove a setting from the database. '''
+        '''
+        Purpose:
+        - Remove a setting from the database.
+        Parameters:
+        - key: The key for the setting (str).
+        '''
         self.execute_query(
             f'DELETE FROM {self.table_name} WHERE key = ?;',
             (key,)
         )
 
     def get_setting(self, key: str, default_value: Any =None) -> Any:
-        ''' Get a setting from the database. '''
+        '''
+        Purpose:
+        - Get a setting from the database.
+        Parameters:
+        - key: The key for the setting (str).
+        - default_value: The default value to return if no results are found (Any).
+        Returns:
+        - Any: The value of the setting.
+        '''
         result = self.execute_query(
             f'SELECT value FROM {self.table_name} WHERE key = ?;',
             (key,)
@@ -128,7 +173,14 @@ class DatabaseManager:
         return result
 
     def get_all_settings(self, default_value: Any =None) -> Union[Dict, Any]:
-        ''' Get all settings from the database. '''
+        '''
+        Purpose:
+        - Get all settings from the database.
+        Parameters:
+        - default_value: The default value to return if no results are found (Any).
+        Returns:
+        - Dict or Any: The results of the query.
+        '''
         results = self.execute_query(
             f'SELECT key, value FROM {self.table_name};',
             fetchall=True
@@ -136,21 +188,43 @@ class DatabaseManager:
         return results if results else default_value
 
     def add_translation(self, language: str, key: str, value: str) -> None:
-        ''' Add a translation to the database. '''
+        '''
+        Purpose:
+        - Add a translation to the database.
+        Parameters:
+        - language: The language for the translation (str).
+        - key: The key for the translation (str).
+        - value: The value for the translation (str).
+        '''
         self.execute_query(
             f'INSERT OR REPLACE INTO {self.table_name} (language, key, value) VALUES (?, ?, ?);',
             (language, key, value)
         )
 
     def remove_translation(self, language: str, key: str) -> None:
-        ''' Remove a translation from the database. '''
+        '''
+        Purpose:
+        - Remove a translation from the database.
+        Parameters:
+        - language: The language for the translation (str).
+        - key: The key for the translation (str).
+        '''
         self.execute_query(
             f'DELETE FROM {self.table_name} WHERE language = ? AND key = ?;',
             (language, key,)
         )
 
     def translate(self, language: str, key: str, default_value: Any =None) -> Any:
-        ''' Get a translation from the database. '''
+        '''
+        Purpose:
+        - Translate a key.
+        Parameters:
+        - language: The language for the translation (str).
+        - key: The key for the translation (str).
+        - default_value: The default value to return if no results are found (Any).
+        Returns:
+        - Any: The value of the translation.
+        '''
         result = self.execute_query(
             f'SELECT value FROM {self.table_name} WHERE language = ? AND key = ?;',
             (language, key,)
@@ -158,7 +232,15 @@ class DatabaseManager:
         return result if result else default_value
 
     def load_translations(self, language: str, default_value: Any =None) -> Union[Dict, Any]:
-        ''' Get all translations for a language from the database. '''
+        '''
+        Purpose:
+        - Load all translations for a language.
+        Parameters:
+        - language: The language for the translations (str).
+        - default_value: The default value to return if no results are found (Any).
+        Returns:
+        - Dict or Any: The results of the query.
+        '''
         results = self.execute_query(
             f'SELECT key, value FROM {self.table_name} WHERE language = ?;',
             (language,),
