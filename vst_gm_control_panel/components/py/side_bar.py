@@ -3,7 +3,7 @@ Side Bar Python Component for handling dynamic changes.
 '''
 
 # Standard imports.
-from typing import List, Optional
+from typing import List, Optional, Union
 
 # Kivy imports.
 from kivy.app import App
@@ -62,11 +62,19 @@ class SideBar(MDNavigationLayout):
         return {
                 'main_screen': {'name': 'Main', 'icon': 'home'},
                 'maintenance_screen': {'name': 'Maintenance', 'icon': 'wrench'},
-                'faults_screen': {'name': 'Faults', 'icon': 'alert'},
-                'test_screen': {'name': 'Test', 'icon': 'test-tube'}
+                'faults_screen': {'name': 'Faults & Alarms', 'icon': 'alert'}
             }
 
-    def calculate_spacing(self, total_icon_height, item_count) -> float:
+    def calculate_spacing(self, total_icon_height: float, item_count: int) -> float:
+        '''
+        Purpose:
+        - Calculate the spacing between the icons in the navigation bar.
+        Parameters:
+        - total_icon_height: The total height of all the icons (float).
+        - item_count: The number of items in the navigation bar (int).
+        Returns:
+        - float: The calculated spacing.
+        '''
         screen_height = self.app.height
         static_expanded_icon_height = (
             self.ids.close_nav_button.height + self.ids.settings_button.height
@@ -74,16 +82,29 @@ class SideBar(MDNavigationLayout):
         remaining_space = screen_height - total_icon_height
         return remaining_space / item_count / 2
 
-    def create_button(self, screen_name, icon, name, expanded=False):
+    def create_button(
+        self, screen_name: str,
+        icon: str, name: str,
+        expanded: bool =False
+    ) -> Union[MDNavigationDrawerItem, MDIconButton]:
+        '''
+        Purpose:
+        - Create a button for the navigation bar.
+        Parameters:
+        - screen_name: The name of the screen that the button will switch to (str).
+        - icon: The icon for the button (str).
+        - name: The name of the button (str).
+        - expanded: Whether the button is expanded or not (bool).
+        Returns:
+        - MDNavigationDrawerItem or MDIconButton: The created button.
+        '''
         if expanded:
             return MDNavigationDrawerItem(
                 MDNavigationDrawerItemLeadingIcon(
                     icon=icon
                 ),
                 MDNavigationDrawerItemText(
-                    text=name,
-                    font_style='Title',
-                    role='medium'
+                    text=name
                 ),
                 on_press=lambda _: self.switch_screen(screen_name)
             )
@@ -91,10 +112,10 @@ class SideBar(MDNavigationLayout):
             return MDIconButton(icon=icon, on_release=lambda _: self.switch_screen(screen_name))
         
 
-    def sidebar_append(self):
+    def sidebar_append(self) -> None:
         '''
         Purpose:
-        - Iterates over the configuration dictionary and creates buttons for the sidebar.
+        - Append buttons to the navigation bar.
         '''
         expanded_item_total = 0
         new_icon_height = 0
@@ -108,5 +129,6 @@ class SideBar(MDNavigationLayout):
             self.ids.closed_nav.add_widget(collapsed_items)
             self.ids.open_nav_drawer.add_widget(expanded_items)
 
-        new_expanded_padding = self.calculate_spacing(expanded_icons_height, expanded_item_total)
-        self.ids.open_nav_drawer.spacing = new_expanded_padding
+        new_expanded_spacing = self.calculate_spacing(expanded_icons_height, expanded_item_total)
+        self.ids.open_nav_drawer.spacing = new_expanded_spacing
+
