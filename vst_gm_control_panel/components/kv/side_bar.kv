@@ -39,6 +39,7 @@
         MDNavigationDrawerMenu:
             id: open_nav_drawer
             padding: '8dp', 0, 0, 0
+            spacing: '77.33'
 
             MDNavigationDrawerHeader:
 
@@ -48,6 +49,39 @@
                     on_release:
                         self.toggled = False
                         open_nav.set_state('toggle')
+
+            MDNavigationDrawerItem:
+
+                MDNavigationDrawerItemLeadingIcon:
+                    icon: 'home'
+
+                MDNavigationDrawerItemText:
+                    id: main
+                    text: 'Main'
+                    font_style: 'Title'
+                    role: 'medium'
+
+            MDNavigationDrawerItem:
+
+                MDNavigationDrawerItemLeadingIcon:
+                    icon: 'wrench'
+
+                MDNavigationDrawerItemText:
+                    id: maintenance
+                    text: 'Maintenance'
+                    font_style: 'Title'
+                    role: 'medium'
+
+            MDNavigationDrawerItem:
+
+                MDNavigationDrawerItemLeadingIcon:
+                    icon: 'alert'
+
+                MDNavigationDrawerItemText:
+                    id: main
+                    text: 'Faults & Alarms'
+                    font_style: 'Title'
+                    role: 'medium'
 
         MDIconButton:
             id: settings_button

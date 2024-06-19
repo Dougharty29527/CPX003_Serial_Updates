@@ -8,7 +8,7 @@ from typing import List, Optional, Union
 # Kivy imports.
 from kivymd.app import MDApp
 from kivy.metrics import dp
-from kivy.properties import BooleanProperty
+from kivy.properties import BooleanProperty, DictProperty, ListProperty, StringProperty
 from kivymd.uix.button import MDIconButton
 from kivymd.uix.navigationdrawer import (
     MDNavigationLayout,
@@ -36,7 +36,6 @@ class SideBar(MDNavigationLayout):
         Initialize the SideBar.
         '''
         self.app = MDApp.get_running_app()
-        self.sidebar_append()
 
     def switch_screen(self, screen_name: Optional[str] = None) -> None:
         '''
@@ -99,7 +98,7 @@ class SideBar(MDNavigationLayout):
         - MDNavigationDrawerItem or MDIconButton: The created button.
         '''
         if expanded:
-            return MDNavigationDrawerItem(
+            button = MDNavigationDrawerItem(
                 MDNavigationDrawerItemLeadingIcon(
                     icon=icon
                 ),
@@ -111,7 +110,8 @@ class SideBar(MDNavigationLayout):
                 on_press=lambda _: self.switch_screen(screen_name)
             )
         else:
-            return MDIconButton(icon=icon, on_release=lambda _: self.switch_screen(screen_name))
+            button = MDIconButton(icon=icon, on_release=lambda _: self.switch_screen(screen_name))
+        return button
         
 
     def sidebar_append(self) -> None:
@@ -133,4 +133,4 @@ class SideBar(MDNavigationLayout):
 
         new_expanded_spacing = self.calculate_spacing(expanded_icons_height, expanded_item_total)
         self.ids.open_nav_drawer.spacing = new_expanded_spacing
-
+        print(f'Expanded Spacing: {dp(new_expanded_spacing)}')
