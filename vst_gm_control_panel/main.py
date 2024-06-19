@@ -64,9 +64,11 @@ class ControlPanel(MDApp):
 
     current_time = StringProperty()
     current_date = StringProperty()
+    _dir = os.path.dirname(__file__)
+    _logger = Logger(__name__)
     _db = DatabaseManager()
     _translations_db = _db.translations()
-    _dir = os.path.dirname(__file__)
+    _user_db = _db.user()
     height = 800
     width = 480
 
@@ -76,9 +78,7 @@ class ControlPanel(MDApp):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.user_db = self._db.user()
-        self.language = self.user_db.get_setting('language', 'EN')
-        print(self.language)
+        self.language = self._user_db.get_setting('language', 'EN')
         self.sm = ScreenManager(transition=NoTransition())
 
     def load_all_kv_files(self):
