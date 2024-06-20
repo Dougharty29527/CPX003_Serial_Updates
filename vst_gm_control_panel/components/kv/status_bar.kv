@@ -1,3 +1,64 @@
 #:kivy 2.3.0
 
 <StatusBar>:
+    md_bg_color: self.theme_cls.primaryContainerColor
+    orientation: 'vertical'
+    pos_hint: {'center_x': .5, 'center_y': .5}
+    adaptive_size: True
+    radius: '8dp'
+    spacing: '3dp'
+    padding: '10dp'
+
+    MDBoxLayout:
+        adaptive_size: True
+        orientation: 'horizontal'
+        pos_hint: {'center_x': .5}
+
+        MDButton:
+            style: 'text'
+            disabled: True
+
+            MDButtonText:
+                id: gm_status
+                text: 'GREEN MACHINE STATUS'
+                font_style: 'Title'
+                role: 'large'
+                theme_disabled_color: 'Custom'
+                disabled_color: app.theme_cls.onPrimaryContainerColor
+
+    MDBoxLayout:
+        adaptive_size: True
+        orientation: 'horizontal'
+        pos_hint: {'center_x': .5}
+
+        MDButton:
+            style: 'text'
+            disabled: True
+
+            MDButtonText:
+                id: gm_idle
+                text: 'IDLE'
+                font_style: 'Display'
+                theme_font_size: 'Custom'
+                font_size: '42sp'
+                theme_disabled_color: 'Custom'
+                disabled_color: app.theme_cls.onPrimaryContainerColor
+
+    MDBoxLayout:
+        adaptive_size: True
+        orientation: 'horizontal'
+        pos_hint: {'center_x': .5}
+
+        MDButton:
+            style: 'text'
+            disabled: True
+
+            MDButtonText:
+                id: recent
+                text: 'No recent notifications'
+                font_style: 'Title'
+                role: 'small'
+                theme_disabled_color: 'Custom'
+                theme_text_color: 'Custom'
+                text_color: self.theme_cls.secondaryColor
+

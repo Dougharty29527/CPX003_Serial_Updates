@@ -27,6 +27,8 @@
             role: 'large'
             halign: 'center'
             text_color: self.theme_cls.onPrimaryContainerColor
+            padding: 0, '50dp', 0, 0
+            pos_hint: {'center_y': .5}
 
     MDBoxLayout:
         size_hint_x: .17
@@ -39,12 +41,13 @@
             style: 'Title'
             role: 'small'
             halign: 'center'
-            padding: 0
+            padding: 0, 0, 0, '5dp'
 
         MDLabel:
             text: app.current_time
             text_color: self.theme_cls.onPrimaryContainerColor
             style: 'Display'
-            role: 'large'
+            theme_font_size: 'Custom'
+            font_size: '27sp'
             halign: 'center'
             padding: 0

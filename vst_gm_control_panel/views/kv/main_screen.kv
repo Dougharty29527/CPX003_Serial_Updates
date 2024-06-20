@@ -7,11 +7,16 @@
         id: title
         screen_title: 'MAIN'
 
+
     MDBoxLayout:
         adaptive_size: True
         orientation: 'vertical'
         pos_hint: {'center_x': .5, 'center_y': .5}
         spacing: '30dp'
+
+        MDBoxLayout:
+            size_hint_y: None
+            height: '55dp'
 
         MDBoxLayout:
             adaptive_size: True
@@ -40,6 +45,7 @@
                     role: 'small'
                     theme_disabled_color: 'Custom'
                     disabled_color: app.theme_cls.onPrimaryContainerColor
+                    padding: [0] if app.language == 'EN' else ['72dp', 0, 0, 0]
 
         MDBoxLayout:
             adaptive_size: True
@@ -68,6 +74,10 @@
                     role: 'small'
                     theme_disabled_color: 'Custom'
                     disabled_color: app.theme_cls.onPrimaryContainerColor
-                    padding: '122dp', 0, 0, 0
+                    padding: ['122dp', 0, 0, 0] if app.language == 'EN' else [0]
+
+        Widget:
+
+        StatusBar:
 
     SideBar:
