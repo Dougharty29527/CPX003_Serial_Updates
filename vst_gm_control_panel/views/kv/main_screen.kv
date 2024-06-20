@@ -7,4 +7,67 @@
         id: title
         screen_title: 'MAIN'
 
+    MDBoxLayout:
+        adaptive_size: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        spacing: '30dp'
+
+        MDBoxLayout:
+            adaptive_size: True
+            orientation: 'horizontal'
+
+            MDButton:
+                style: 'text'
+                disabled: True
+
+                MDButtonText:
+                    id: pressure
+                    text: 'UST PRESSURE:'
+                    font_style: 'Headline'
+                    role: 'large'
+                    theme_disabled_color: 'Custom'
+                    disabled_color: app.theme_cls.onPrimaryContainerColor
+
+            MDButton:
+                style: 'text'
+                disabled: True
+
+                MDButtonText:
+                    id: current_pressure
+                    text: '0'
+                    font_style: 'Display'
+                    role: 'small'
+                    theme_disabled_color: 'Custom'
+                    disabled_color: app.theme_cls.onPrimaryContainerColor
+
+        MDBoxLayout:
+            adaptive_size: True
+            orientation: 'horizontal'
+
+            MDButton:
+                style: 'text'
+                disabled: True
+
+                MDButtonText:
+                    id: run_cycles
+                    text: 'RUN CYCLES:'
+                    font_style: 'Headline'
+                    role: 'large'
+                    theme_disabled_color: 'Custom'
+                    disabled_color: app.theme_cls.onPrimaryContainerColor
+
+            MDButton:
+                style: 'text'
+                disabled: True
+
+                MDButtonText:
+                    id: current_cycle_count
+                    text: '0'
+                    font_style: 'Display'
+                    role: 'small'
+                    theme_disabled_color: 'Custom'
+                    disabled_color: app.theme_cls.onPrimaryContainerColor
+                    padding: '122dp', 0, 0, 0
+
     SideBar:

@@ -48,7 +48,12 @@ from materialyoucolor.utils.platform_utils import SCHEMES
 
 
 # Local imports.
-from components import DropdownMenu, SideBar, TopBar
+from components import (
+    DropdownMenu,
+    SideBar,
+    StatusBar,
+    TopBar
+)
 from utils import DatabaseManager, Logger
 from views import MainScreen
 
@@ -154,7 +159,7 @@ class ControlPanel(MDApp):
                 if hasattr(val, 'text'):
                     translated_text = self.translate(key)
                     if translated_text is not None:
-                        val.text = translated_text
+                        val.text = translated_text.upper()
                         print(f'{key}: {val.text}')
                 if key == 'title':
                     screen = self.sm.current.lower()

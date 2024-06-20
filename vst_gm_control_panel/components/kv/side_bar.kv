@@ -14,7 +14,7 @@
                     size_hint_x: None
                     adaptive_height: True
                     # md_bg_color: app.theme_cls.secondaryContainerColor
-                    md_bg_color: app.theme_cls.surfaceContainerLowColor
+                    md_bg_color: app.theme_cls.primaryContainerColor
                     width: '50dp'
                     orientation: 'vertical'
                     pos_hint: {'center_y': .5}
@@ -25,15 +25,26 @@
                     MDIconButton:
                         id: open_nav_button
                         icon: 'menu-close'
+                        theme_icon_color: 'Custom'
+                        icon_color: app.theme_cls.onPrimaryContainerColor
                         on_release:
                             self.toggled = True
                             open_nav.set_state('toggle')
+
+                    MDIconButton:
+                        icon: 'home'
+
+                    MDIconButton:
+                        icon: 'wrench'
+
+                    MDIconButton:
+                        icon: 'alert'
 
 
     MDNavigationDrawer:
         id: open_nav
         # width: '260dp'
-        #md_bg_color: app.theme_cls.secondaryContainerColor
+        md_bg_color: app.theme_cls.primaryContainerColor
         radius: 0, '12dp', 0, 0
 
         MDNavigationDrawerMenu:
@@ -46,45 +57,64 @@
                 MDIconButton:
                     id: close_nav_button
                     icon: 'backburger'
+                    theme_icon_color: 'Custom'
+                    icon_color: app.theme_cls.onPrimaryContainerColor
                     on_release:
                         self.toggled = False
                         open_nav.set_state('toggle')
 
             MDNavigationDrawerItem:
+                md_bg_color: app.theme_cls.primaryContainerColor
 
                 MDNavigationDrawerItemLeadingIcon:
                     icon: 'home'
+                    theme_icon_color: 'Custom'
+                    icon_color: app.theme_cls.onPrimaryContainerColor
 
                 MDNavigationDrawerItemText:
                     id: main
                     text: 'Main'
                     font_style: 'Title'
                     role: 'medium'
+                    theme_text_color: 'Custom'
+                    text_color: app.theme_cls.onPrimaryContainerColor
 
             MDNavigationDrawerItem:
+                md_bg_color: app.theme_cls.primaryContainerColor
 
                 MDNavigationDrawerItemLeadingIcon:
                     icon: 'wrench'
+                    theme_icon_color: 'Custom'
+                    icon_color: app.theme_cls.onPrimaryContainerColor
 
                 MDNavigationDrawerItemText:
                     id: maintenance
                     text: 'Maintenance'
                     font_style: 'Title'
                     role: 'medium'
+                    theme_text_color: 'Custom'
+                    text_color: app.theme_cls.onPrimaryContainerColor
 
             MDNavigationDrawerItem:
+                md_bg_color: app.theme_cls.primaryContainerColor
 
                 MDNavigationDrawerItemLeadingIcon:
                     icon: 'alert'
+                    theme_icon_color: 'Custom'
+                    icon_color: app.theme_cls.onPrimaryContainerColor
 
                 MDNavigationDrawerItemText:
                     id: faults
                     text: 'Faults & Alarms'
                     font_style: 'Title'
                     role: 'medium'
+                    theme_text_color: 'Custom'
+                    text_color: app.theme_cls.onPrimaryContainerColor
 
         MDIconButton:
             id: settings_button
             icon: 'account-cog'
             pos_hint: {'bottom': 1, 'right': 1}
+            theme_icon_color: 'Custom'
+            icon_color: app.theme_cls.onPrimaryContainerColor
             on_press: app.dropdown_menu.settings_menu(self)

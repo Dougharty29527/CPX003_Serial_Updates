@@ -1,8 +1,10 @@
+#:kivy 2.3.0
+
 <TopBar>:
     md_bg_color: self.theme_cls.primaryContainerColor
     size_hint_y: None
     pos_hint: {'top': 1}
-    height: '60dp'
+    height: '62dp'
     padding: '12dp', 0, '12dp', 0
     screen_title: ''
 
@@ -12,7 +14,7 @@
         Image:
             source: 'assets/images/vst_light.png' if app.theme_cls.theme_style == 'Dark' else 'assets/images/vst_dark.png'
             size_hint: None, None
-            size: '60dp', '40dp'
+            size: '67dp', '47dp'
             pos_hint: {'center_y': .5}
 
     MDBoxLayout:
@@ -22,7 +24,7 @@
         MDLabel:
             text: root.screen_title
             font_style: 'Headline'
-            role: 'medium'
+            role: 'large'
             halign: 'center'
             text_color: self.theme_cls.onPrimaryContainerColor
 
@@ -35,14 +37,14 @@
             text: app.current_date
             text_color: self.theme_cls.onPrimaryContainerColor
             style: 'Title'
-            role: 'medium'
+            role: 'small'
             halign: 'center'
             padding: 0
 
         MDLabel:
             text: app.current_time
             text_color: self.theme_cls.onPrimaryContainerColor
-            style: 'Headline'
-            role: 'medium'
+            style: 'Display'
+            role: 'large'
             halign: 'center'
             padding: 0
