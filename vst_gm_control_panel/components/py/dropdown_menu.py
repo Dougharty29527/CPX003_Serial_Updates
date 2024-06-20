@@ -50,10 +50,10 @@ class DropdownMenu(MDDropdownMenu):
 
     def settings_menu(self, menu_button) -> None:
         settings_menu = [
-            # {'text': 'Set Palette', 'on_release': self.set_palette},
-            {'text': 'Set Language', 'on_release': self.set_language},
-            {'text': 'Switch Theme', 'on_release': self.switch_theme},
-            {'text': 'Close', 'on_release': lambda: self.dismiss_current_menu(self.menu)}        
+            # {'text': f'{self.app.translate("set_palette", "Set Palette")}', 'on_release': self.set_palette},
+            {'text': f'{self.app.translate("set_language", "Set Language")}', 'on_release': self.set_language},
+            {'text': f'{self.app.translate("switch_theme", "Switch Theme")}', 'on_release': self.switch_theme},
+            {'text': f'{self.app.translate("dismiss", "Dismiss")}', 'on_release': lambda: self.dismiss_current_menu(self.menu)}        
         ]
         self.open_menu(menu_button, settings_menu)
     
@@ -93,7 +93,7 @@ class DropdownMenu(MDDropdownMenu):
         Purpose:
         - Set the color palette of the application.
         '''
-        instance_from_menu = self.get_instance_from_menu('Set Palette')
+        instance_from_menu = self.get_instance_from_menu(self.app.translate('set_palette', 'Set Palette'))
         available_palettes = [
             name_color.capitalize() for name_color in hex_colormap.keys()
         ]
@@ -113,7 +113,7 @@ class DropdownMenu(MDDropdownMenu):
         Purpose:
         - Set the language of the application.
         '''
-        instance_from_menu = self.get_instance_from_menu('Set Language')
+        instance_from_menu = self.get_instance_from_menu(self.app.translate('set_language', 'Set Language'))
         available_languages = {
             'EN': 'English',
             'ES': 'Español'

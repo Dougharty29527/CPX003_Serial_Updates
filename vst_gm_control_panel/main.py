@@ -127,7 +127,7 @@ class ControlPanel(MDApp):
         self.get_datetime()
         self.walk_widget_tree(MDApp.get_running_app().root)
 
-    def translate(self, key) -> str:
+    def translate(self, key, default=None) -> str:
         '''
         Purpose:
         - Translate a key to the current language.
@@ -136,7 +136,13 @@ class ControlPanel(MDApp):
         Returns:
         - str: The translated key.
         '''
-        return self._translations_db.translate(self.language, key)
+        translation = self._translations_db.translate(self.language, key)
+        if translation is None:
+            if default:
+                translation = default
+            else:
+                self.log('error', f'No translation found for key: {key}')
+        return translation
 
     def walk_widget_tree(self, widget):
         '''
