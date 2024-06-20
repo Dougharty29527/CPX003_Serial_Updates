@@ -33,12 +33,11 @@
 
                     MDIconButton:
                         icon: 'home'
+                        on_press: app.switch_screen('Main')
 
                     MDIconButton:
-                        icon: 'wrench'
-
-                    MDIconButton:
-                        icon: 'alert'
+                        icon: 'test-tube'
+                        on_press: app.switch_screen('Test')
 
 
     MDNavigationDrawer:
@@ -65,6 +64,7 @@
 
             NavDrawerItem:
                 md_bg_color: app.theme_cls.primaryContainerColor
+                on_press: app.switch_screen('Main')
 
                 MDNavigationDrawerItemLeadingIcon:
                     icon: 'home'
@@ -81,31 +81,16 @@
 
             NavDrawerItem:
                 md_bg_color: app.theme_cls.primaryContainerColor
+                on_press: app.switch_screen('Test')
 
                 MDNavigationDrawerItemLeadingIcon:
-                    icon: 'wrench'
+                    icon: 'test-tube'
                     theme_icon_color: 'Custom'
                     icon_color: app.theme_cls.onPrimaryContainerColor
 
                 MDNavigationDrawerItemText:
-                    id: maintenance
-                    text: 'Maintenance'
-                    font_style: 'Title'
-                    role: 'medium'
-                    theme_text_color: 'Custom'
-                    text_color: app.theme_cls.onPrimaryContainerColor
-
-            NavDrawerItem:
-                md_bg_color: app.theme_cls.primaryContainerColor
-
-                MDNavigationDrawerItemLeadingIcon:
-                    icon: 'alert'
-                    theme_icon_color: 'Custom'
-                    icon_color: app.theme_cls.onPrimaryContainerColor
-
-                MDNavigationDrawerItemText:
-                    id: faults
-                    text: 'Faults & Alarms'
+                    id: test
+                    text: 'Test'
                     font_style: 'Title'
                     role: 'medium'
                     theme_text_color: 'Custom'

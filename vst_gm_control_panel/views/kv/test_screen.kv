@@ -1,0 +1,35 @@
+#:kivy 2.3.0
+
+<TestScreen>
+    md_bg_color: self.theme_cls.onPrimaryColor
+
+    TopBar:
+        id: title
+        screen_title: 'TEST'
+
+    MDBoxLayout:
+        spacing: '24dp'
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        adaptive_size: True
+
+        MDButton:
+            style: 'elevated'
+            radius: 0
+            on_press:
+                app.pin_entry = True
+                app.switch_screen('Keypad')
+
+            MDButtonText:
+                text: 'Pin Delay'
+
+        MDButton:
+            style: 'elevated'
+            radius: 0
+            on_press:
+                app.interval_entry = True
+                app.switch_screen('Keypad')
+
+            MDButtonText:
+                text: 'Cycle Interval'
+
+    SideBar:

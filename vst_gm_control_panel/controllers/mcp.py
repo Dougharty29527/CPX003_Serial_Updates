@@ -6,6 +6,7 @@
 ====================================
 '''
 
+from datetime import datetime, timedelta
 import threading
 import time
 try:
@@ -17,16 +18,19 @@ except (ImportError, NotImplementedError):
     busio = None
     board = None
     MCP23017 = None
+from utils import DatabaseManager
 
 class MCP:
     '''
-    This class is used to interface with the MCP23017 I/O Expander.
+    MCP:
+    - This class is used to handle the MCP23017 I2C GPIO expander.
     '''
 
     def __init__(self):
         self.pin_delay = None
-        self.cycle_delay = None
         self.mode = None
+        self._database = DatabaseManager()
+        self.db = self._database.gm()
         self._hardware_initialized = False
         if busio is None or board is None or MCP23017 is None:
             return
@@ -49,37 +53,48 @@ class MCP:
         self.setup_pins()
         self.set_mode('rest')
 
-    def set_pin_delay(self, pin_delay):
-        ''' Set the delay between each pin setup.'''
+    def set_pin_delay(self, pin_delay) -> None:
+        '''
+        Purpose:
+        - Set the pin delay.
+        '''
         self.pin_delay = pin_delay
 
-    def set_cycle_delay(self, cycle_delay):
-        ''' Set the delay between each cycle. '''
-        self.cycle_delay = cycle_delay
-
-    def sleep_with_check(self, delay):
-        ''' Sleep for the specified delay, checking for a stop event. '''
+    def sleep_with_check(self, delay) -> None:
+        '''
+        Purpose:
+        - Sleep for the specified delay.
+        '''
         total_time = 0
         while total_time < delay and not self._stop_cycle_thread.is_set():
             time.sleep(0.01)
             total_time += 0.01
 
-    def setup_pins(self):
-        ''' Setup the MCP23017 pins. '''
+    def setup_pins(self) -> None:
+        '''
+        Purpose:
+        - Setup the pins for the MCP23017.
+        '''
         if self._hardware_initialized:
             for pin in ['motor', 'v1', 'v2', 'v5', 'shutdown']:
                 self.pins[pin].direction = Direction.OUTPUT
             for pin in ['tls', 'panel_power']:
                 self.pins[pin].direction = Direction.INPUT
 
-    def thread_mode(self, mode):
-        ''' Run the mode in a new thread. '''
+    def thread_mode(self, mode) -> None:
+        '''
+        Purpose:
+        - Run the specified mode in a new thread.
+        '''
         self._stop_mode_thread.clear()
         self.mode_thread = threading.Thread(target=self.set_mode, args=(mode,))
         self.mode_thread.start()
 
-    def set_mode(self, mode):
-        ''' Set the pins for the specified mode. '''
+    def set_mode(self, mode) -> None:
+        '''
+        Purpose:
+        - Set the pins for the specified mode.
+        '''
         modes = {
             'run': {'motor': True, 'v1': True, 'v2': False, 'v5': True},
             'rest': {'motor': False, 'v1': False, 'v2': False, 'v5': False},
@@ -102,12 +117,11 @@ class MCP:
     def set_sequence(self, sequence):
         ''' Set the pins for the specified sequence. '''
         try:
-            for mode in sequence:
+            for mode, delay in sequence:
                 if self._stop_cycle_thread.is_set():
                     break
                 self.thread_mode(mode)
-                if self.cycle_delay:
-                    self.sleep_with_check(self.cycle_delay)
+                self.sleep_with_check(delay)
         except KeyboardInterrupt:
             self.set_mode('rest')
         finally:
@@ -136,27 +150,42 @@ class MCP:
 
     def run_cycle(self):
         ''' Set the sequence for a run cycle. '''
-        self.thread_sequence(
-            ['run', 'rest'] + ['purge', 'burp'] * 6 + ['rest']
-        )
+        current_time = datetime.now().isoformat()
+        self.db.add_setting('last_run_cycle', current_time)
+        sequence = [
+            ('run', 30),
+            ('rest', 2)
+        ]
+        for _ in range(6):
+            sequence.extend([
+                ('purge', 10),
+                ('burp', 5)
+            ])
+        sequence.append(['rest', 2])
+        self.thread_sequence(sequence)
 
     def functionality_test(self):
         ''' Set the sequence for a functionality test. '''
-        self.thread_sequence(
-            ['run', 'purge'] * 5 + ['rest']
-        )
+        self.thread_sequence([
+            ('run', 120),
+            ('purge', 50),
+            ('rest', 2)
+        ])
 
     def test_mode(self):
         ''' Set the sequence for a test mode. '''
-        self.thread_sequence(
-            ['run', 'rest'] * 2 + ['purge', 'bleed']
-        )
+        self.thread_sequence([
+            ('run', 120),
+            ('rest', 2),
+            ('purge', 50),
+            ('bleed', 2)
+        ])
 
     def leak_test(self):
         ''' Set the sequence for a leak test. '''
-        self.thread_sequence(
-            ['leak']
-        )
+        self.thread_sequence([
+            ('leak', 120)
+        ])
 
     def stop_cycle(self):
         ''' Stop the current sequence. '''
@@ -179,8 +208,3 @@ class MCP:
         ''' Set to rest mode. '''
         for pin in ['motor', 'v1', 'v2', 'v5']:
             self.pins[pin].value = False
-
-mcp = MCP()
-mcp.set_pin_delay(0.1)
-mcp.set_cycle_delay(5)
-mcp.run_cycle()

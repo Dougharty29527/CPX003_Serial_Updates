@@ -27,7 +27,7 @@ Usage:
 '''
 
 # Standard imports.
-from datetime import datetime
+from datetime import datetime, timedelta
 import locale
 import os
 from zoneinfo import ZoneInfo
@@ -36,7 +36,7 @@ from zoneinfo import ZoneInfo
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang import Builder
-from kivy.properties import BooleanProperty, StringProperty
+from kivy.properties import BooleanProperty, StringProperty, NumericProperty
 from kivy.uix.screenmanager import NoTransition, ScreenManager
 from kivymd.app import MDApp
 from kivymd.uix.menu import MDDropdownMenu
@@ -55,10 +55,11 @@ from components import (
 )
 from controllers import (
     PressureSensor,
-    PressureThresholds
+    PressureThresholds,
+    MCP
 )
 from utils import DatabaseManager, Logger
-from views import MainScreen
+from views import MainScreen, TestScreen, KeypadScreen
 
 
 class ControlPanel(MDApp):
@@ -71,13 +72,21 @@ class ControlPanel(MDApp):
     WIDTH: int = 480
 
     SCREEN_CONFIG = {
-        'Main': MainScreen
+        'Main': MainScreen,
+        'Test': TestScreen,
+        'Keypad': KeypadScreen
     }
 
     language = StringProperty()
     current_time = StringProperty()
     current_date = StringProperty()
     current_pressure = StringProperty()
+    gm_status = StringProperty()
+    run_cycle = BooleanProperty(False)
+    run_cycle_interval = NumericProperty(43200)
+    alarm = BooleanProperty(False)
+    pin_entry = BooleanProperty(False)
+    interval_entry = BooleanProperty(False)
 
     _logger = Logger(__name__)
     _db = DatabaseManager()
@@ -198,14 +207,50 @@ class ControlPanel(MDApp):
         - Set the update intervals for the application.
         '''
         Clock.schedule_interval(self.get_datetime, 30)
-        Clock.schedule_interval(self.get_pressure, 1)
+        Clock.schedule_interval(self.get_pressure, .5)
+        Clock.schedule_interval(self.get_gm_status, .5)
+        Clock.schedule_interval(self.check_last_run_cycle, 10)
 
     def get_pressure(self, *args) -> None:
         '''
         Purpose:
         - Get the current pressure reading.
         '''
+        thresholds = PressureThresholds()
         self.current_pressure = self.pressure_sensor.get_pressure()
+        if float(self.current_pressure) > float(thresholds.variable):
+            self.start_run_cycle()
+
+    def get_gm_status(self, *args):
+        if self.run_cycle:
+            self.gm_status = self.translate('gm_active', 'Active').upper()
+        else:
+            self.gm_status = self.translate('gm_idle', 'Idle').upper()
+
+    def check_last_run_cycle(self, *args):
+        last_run_cycle = self._gm_db.get_setting('last_run_cycle')
+        if last_run_cycle:
+            last_run_time = datetime.fromisoformat(last_run_cycle)
+            current_time = datetime.now()
+            if current_time - last_run_time >= timedelta(seconds=self.run_cycle_interval):
+                self.start_run_cycle()
+
+    def start_run_cycle(self):
+        self.mcp.run_cycle()
+        self.run_cycle = True
+        if self.mcp.mode == None or self.mcp.mode == 'Complete':
+            self.run_cycle = False
+
+    def set_run_cycle_interval(self, interval):
+        self.run_cycle_interval = int(interval)
+
+    def set_pin_delay(self, delay):
+        delay_ms = int(delay) * 1000
+        self.mcp.set_pin_delay(delay_ms)
+
+    def switch_screen(self, screen_name='main_screen'):
+        ''' Switch to the screen that was pressed. '''
+        self.sm.current = screen_name
 
     def configure_application(self) -> None:
         '''
@@ -228,7 +273,10 @@ class ControlPanel(MDApp):
         self.log = self._logger.log_message
         self._translations_db = self._db.translations()
         self._user_db = self._db.user()
+        self._gm_db = self._db.gm()
         self.pressure_sensor = PressureSensor()
+        self.mcp = MCP()
+        self.mcp.set_rest()
         self.configure_application()
         self.load_user_language()
         self.get_datetime()

@@ -36,6 +36,8 @@ class SideBar(MDNavigationLayout):
         Initialize the SideBar.
         '''
         self.app = MDApp.get_running_app()
+        for screen in self.app.sm.screens:
+            print(screen)
 
     def switch_screen(self, screen_name: Optional[str] = None) -> None:
         '''
