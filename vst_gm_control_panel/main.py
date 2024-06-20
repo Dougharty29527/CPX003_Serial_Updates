@@ -172,11 +172,11 @@ class ControlPanel(MDApp):
                 if hasattr(val, 'text'):
                     translated_text = self.translate(key)
                     if translated_text is not None:
-                        val.text = translated_text.upper()
+                        val.text = translated_text
                 if key == 'title':
                     screen = self.sm.current.lower()
                     if isinstance(val, TopBar):
-                        val.screen_title = self.translate(screen).upper()
+                        val.screen_title = self.translate(screen)
         for child in widget.children:
             self.walk_widget_tree(child)
 
@@ -245,7 +245,7 @@ class ControlPanel(MDApp):
         self.run_cycle_interval = int(interval)
 
     def set_pin_delay(self, delay):
-        delay_ms = int(delay) * 1000
+        delay_ms = int(delay) / 1000
         self.mcp.set_pin_delay(delay_ms)
 
     def switch_screen(self, screen_name='main_screen'):
