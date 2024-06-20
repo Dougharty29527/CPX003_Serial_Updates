@@ -50,7 +50,7 @@ class DropdownMenu(MDDropdownMenu):
 
     def settings_menu(self, menu_button) -> None:
         settings_menu = [
-            {'text': 'Set Palette', 'on_release': self.set_palette},
+            # {'text': 'Set Palette', 'on_release': self.set_palette},
             {'text': 'Set Language', 'on_release': self.set_language},
             {'text': 'Switch Theme', 'on_release': self.switch_theme},
             {'text': 'Close', 'on_release': lambda: self.dismiss_current_menu(self.menu)}        

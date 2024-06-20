@@ -151,7 +151,8 @@ class ControlPanel(MDApp):
                         print(f'{key}: {val.text}')
                 if key == 'title':
                     screen = self.sm.current
-                    print(screen)
+                    if isinstance(val, TopBar):
+                        val.screen_title = self.translate(screen.lower())
         for child in widget.children:
             self.walk_widget_tree(child)
 
