@@ -134,3 +134,22 @@ class SideBar(MDNavigationLayout):
         new_expanded_spacing = self.calculate_spacing(expanded_icons_height, expanded_item_total)
         self.ids.open_nav_drawer.spacing = new_expanded_spacing
         print(f'Expanded Spacing: {dp(new_expanded_spacing)}')
+
+
+class NavDrawerItem(MDNavigationDrawerItem):
+    '''
+    NavDrawer:
+    - Class to set up the expandable and collapsable side navigation bar.
+    '''
+    def on_release(self, *args) -> None:
+        '''
+        Fired when the item is released
+        (i.e. the touch/click that pressed the item goes away).
+        '''
+        self.selected = not self.selected
+
+    def on_kv_post(self, base_widget):
+        '''
+        Initialize the SideBar.
+        '''
+        self.app = MDApp.get_running_app()

@@ -50,7 +50,7 @@
         MDNavigationDrawerMenu:
             id: open_nav_drawer
             padding: '8dp', 0, 0, 0
-            spacing: '77.33'
+            spacing: '35dp'
 
             MDNavigationDrawerHeader:
 
@@ -63,7 +63,7 @@
                         self.toggled = False
                         open_nav.set_state('toggle')
 
-            MDNavigationDrawerItem:
+            NavDrawerItem:
                 md_bg_color: app.theme_cls.primaryContainerColor
 
                 MDNavigationDrawerItemLeadingIcon:
@@ -79,7 +79,7 @@
                     theme_text_color: 'Custom'
                     text_color: app.theme_cls.onPrimaryContainerColor
 
-            MDNavigationDrawerItem:
+            NavDrawerItem:
                 md_bg_color: app.theme_cls.primaryContainerColor
 
                 MDNavigationDrawerItemLeadingIcon:
@@ -95,7 +95,7 @@
                     theme_text_color: 'Custom'
                     text_color: app.theme_cls.onPrimaryContainerColor
 
-            MDNavigationDrawerItem:
+            NavDrawerItem:
                 md_bg_color: app.theme_cls.primaryContainerColor
 
                 MDNavigationDrawerItemLeadingIcon:
