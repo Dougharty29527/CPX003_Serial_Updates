@@ -21,6 +21,7 @@ class DropdownMenu(MDDropdownMenu):
         super().__init__(**kwargs)
         app = None
         self.menu = None
+        self.second_menu = None
 
     def on_kv_post(self, base_widget):
         '''
@@ -75,6 +76,8 @@ class DropdownMenu(MDDropdownMenu):
         - menu_button: The button that triggered the menu (MDFloatingActionButton).
         '''
         self.app.switch_language(selected_language)
+        self.second_menu.dismiss()
+        self.menu.dismiss()
 
     def switch_palette(self, selected_palette) -> None:
         '''
@@ -121,10 +124,11 @@ class DropdownMenu(MDDropdownMenu):
                 'on_release': lambda x=language_code: self.switch_language(x)
             } for language_code, language_name in available_languages.items()
         ]
-        MDDropdownMenu(
+        self.second_menu = MDDropdownMenu(
             caller=instance_from_menu,
             items=menu_items,
-        ).open()
+        )
+        self.second_menu.open()
 
     def get_instance_from_menu(self, name_item) -> MDDropdownMenu:
         '''

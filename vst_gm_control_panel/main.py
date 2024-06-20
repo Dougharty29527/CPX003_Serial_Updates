@@ -48,7 +48,7 @@ from materialyoucolor.utils.platform_utils import SCHEMES
 
 
 # Local imports.
-from components import DropdownMenu, SideBar
+from components import DropdownMenu, SideBar, TopBar
 from utils import DatabaseManager, Logger
 from views import MainScreen
 
@@ -149,8 +149,11 @@ class ControlPanel(MDApp):
                     if translated_text is not None:
                         val.text = translated_text
                         print(f'{key}: {val.text}')
-            for child in widget.children:
-                self.walk_widget_tree(child)
+                if key == 'title':
+                    screen = self.sm.current
+                    print(screen)
+        for child in widget.children:
+            self.walk_widget_tree(child)
 
     def configure_application(self) -> None:
         '''
@@ -177,7 +180,7 @@ class ControlPanel(MDApp):
         self.load_user_language()
         self.load_all_kv_files()
         self.configure_screen_manager()
-        # Clock.schedule_once(lambda dt: self.walk_widget_tree(MDApp.get_running_app().root), 0)
+        Clock.schedule_once(lambda dt: self.walk_widget_tree(MDApp.get_running_app().root), 0)
         return self.sm
 
 
