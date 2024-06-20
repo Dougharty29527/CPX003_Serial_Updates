@@ -22,22 +22,3 @@ class StatusBar(MDBoxLayout):
         Initialize the SideBar.
         '''
         self.app = MDApp.get_running_app()
-
-
-# class TextButton(MDButton):
-#     '''
-#     TextButton:
-#     - Class to remove on release from button.
-#     '''
-#     def on_release(self, *args) -> None:
-#         '''
-#         Fired when the item is released
-#         (i.e. the touch/click that pressed the item goes away).
-#         '''
-#         self.md_bg_color = self.app.theme_cls.primaryContainerColor
-
-#     def on_kv_post(self, base_widget):
-#         '''
-#         Initialize the SideBar.
-#         '''
-#         self.app = MDApp.get_running_app()
