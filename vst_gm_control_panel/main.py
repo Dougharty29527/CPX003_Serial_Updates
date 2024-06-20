@@ -124,6 +124,7 @@ class ControlPanel(MDApp):
         '''
         self.language = selected_language
         self.save_user_language()
+        self.get_datetime()
         self.walk_widget_tree(MDApp.get_running_app().root)
 
     def translate(self, key) -> str:
@@ -140,7 +141,7 @@ class ControlPanel(MDApp):
     def walk_widget_tree(self, widget):
         '''
         Purpose:
-        - Walk the widget tree.
+        - Walk the widget tree and perform translations.
         '''
         if hasattr(widget, 'ids'):
             for key, val in widget.ids.items():
@@ -155,6 +156,34 @@ class ControlPanel(MDApp):
                         val.screen_title = self.translate(screen).upper()
         for child in widget.children:
             self.walk_widget_tree(child)
+
+    def get_datetime(self, *args) -> None:
+        '''
+        Purpose:
+        - Get the current date and time.
+        '''
+        timezone_map = {'ES': 'Europe/Madrid', 'EN': 'America/New_York'}
+        now_local = datetime.now(ZoneInfo(timezone_map.get(self.language, 'UTC')))
+        self.set_locale()
+        formatted_date = now_local.strftime('%A, %B %d')
+        formatted_time = now_local.strftime("%I:%M")
+        self.current_time = formatted_time
+        self.current_date = formatted_date
+
+    def set_locale(self) -> None:
+        '''
+        Purpose:
+        - Set the locale for the application.
+        '''
+        locale_map = {'ES': 'es_ES.UTF-8', 'EN': 'en_US.UTF-8'}
+        locale.setlocale(locale.LC_TIME, locale_map.get(self.language, 'en_US.UTF-8'))
+
+    def set_update_intervals(self) -> None:
+        '''
+        Purpose:
+        - Set the update intervals for the application.
+        '''
+        Clock.schedule_interval(self.get_datetime, 30)
 
     def configure_application(self) -> None:
         '''
@@ -179,6 +208,8 @@ class ControlPanel(MDApp):
         self._user_db = self._db.user()
         self.configure_application()
         self.load_user_language()
+        self.get_datetime()
+        self.set_update_intervals()
         self.load_all_kv_files()
         self.configure_screen_manager()
         Clock.schedule_once(lambda dt: self.walk_widget_tree(MDApp.get_running_app().root), 0)
