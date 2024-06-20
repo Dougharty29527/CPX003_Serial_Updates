@@ -39,11 +39,11 @@
 
                 MDButtonText:
                     id: current_pressure
-                    text: '0'
+                    text: app.current_pressure
                     font_style: 'Display'
                     role: 'small'
                     theme_disabled_color: 'Custom'
-                    disabled_color: app.theme_cls.onPrimaryContainerColor
+                    disabled_color: app.theme_cls.onPrimaryContainerColor if app.current_pressure != '-99.9' else app.theme_cls.errorContainerColor
                     padding: [0] if app.language == 'EN' else ['72dp', 0, 0, 0]
 
         MDBoxLayout:

@@ -7,11 +7,14 @@
 '''
 
 from collections import deque
-import random
 from utils import (
     Logger,
     DatabaseManager
 )
+import board
+import busio
+import adafruit_ads1x15.ads1115 as ADS
+from adafruit_ads1x15.analog_in import AnalogIn
 
 
 class PressureSensor:
@@ -20,49 +23,20 @@ class PressureSensor:
     ---------------
     This class is used to handle the pressure sensor.
     '''
-    _logger = Logger('Pressure Sensor')
+    _logger = Logger(__name__)
     log = _logger.log_message
     _hardware_available = False
     _warnings_logged = {'board': False, 'busio': False, 'ads': False}
+    _database = DatabaseManager()
 
     def __init__(self, adc_zero=15422.0, gain=1):
-        self.db = DatabaseManager(table_name='machine_settings')
-        self._initialize_hardware()
-        if self._hardware_available:
-            i2c = busio.I2C(board.SCL, board.SDA)
-            self._adc = ADS.ADS1115(i2c)
-            self._channel = AnalogIn(self._adc, ADS.P0)
-            self._adc.gain = gain
+        self.db = self._database.gm()
+        self.i2c = busio.I2C(board.SCL, board.SDA)
+        self._adc = ADS.ADS1115(self.i2c)
+        self._channel = AnalogIn(self._adc, ADS.P0)
+        self._adc.gain = gain
         self.adc_zero = float(self.db.get_setting('adc_zero')) if self.db.get_setting('adc_zero') is not None else adc_zero
         self.pressure_readings = deque(maxlen=60)
-        self._last_test_mode_pressure = 0
-
-    @classmethod
-    def _initialize_hardware(cls):
-        try:
-            import board
-            cls._hardware_available = True
-        except ImportError as e:
-            if not cls._warnings_logged['board']:
-                cls.log('warning', f'Board library not available: {e}')
-                cls._warnings_logged['board'] = True
-        try:
-            import busio
-            cls._hardware_available = True
-        except ImportError as e:
-            if not cls._warnings_logged['busio']:
-                cls.log('warning', f'BusIO library not available: {e}')
-                cls._warnings_logged['busio'] = True
-        try:
-            import adafruit_ads1x15.ads1115 as ADS
-            cls._hardware_available = True
-            from adafruit_ads1x15.analog_in import AnalogIn
-        except ImportError as e:
-            if not cls._warnings_logged['ads']:
-                cls.log('warning', f'ADS1x15 library not available: {e}')
-                cls._warnings_logged['ads'] = True
-        if any(cls._warnings_logged):
-            _cls_hardware_available = False
 
     @staticmethod
     def _calculate_average(readings):
@@ -79,8 +53,8 @@ class PressureSensor:
 
     def get_pressure(self) -> str:
         ''' Get the pressure reading from the sensor. '''
-        if not self._hardware_available:
-            return '-99.9'
+        # if not self._hardware_available:
+        #     return '-99.9'
         try:
             for _ in range(30):
                 value = self._channel.value
@@ -103,16 +77,6 @@ class PressureSensor:
         except ValueError as e:
             self.log('warning', f'{e}')
         return self.adc_zero
-
-    def pressure_simulator(self):
-        ''' For testing locally or without a pressure sensor connected '''
-        # Generate random incremental change to simulate gradual pressure changes.
-        change = random.uniform(-0.02, 0.02)
-        self._last_test_mode_pressure += change
-        # Ensure test pressure doesn't scale beyond range.
-        self._last_test_mode_pressure = max(-10.0, min(10.0, self._last_test_mode_pressure))
-        test_pressure = f'{self._last_test_mode_pressure:.2f}'
-        return test_pressure
 
 
 class PressureThresholds:

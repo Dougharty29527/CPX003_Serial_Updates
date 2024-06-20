@@ -46,13 +46,16 @@ from kivymd.uix.widget import Widget
 # Third party imports.
 from materialyoucolor.utils.platform_utils import SCHEMES
 
-
 # Local imports.
 from components import (
     DropdownMenu,
     SideBar,
     StatusBar,
     TopBar
+)
+from controllers import (
+    PressureSensor,
+    PressureThresholds
 )
 from utils import DatabaseManager, Logger
 from views import MainScreen
@@ -74,6 +77,7 @@ class ControlPanel(MDApp):
     language = StringProperty()
     current_time = StringProperty()
     current_date = StringProperty()
+    current_pressure = StringProperty()
 
     _logger = Logger(__name__)
     _db = DatabaseManager()
@@ -160,7 +164,6 @@ class ControlPanel(MDApp):
                     translated_text = self.translate(key)
                     if translated_text is not None:
                         val.text = translated_text.upper()
-                        print(f'{key}: {val.text}')
                 if key == 'title':
                     screen = self.sm.current.lower()
                     if isinstance(val, TopBar):
@@ -195,6 +198,14 @@ class ControlPanel(MDApp):
         - Set the update intervals for the application.
         '''
         Clock.schedule_interval(self.get_datetime, 30)
+        Clock.schedule_interval(self.get_pressure, 1)
+
+    def get_pressure(self, *args) -> None:
+        '''
+        Purpose:
+        - Get the current pressure reading.
+        '''
+        self.current_pressure = self.pressure_sensor.get_pressure()
 
     def configure_application(self) -> None:
         '''
@@ -217,6 +228,7 @@ class ControlPanel(MDApp):
         self.log = self._logger.log_message
         self._translations_db = self._db.translations()
         self._user_db = self._db.user()
+        self.pressure_sensor = PressureSensor()
         self.configure_application()
         self.load_user_language()
         self.get_datetime()
