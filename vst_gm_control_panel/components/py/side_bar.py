@@ -139,7 +139,7 @@ class SideBar(MDNavigationLayout):
 class NavDrawerItem(MDNavigationDrawerItem):
     '''
     NavDrawer:
-    - Class to set up the expandable and collapsable side navigation bar.
+    - Class to remove on release from button press.
     '''
     def on_release(self, *args) -> None:
         '''

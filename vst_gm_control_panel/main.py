@@ -226,6 +226,5 @@ class ControlPanel(MDApp):
         Clock.schedule_once(lambda dt: self.walk_widget_tree(MDApp.get_running_app().root), 0)
         return self.sm
 
-
 if __name__ == '__main__':
     ControlPanel().run()

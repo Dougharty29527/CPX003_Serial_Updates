@@ -6,13 +6,13 @@
     pos_hint: {'center_x': .5, 'center_y': .5}
     adaptive_size: True
     radius: '8dp'
-    spacing: '3dp'
-    padding: '10dp'
+    padding: '8dp'
 
     MDBoxLayout:
         adaptive_size: True
         orientation: 'horizontal'
         pos_hint: {'center_x': .5}
+        padding: 0
 
         MDButton:
             style: 'text'
@@ -21,15 +21,17 @@
             MDButtonText:
                 id: gm_status
                 text: 'GREEN MACHINE STATUS'
-                font_style: 'Title'
-                role: 'large'
+                font_style: 'Headline'
+                theme_font_size: 'Custom'
+                font_size: '18sp'
                 theme_disabled_color: 'Custom'
-                disabled_color: app.theme_cls.onPrimaryContainerColor
+                disabled_color: app.theme_cls.secondaryColor
 
     MDBoxLayout:
         adaptive_size: True
         orientation: 'horizontal'
         pos_hint: {'center_x': .5}
+        padding: 0
 
         MDButton:
             style: 'text'
@@ -40,18 +42,23 @@
                 text: 'IDLE'
                 font_style: 'Display'
                 theme_font_size: 'Custom'
-                font_size: '42sp'
+                font_size: '38sp'
                 theme_disabled_color: 'Custom'
                 disabled_color: app.theme_cls.onPrimaryContainerColor
+
+    # MDDivider:
+    #     size_hint_x: .7
+    #     pos_hint: {'center_x': .5}
+    #     color: app.theme_cls.secondaryColor
 
     MDBoxLayout:
         adaptive_size: True
         orientation: 'horizontal'
         pos_hint: {'center_x': .5}
+        padding: 0
 
         MDButton:
             style: 'text'
-            disabled: True
 
             MDButtonText:
                 id: recent
@@ -60,5 +67,4 @@
                 role: 'small'
                 theme_disabled_color: 'Custom'
                 theme_text_color: 'Custom'
-                text_color: self.theme_cls.secondaryColor
-
+                text_color: app.theme_cls.secondaryColor
