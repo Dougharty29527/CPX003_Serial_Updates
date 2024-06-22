@@ -61,7 +61,11 @@ from controllers import (
     PressureThresholds,
     MCP
 )
-from utils import DatabaseManager, Logger
+from utils import (
+    DatabaseManager,
+    LanguageHandler,
+    Logger
+)
 from views import MainScreen, TestScreen
 
 
@@ -70,9 +74,6 @@ class ControlPanel(MDApp):
     Main Application:
     - This class is used to configure the main application.
     '''
-
-    HEIGHT: int = 800
-    WIDTH: int = 480
 
     SCREEN_CONFIG = {
         'Main': MainScreen,
@@ -96,7 +97,10 @@ class ControlPanel(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._dir = os.path.dirname(__file__)
-        self.dropdown_menu = DropdownMenu()
+        self.log = self._logger.log_message
+        self._translations_db = self._db.translations()
+        self._user_db = self._db.user()
+        self._gm_db = self._db.gm()
         self.sm = ScreenManager(transition=NoTransition())
 
     def load_all_kv_files(self) -> None:
@@ -117,27 +121,9 @@ class ControlPanel(MDApp):
         for screen_name, screen_class in self.SCREEN_CONFIG.items():
             self.sm.add_widget(screen_class(self, name=screen_name))
 
-    def load_user_language(self) -> None:
-        '''
-        Purpose:
-        - Load the user's preferred language.
-        '''
-        language = self._user_db.get_setting('language')
-        if language is None:
-            language = 'EN'
-            self.save_user_language(language)
-        self.language = language
-
-    def save_user_language(self, user_language=None) -> None:
-        '''
-        Purpose:
-        - Save the user's preferred language.
-        Parameters:
-        - user_language (optional): The user's preferred language (str).
-        '''
-        if user_language:
-            self.language = user_language
-        self._user_db.add_setting('language', self.language)
+    def switch_screen(self, screen_name='Main'):
+        ''' Switch to the screen that was pressed. '''
+        self.sm.current = screen_name
 
     def switch_language(self, selected_language) -> None:
         '''
@@ -147,9 +133,8 @@ class ControlPanel(MDApp):
         - selected_language: The selected language (str).
         '''
         self.language = selected_language
-        self.save_user_language()
+        self.language_handler.save_user_language(self.language)
         self.get_datetime()
-        # self.walk_widget_tree(MDApp.get_running_app().root)
         self.check_all_screens()
 
     def translate(self, key, default=None) -> str:
@@ -199,7 +184,7 @@ class ControlPanel(MDApp):
         - Iterate through all screens in ScreenManager and apply walk_widget_tree
         '''
         for screen in self.sm.screens:
-            self.walk_widget_tree(screen)
+            self.language_handler.walk_app_widget_tree(screen)
 
     def get_datetime(self, *args) -> None:
         '''
@@ -229,7 +214,7 @@ class ControlPanel(MDApp):
         '''
         Clock.schedule_interval(self.get_datetime, 30)
         Clock.schedule_interval(self.get_pressure, 1)
-        Clock.schedule_interval(self.get_gm_status, .5)
+        Clock.schedule_interval(self.get_gm_status, 1)
         Clock.schedule_interval(self.check_last_run_cycle, 60)
 
     def get_pressure(self, *args) -> None:
@@ -269,10 +254,7 @@ class ControlPanel(MDApp):
     def start_run_cycle(self):
         self.run_cycle = True
         self.get_cycle_count()
-        if self.debug:
-            self.mcp.run_cycle_debug()
-        else:
-            self.mcp.run_cycle()
+        self.mcp.run_cycle()
         if self.mcp.mode == None or self.mcp.mode == 'Complete':
             self.run_cycle = False
 
@@ -291,21 +273,6 @@ class ControlPanel(MDApp):
     def toggle_debug(self):
         self.debug = not self.debug
 
-    def switch_screen(self, screen_name='main_screen'):
-        ''' Switch to the screen that was pressed. '''
-        self.sm.current = screen_name
-
-    def configure_application(self) -> None:
-        '''
-        Purpose:
-        - Configure the application.
-        '''
-        self.title = 'VST: Green Machine Control Panel'
-        self.icon = os.path.join(self._dir, 'assets', 'images', 'vst_light.png')
-        self.theme_cls.primary_palette = 'Steelblue'
-        self.theme_cls.theme_style = 'Dark'
-        Window.size = (self.HEIGHT, self.WIDTH)
-
     def build(self) -> ScreenManager:
         '''
         Purpose:
@@ -313,23 +280,22 @@ class ControlPanel(MDApp):
         Returns:
         - ScreenManager: The main application.
         '''
-        self.log = self._logger.log_message
-        self._translations_db = self._db.translations()
-        self._user_db = self._db.user()
-        self._gm_db = self._db.gm()
+        self.title = 'VST: Green Machine Control Panel'
+        self.icon = os.path.join(self._dir, 'assets', 'images', 'vst_light.png')
+        self.theme_cls.primary_palette = 'Steelblue'
+        self.theme_cls.theme_style = 'Dark'
+        self.language_handler = LanguageHandler()
         self.pressure_sensor = PressureSensor()
         self.mcp = MCP()
-        self.mcp.set_rest()
-        self.configure_application()
-        self.load_user_language()
+        self.language_handler.load_user_language()
         self.get_datetime()
         self.get_cycle_count()
         self.set_update_intervals()
         self.load_all_kv_files()
         self.configure_screen_manager()
+        self.dropdown_menu = DropdownMenu()
         Clock.schedule_once(self.check_all_screens, 0)
         Clock.schedule_once(self.check_last_run_cycle, 0)
-        # Clock.schedule_once(lambda dt: self.walk_widget_tree(MDApp.get_running_app().root), 0)
         return self.sm
 
 if __name__ == '__main__':

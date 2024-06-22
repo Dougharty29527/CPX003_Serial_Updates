@@ -147,7 +147,21 @@ class MCP:
         return self.mode
 
     def run_cycle(self):
-        ''' Set the sequence for a run cycle. '''
+        '''
+        Purpose:
+        - Set the sequence for a run cycle.
+        '''
+        if self.app.debug:
+            run_time = 10
+            rest_time = 1
+            purge_time = 5
+            burp_time = 2
+        else:
+            run_time = 120
+            rest_time = 2
+            purge_time = 50
+            burp_time = 5
+
         if self.cycle_thread and self.cycle_thread.is_alive():
             return
 
@@ -160,38 +174,13 @@ class MCP:
         current_time = datetime.now().isoformat()
         self.db.add_setting('last_run_cycle', current_time)
         sequence = [
-            ('run', 120),
-            ('rest', 2)
+            ('run', run_time),
+            ('rest', rest_time)
         ]
         for _ in range(6):
             sequence.extend([
-                ('purge', 50),
-                ('burp', 5)
-            ])
-        sequence.append(('rest', 2))
-        self.thread_sequence(sequence)
-
-    def run_cycle_debug(self):
-        ''' Set the sequence for a run cycle. '''
-        if self.cycle_thread and self.cycle_thread.is_alive():
-            return
-
-        run_cycle_count = self.db.get_setting('run_cycle_count')
-        if run_cycle_count is None:
-            run_cycle_count = 1
-        else:
-            run_cycle_count = int(run_cycle_count) + 1
-        self.db.add_setting('run_cycle_count', run_cycle_count) 
-        current_time = datetime.now().isoformat()
-        self.db.add_setting('last_run_cycle', current_time)
-        sequence = [
-            ('run', 30),
-            ('rest', 2)
-        ]
-        for _ in range(6):
-            sequence.extend([
-                ('purge', 10),
-                ('burp', 5)
+                ('purge', purge_time),
+                ('burp', burp_time)
             ])
         sequence.append(('rest', 2))
         self.thread_sequence(sequence)
