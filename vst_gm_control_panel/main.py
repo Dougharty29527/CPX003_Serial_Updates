@@ -26,6 +26,9 @@ Usage:
 
 '''
 
+# Initial config for kv must be imported first.
+import data.config.settings
+
 # Standard imports.
 from datetime import datetime, timedelta
 import locale
@@ -59,7 +62,7 @@ from controllers import (
     MCP
 )
 from utils import DatabaseManager, Logger
-from views import MainScreen, TestScreen, KeypadScreen
+from views import MainScreen, TestScreen
 
 
 class ControlPanel(MDApp):
@@ -73,20 +76,19 @@ class ControlPanel(MDApp):
 
     SCREEN_CONFIG = {
         'Main': MainScreen,
-        'Test': TestScreen,
-        'Keypad': KeypadScreen
+        'Test': TestScreen
     }
 
     language = StringProperty()
     current_time = StringProperty()
     current_date = StringProperty()
     current_pressure = StringProperty()
+    current_run_cycle_count = StringProperty()
     gm_status = StringProperty()
     run_cycle = BooleanProperty(False)
     run_cycle_interval = NumericProperty(43200)
     alarm = BooleanProperty(False)
-    pin_entry = BooleanProperty(False)
-    interval_entry = BooleanProperty(False)
+    debug = BooleanProperty(False)
 
     _logger = Logger(__name__)
     _db = DatabaseManager()
@@ -120,7 +122,11 @@ class ControlPanel(MDApp):
         Purpose:
         - Load the user's preferred language.
         '''
-        self.language = self._user_db.get_setting('language')
+        language = self._user_db.get_setting('language')
+        if language is None:
+            language = 'EN'
+            self.save_user_language(language)
+        self.language = language
 
     def save_user_language(self, user_language=None) -> None:
         '''
@@ -143,7 +149,8 @@ class ControlPanel(MDApp):
         self.language = selected_language
         self.save_user_language()
         self.get_datetime()
-        self.walk_widget_tree(MDApp.get_running_app().root)
+        # self.walk_widget_tree(MDApp.get_running_app().root)
+        self.check_all_screens()
 
     def translate(self, key, default=None) -> str:
         '''
@@ -167,18 +174,36 @@ class ControlPanel(MDApp):
         Purpose:
         - Walk the widget tree and perform translations.
         '''
-        if hasattr(widget, 'ids'):
+        # Check if widget has 'ids' attribute and it's not empty.
+        if hasattr(widget, 'ids') and widget.ids:
             for key, val in widget.ids.items():
+                # Translate and update text if applicable
                 if hasattr(val, 'text'):
                     translated_text = self.translate(key)
                     if translated_text is not None:
-                        val.text = translated_text
-                if key == 'title':
-                    screen = self.sm.current.lower()
-                    if isinstance(val, TopBar):
-                        val.screen_title = self.translate(screen)
+                        val.text = translated_text.upper()
+                # Check if val is an instance of TopBar and key is 'title'
+                if key == 'main_screen':
+                    main_screen = self.translate('main', 'main')
+                    val.screen_title = main_screen.upper()
+                if key == 'test_screen':
+                    test_screen = self.translate('test', 'test')
+                    val.screen_title = test_screen.upper()
+                # if isinstance(val, TopBar) and key == 'title':
+                #     screen = self.sm.current.lower()
+                #     val.screen_title = self.translate(screen).upper()
+        
+        # Recursively walk through children widgets
         for child in widget.children:
             self.walk_widget_tree(child)
+
+    def check_all_screens(self, *args):
+        '''
+        Purpose:
+        - Iterate through all screens in ScreenManager and apply walk_widget_tree
+        '''
+        for screen in self.sm.screens:
+            self.walk_widget_tree(screen)
 
     def get_datetime(self, *args) -> None:
         '''
@@ -207,9 +232,9 @@ class ControlPanel(MDApp):
         - Set the update intervals for the application.
         '''
         Clock.schedule_interval(self.get_datetime, 30)
-        Clock.schedule_interval(self.get_pressure, .5)
+        Clock.schedule_interval(self.get_pressure, 1)
         Clock.schedule_interval(self.get_gm_status, .5)
-        Clock.schedule_interval(self.check_last_run_cycle, 10)
+        Clock.schedule_interval(self.check_last_run_cycle, 60)
 
     def get_pressure(self, *args) -> None:
         '''
@@ -235,18 +260,37 @@ class ControlPanel(MDApp):
             if current_time - last_run_time >= timedelta(seconds=self.run_cycle_interval):
                 self.start_run_cycle()
 
+    def get_cycle_count(self):
+        run_cycle_count = self._gm_db.get_setting('run_cycle_count')
+        if run_cycle_count:
+            self.current_run_cycle_count = str(run_cycle_count)
+        else:
+            self.current_run_cycle_count = '0'
+
     def start_run_cycle(self):
-        self.mcp.run_cycle()
         self.run_cycle = True
+        self.get_cycle_count()
+        if self.debug:
+            self.mcp.run_cycle_debug()
+        else:
+            self.mcp.run_cycle()
         if self.mcp.mode == None or self.mcp.mode == 'Complete':
             self.run_cycle = False
 
     def set_run_cycle_interval(self, interval):
-        self.run_cycle_interval = int(interval)
+        self.run_cycle_interval = int(interval) * 60
 
     def set_pin_delay(self, delay):
         delay_ms = int(delay) / 1000
         self.mcp.set_pin_delay(delay_ms)
+
+    def restore_defaults(self):
+        self.debug = False
+        self.run_cycle_interval = 43200
+        self.set_pin_delay(10)
+
+    def toggle_debug(self):
+        self.debug = not self.debug
 
     def switch_screen(self, screen_name='main_screen'):
         ''' Switch to the screen that was pressed. '''
@@ -280,10 +324,12 @@ class ControlPanel(MDApp):
         self.configure_application()
         self.load_user_language()
         self.get_datetime()
+        self.get_cycle_count()
         self.set_update_intervals()
         self.load_all_kv_files()
         self.configure_screen_manager()
-        Clock.schedule_once(lambda dt: self.walk_widget_tree(MDApp.get_running_app().root), 0)
+        Clock.schedule_once(self.check_all_screens, 0)
+        # Clock.schedule_once(lambda dt: self.walk_widget_tree(MDApp.get_running_app().root), 0)
         return self.sm
 
 if __name__ == '__main__':

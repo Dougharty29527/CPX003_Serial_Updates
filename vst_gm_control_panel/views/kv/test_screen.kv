@@ -1,35 +1,202 @@
 #:kivy 2.3.0
 
 <TestScreen>
-    md_bg_color: self.theme_cls.onPrimaryColor
+    md_bg_color: app.theme_cls.onPrimaryColor
 
-    TopBar:
-        id: title
-        screen_title: 'TEST'
+    MDNavigationLayout:
 
-    MDBoxLayout:
-        spacing: '24dp'
-        pos_hint: {'center_x': .5, 'center_y': .5}
-        adaptive_size: True
+        MDScreenManager:
 
-        MDButton:
-            style: 'elevated'
-            radius: 0
-            on_press:
-                app.pin_entry = True
-                app.switch_screen('Keypad')
+            MDScreen:
 
-            MDButtonText:
-                text: 'Pin Delay'
+                TopBar:
+                    id: test_screen
+                    screen_title: app.translate('test', 'test').upper()
 
-        MDButton:
-            style: 'elevated'
-            radius: 0
-            on_press:
-                app.interval_entry = True
-                app.switch_screen('Keypad')
+                MDBoxLayout:
+                    spacing: '24dp'
+                    pos_hint: {'center_x': .5, 'center_y': .5}
+                    adaptive_size: True
+                    orientation: 'vertical'
 
-            MDButtonText:
-                text: 'Cycle Interval'
+                    MDBoxLayout:
+                        adaptive_size: True
+                        orientation: 'horizontal'
+                        spacing: '24dp'
 
-    SideBar:
+                        MDButton:
+                            style: 'elevated'
+                            radius: 0
+                            pos_hint: {'center_x': .5}
+                            on_press:
+                                root.pin_entry = True
+                                root.open_sheet(sheet, 'modal')
+
+                            MDButtonText:
+                                id: enter_pin_delay
+                                text: app.translate('enter_pin_delay', 'enter pin delay').upper()
+
+                        MDButton:
+                            style: 'elevated'
+                            radius: 0
+                            pos_hint: {'center_x': .5}
+                            on_press:
+                                root.interval_entry = True
+                                root.open_sheet(sheet, 'modal')
+
+                            MDButtonText:
+                                id: enter_cycle_interval
+                                text: app.translate('enter_cycle_interval', 'enter cycle interval').upper()
+
+                    MDBoxLayout:
+                        adaptive_size: True
+                        orientation: 'horizontal'
+                        spacing: '24dp'
+
+                        MDButton:
+                            style: 'elevated'
+                            radius: 0
+                            pos_hint: {'center_x': .5}
+                            on_press:
+                                app.toggle_debug()
+
+                            MDButtonText:
+                                id: toggle_test_cycle
+                                text: app.translate('toggle_test_cycle', 'toggle test cycle').upper()
+
+                        MDButton:
+                            style: 'elevated'
+                            radius: 0
+                            pos_hint: {'center_x': .5}
+                            on_press:
+                                app.restore_defaults()
+
+                            MDButtonText:
+                                id: restore_defaults
+                                text: app.translate('restore_defaults', 'restore defaults').upper()
+
+                SideBar:
+
+        MDBottomSheet:
+            id: sheet
+            size_hint_y: None
+            height: '320dp'
+            background_color: app.theme_cls.surfaceColor
+            drawer_type: 'standard'
+
+            MDBottomSheetDragHandle:
+
+                MDBottomSheetDragHandleTitle:
+                    id: input_field
+                    text: root.input_string
+                    adaptive_height: True
+                    pos_hint: {'center_y': .5}
+
+                MDBottomSheetDragHandleButton:
+                    icon: 'close'
+                    on_release:
+                        sheet.set_state('toggle')
+                        root.pin_entry = False
+                        root.interval_entry = False
+
+            MDBoxLayout:
+                orientation: 'vertical'
+                padding: [0, '75dp', 0, '75dp']
+
+                MDBoxLayout:
+                    adaptive_size: True
+                    pos_hint: {'center_x': 0.5}
+                    spacing: '10dp'   
+
+                    MDButton:
+                        radius: '5dp'
+                        on_press: root.add_digit(1)
+
+                        MDButtonText:
+                            text: '1'
+
+                    MDButton:
+                        radius: '5dp'
+                        on_press: root.add_digit(2)
+
+                        MDButtonText:
+                            text: '2'
+
+                    MDButton:
+                        radius: '5dp'
+                        on_press: root.add_digit(3)
+
+                        MDButtonText:
+                            text: '3'
+
+                    MDButton:
+                        radius: '5dp'
+                        on_press: root.add_digit(4)
+
+                        MDButtonText:
+                            text: '4'
+
+                    MDButton:
+                        radius: '5dp'
+                        on_press: root.add_digit(5)
+
+                        MDButtonText:
+                            text: '5'
+
+                    MDButton:
+                        radius: '5dp'
+                        on_press: root.backspace()
+
+                        MDButtonText:
+                            id: back
+                            text: 'Back'
+
+                Widget:
+
+                MDBoxLayout:
+                    adaptive_size: True
+                    pos_hint: {'center_x': 0.5}
+                    spacing: '10dp'   
+
+                    MDButton:
+                        radius: '5dp'
+                        on_press: root.add_digit(6)
+
+                        MDButtonText:
+                            text: '6'
+
+                    MDButton:
+                        radius: '5dp'
+                        on_press: root.add_digit(7)
+
+                        MDButtonText:
+                            text: '7'
+
+                    MDButton:
+                        radius: '5dp'
+                        on_press: root.add_digit(8)
+
+                        MDButtonText:
+                            text: '8'
+
+                    MDButton:
+                        radius: '5dp'
+                        on_press: root.add_digit(9)
+
+                        MDButtonText:
+                            text: '9'
+
+                    MDButton:
+                        radius: '5dp'
+                        on_press: root.add_digit(0)
+
+                        MDButtonText:
+                            text: '0'
+
+                    MDButton:
+                        radius: '5dp'
+                        on_press: root.submit()
+
+                        MDButtonText:
+                            id: submit
+                            text: app.translate('submit', 'submit').upper()

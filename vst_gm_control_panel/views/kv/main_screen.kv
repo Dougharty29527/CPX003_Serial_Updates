@@ -4,8 +4,8 @@
     md_bg_color: app.theme_cls.onPrimaryColor
 
     TopBar:
-        id: title
-        screen_title: 'MAIN'
+        id: main_screen
+        screen_title: app.translate('main', 'main').upper()
 
     MDBoxLayout:
         adaptive_size: True
@@ -27,7 +27,7 @@
 
                 MDButtonText:
                     id: pressure
-                    text: 'UST PRESSURE:'
+                    text: app.translate('pressure', 'pressure').upper()
                     font_style: 'Headline'
                     role: 'large'
                     theme_disabled_color: 'Custom'
@@ -54,7 +54,8 @@
                 disabled: True
 
                 MDButtonText:
-                    text: 'RUN CYCLES:'
+                    id: run_cycles
+                    text: app.translate('run_cycles', 'run cycles').upper()
                     font_style: 'Headline'
                     role: 'large'
                     theme_disabled_color: 'Custom'
@@ -66,7 +67,7 @@
 
                 MDButtonText:
                     id: current_cycle_count
-                    text: '0'
+                    text: app.current_run_cycle_count
                     font_style: 'Display'
                     role: 'small'
                     theme_disabled_color: 'Custom'

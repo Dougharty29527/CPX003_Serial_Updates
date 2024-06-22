@@ -2,4 +2,3 @@
 
 from .py.main_screen import MainScreen
 from .py.test_screen import TestScreen
-from .py.keypad_screen import KeypadScreen

@@ -137,12 +137,10 @@ class MCP:
         self.cycle_thread.start()
 
     def get_values(self) -> str:
-        ''' Return the values of the motor, v1, v2, and v5 pins. '''
-        motor = self.pins['motor'].value
-        v1 = self.pins['v1'].value
-        v2 = self.pins['v2'].value
-        v5 = self.pins['v5'].value
-        return motor, v1, v2, v5
+        ''' Return the names of the motor, v1, v2, and v5 pins that are True. '''
+        pin_names = ['motor', 'v1', 'v2', 'v5']
+        active_pins = [pin for pin in pin_names if self.pins[pin].value]
+        return ', '.join(active_pins)
 
     def get_mode(self) -> str:
         ''' Return the current mode. '''
@@ -150,6 +148,40 @@ class MCP:
 
     def run_cycle(self):
         ''' Set the sequence for a run cycle. '''
+        if self.cycle_thread and self.cycle_thread.is_alive():
+            return
+
+        run_cycle_count = self.db.get_setting('run_cycle_count')
+        if run_cycle_count is None:
+            run_cycle_count = 1
+        else:
+            run_cycle_count = int(run_cycle_count) + 1
+        self.db.add_setting('run_cycle_count', run_cycle_count) 
+        current_time = datetime.now().isoformat()
+        self.db.add_setting('last_run_cycle', current_time)
+        sequence = [
+            ('run', 120),
+            ('rest', 2)
+        ]
+        for _ in range(6):
+            sequence.extend([
+                ('purge', 50),
+                ('burp', 5)
+            ])
+        sequence.append(('rest', 2))
+        self.thread_sequence(sequence)
+
+    def run_cycle_debug(self):
+        ''' Set the sequence for a run cycle. '''
+        if self.cycle_thread and self.cycle_thread.is_alive():
+            return
+
+        run_cycle_count = self.db.get_setting('run_cycle_count')
+        if run_cycle_count is None:
+            run_cycle_count = 1
+        else:
+            run_cycle_count = int(run_cycle_count) + 1
+        self.db.add_setting('run_cycle_count', run_cycle_count) 
         current_time = datetime.now().isoformat()
         self.db.add_setting('last_run_cycle', current_time)
         sequence = [
@@ -161,7 +193,7 @@ class MCP:
                 ('purge', 10),
                 ('burp', 5)
             ])
-        sequence.append(['rest', 2])
+        sequence.append(('rest', 2))
         self.thread_sequence(sequence)
 
     def functionality_test(self):
