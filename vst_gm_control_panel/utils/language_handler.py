@@ -2,6 +2,11 @@
 Module for handling language translations.
 '''
 
+# Standard imports.
+import locale
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 # Kivy imports.
 from kivymd.app import MDApp
 
@@ -18,7 +23,7 @@ class LanguageHandler:
     _logger = Logger(__name__)
     
     def __init__(self):
-        self.log = _logger.log_message
+        self.log = self._logger.log_message
         self._user_db = self._db.user()
         self._translations_db = self._db.translations()
         self.language = self.load_user_language()
@@ -33,7 +38,7 @@ class LanguageHandler:
         if language is None:
             language = 'EN'
             self.save_user_language(language)
-        return language
+        self.language = language
 
     def save_user_language(self, language):
         '''
@@ -44,7 +49,58 @@ class LanguageHandler:
         '''
         self._user_db.add_setting('language', language)
 
-    def translate_text(self, key, default=None):
+    def get_datetime(self, *args) -> None:
+        '''
+        Purpose:
+        - Get the current date and time.
+        '''
+        timezone_map = self.timezone_map()
+        now_local = datetime.now(
+            ZoneInfo(
+                timezone_map.get(self.language, 'UTC')
+            )
+        )
+        self.set_locale()
+        date = now_local.strftime('%A, %B %d')
+        time = now_local.strftime("%I:%M")
+        return date, time
+
+    def set_locale(self):
+        '''
+        Purpose:
+        - Set the locale based on the user's language.
+        '''
+        locale_map = self.locale_map()
+        locale.setlocale(
+            locale.LC_TIME,
+            locale_map.get(
+                self.language,
+                'en_US.UTF-8'
+            )
+        )
+
+    def locale_map(self) -> dict:
+        '''
+        Purpose:
+        - Map languages to locales.
+        '''
+        return {
+                'EN': 'en_US.UTF-8',
+                'ES': 'es_ES.UTF-8'
+            }
+
+    def timezone_map(self) -> dict:
+        '''
+        Purpose:
+        - Map languages to timezones.
+        '''
+        return {
+            'EN': 'America/New_York',
+            'ES': 'Europe/Madrid'
+        }
+
+
+    def translate(self, key, default=None):
         '''
         Purpose:
         - Translate a key to the user's language.
@@ -56,7 +112,7 @@ class LanguageHandler:
         if translation is None:
             self.log('error', f'No translation found for key: {key}')
             return default
-        return key
+        return translation
 
     def switch_language(self, selected_language):
         '''
@@ -81,9 +137,9 @@ class LanguageHandler:
                 # Translate and update text if available.
                 if hasattr(val, 'text'):
                     translated_text = self.translate(key)
-                if translated_text:
-                    val.text = translated_text.upper()
-                self.udpate_screen_title(key, val)
+                    if translated_text:
+                        val.text = translated_text.upper()
+                self.update_screen_title(key, val)
         for child in widget.children:
             self.walk_app_widget_tree(child)
 

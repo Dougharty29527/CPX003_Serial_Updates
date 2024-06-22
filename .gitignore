@@ -2,7 +2,7 @@
 **/logs
 **/env
 **/archive
-**/test
+**/tests
 *log
 *.DS_Store
 *.db

@@ -210,7 +210,7 @@ class ControlPanel(MDApp):
         now_local = datetime.now(ZoneInfo(timezone_map.get(self.language, 'UTC')))
         self.set_locale()
         formatted_date = now_local.strftime('%A, %B %d')
-        formatted_time = now_local.strftime("%I:%M")
+        formatted_time = now_local.strftime('%I:%M')
         self.current_time = formatted_time
         self.current_date = formatted_date
 
@@ -255,6 +255,9 @@ class ControlPanel(MDApp):
             current_time = datetime.now()
             if current_time - last_run_time >= timedelta(seconds=self.run_cycle_interval):
                 self.start_run_cycle()
+        else:
+            current_time = datetime.now().isoformat()
+            self.db.add_setting('last_run_cycle', current_time)
 
     def get_cycle_count(self):
         run_cycle_count = self._gm_db.get_setting('run_cycle_count')
