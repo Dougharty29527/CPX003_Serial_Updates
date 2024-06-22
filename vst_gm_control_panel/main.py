@@ -86,6 +86,7 @@ class ControlPanel(MDApp):
     current_pressure = StringProperty()
     current_run_cycle_count = StringProperty()
     gm_status = StringProperty()
+    pin_delay = StringProperty('10ms')
     run_cycle = BooleanProperty(False)
     run_cycle_interval = NumericProperty(43200)
     alarm = BooleanProperty(False)
@@ -135,15 +136,7 @@ class ControlPanel(MDApp):
         self.language = selected_language
         self.language_handler.save_user_language(self.language)
         self.get_datetime()
-        self.check_all_screens()
-
-    def check_all_screens(self, *args):
-        '''
-        Purpose:
-        - Iterate through all screens in ScreenManager and apply walk_widget_tree
-        '''
-        for screen in self.sm.screens:
-            self.language_handler.walk_app_widget_tree(screen)
+        self.language_handler.check_all_screens()
 
     def get_datetime(self, *args) -> None:
         '''
@@ -224,6 +217,7 @@ class ControlPanel(MDApp):
     def set_pin_delay(self, delay):
         delay_ms = int(delay) / 1000
         self.mcp.set_pin_delay(delay_ms)
+        self.pin_delay = f'{delay}ms'
 
     def restore_defaults(self):
         self.debug = False
@@ -254,7 +248,7 @@ class ControlPanel(MDApp):
         self.load_all_kv_files()
         self.configure_screen_manager()
         self.dropdown_menu = DropdownMenu()
-        Clock.schedule_once(self.check_all_screens, 0)
+        Clock.schedule_once(self.language_handler.check_all_screens, 0)
         Clock.schedule_once(self.check_last_run_cycle, 0)
         return self.sm
 

@@ -90,3 +90,11 @@ class LanguageHandler:
             if key == screen:
                 title = self.translate(screen_name, screen_name)
                 val.screen_title = title.upper()
+
+    def check_all_screens(self, *args):
+        '''
+        Purpose:
+        - Iterate through all screens in ScreenManager and apply walk_widget_tree
+        '''
+        for screen in self.app.sm.screens:
+            self.walk_app_widget_tree(screen)
