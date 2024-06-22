@@ -13,7 +13,6 @@
                     id: closed_nav
                     size_hint_x: None
                     adaptive_height: True
-                    # md_bg_color: app.theme_cls.secondaryContainerColor
                     md_bg_color: app.theme_cls.primaryContainerColor
                     width: '50dp'
                     orientation: 'vertical'
@@ -64,7 +63,10 @@
 
             NavDrawerItem:
                 md_bg_color: app.theme_cls.primaryContainerColor
-                on_press: app.switch_screen('Main')
+                on_press:
+                    self.toggled = False
+                    open_nav.set_state('toggle')
+                    app.switch_screen('Main')
 
                 MDNavigationDrawerItemLeadingIcon:
                     icon: 'home'
@@ -73,7 +75,7 @@
 
                 MDNavigationDrawerItemText:
                     id: main
-                    text: app.translate('main', 'main').upper()
+                    text: 'MAIN'
                     font_style: 'Title'
                     role: 'medium'
                     theme_text_color: 'Custom'
@@ -81,7 +83,10 @@
 
             NavDrawerItem:
                 md_bg_color: app.theme_cls.primaryContainerColor
-                on_press: app.switch_screen('Test')
+                on_press:
+                    self.toggled = False
+                    open_nav.set_state('toggle')
+                    app.switch_screen('Test')
 
                 MDNavigationDrawerItemLeadingIcon:
                     icon: 'test-tube'
@@ -90,7 +95,7 @@
 
                 MDNavigationDrawerItemText:
                     id: test
-                    text: app.translate('test', 'test').upper()
+                    text: 'TEST'
                     font_style: 'Title'
                     role: 'medium'
                     theme_text_color: 'Custom'

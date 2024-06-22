@@ -5,17 +5,13 @@
 
     TopBar:
         id: main_screen
-        screen_title: app.translate('main', 'main').upper()
+        screen_title: 'MAIN'
 
     MDBoxLayout:
         adaptive_size: True
         orientation: 'vertical'
         pos_hint: {'center_x': .5, 'center_y': .5}
         spacing: '30dp'
-
-        # MDBoxLayout:
-        #     size_hint_y: None
-        #     height: '55dp'
 
         MDBoxLayout:
             adaptive_size: True
@@ -27,7 +23,7 @@
 
                 MDButtonText:
                     id: pressure
-                    text: app.translate('pressure', 'pressure').upper()
+                    text: 'UST PRESSURE (IWC)'
                     font_style: 'Headline'
                     role: 'large'
                     theme_disabled_color: 'Custom'
@@ -55,7 +51,7 @@
 
                 MDButtonText:
                     id: run_cycles
-                    text: app.translate('run_cycles', 'run cycles').upper()
+                    text: 'RUN CYCLES'
                     font_style: 'Headline'
                     role: 'large'
                     theme_disabled_color: 'Custom'
@@ -66,7 +62,6 @@
                 disabled: True
 
                 MDButtonText:
-                    id: current_cycle_count
                     text: app.current_run_cycle_count
                     font_style: 'Display'
                     role: 'small'
