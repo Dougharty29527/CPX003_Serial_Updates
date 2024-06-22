@@ -18,7 +18,6 @@ class DatabaseManager:
     - Class to handle the database connections.
     '''
 
-    _dir: str = os.path.dirname(__file__)
     _logger: Logger = Logger(__name__)
 
     def __init__(self, db_name: str ='app.db', table_name: str ='gm'):
@@ -26,8 +25,8 @@ class DatabaseManager:
         self.conn: Optional[sqlite3.Connection] = None
         self.db_name: str = db_name
         self.table_name: str = table_name
-        if not os.path.exists(os.path.join(self._dir, 'data', 'db')):
-            os.makedirs(os.path.join(self._dir, 'data', 'db'))
+        if not os.path.exists(os.path.join('data', 'db')):
+            os.makedirs(os.path.join('data', 'db'))
         self.db_path: str = os.path.join('data', 'db', self.db_name)
         self.create_table_if_not_exists()
 

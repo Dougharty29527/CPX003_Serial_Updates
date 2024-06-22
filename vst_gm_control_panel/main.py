@@ -189,10 +189,6 @@ class ControlPanel(MDApp):
                 if key == 'test_screen':
                     test_screen = self.translate('test', 'test')
                     val.screen_title = test_screen.upper()
-                # if isinstance(val, TopBar) and key == 'title':
-                #     screen = self.sm.current.lower()
-                #     val.screen_title = self.translate(screen).upper()
-        
         # Recursively walk through children widgets
         for child in widget.children:
             self.walk_widget_tree(child)
