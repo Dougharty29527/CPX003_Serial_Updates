@@ -105,7 +105,7 @@ class SideBar(MDNavigationLayout):
                     icon=icon
                 ),
                 MDNavigationDrawerItemText(
-                    text=self.app.translate(name),
+                    text=self.app.language_handler.translate(name),
                     font_style='Title',
                     role='medium'
                 ),

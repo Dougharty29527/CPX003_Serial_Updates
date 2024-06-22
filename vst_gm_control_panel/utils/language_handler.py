@@ -47,6 +47,23 @@ class LanguageHandler:
         '''
         self.app._user_db.add_setting('language', language)
 
+    def translate(self, key, default=None) -> str:
+        '''
+        Purpose:
+        - Translate a key to the current language.
+        Parameters:
+        - key: The key to translate (str).
+        Returns:
+        - str: The translated key.
+        '''
+        language = self.app.language
+        translation = self.app._translations_db.translate(language, key)
+        if translation is None:
+            if default:
+                translation = default
+            self.log('error', f'No translation found for key: {key}')
+        return translation
+
     def walk_app_widget_tree(self, widget):
         '''
         Purpose:
@@ -57,7 +74,7 @@ class LanguageHandler:
             for key, val in widget.ids.items():
                 # Translate and update text if applicable
                 if hasattr(val, 'text'):
-                    translated_text = self.app.translate(key)
+                    translated_text = self.translate(key)
                     if translated_text is not None:
                         val.text = translated_text.upper()
                 self.update_screen_title(key, val)
@@ -71,5 +88,5 @@ class LanguageHandler:
             'test_screen': 'test'
         }.items():
             if key == screen:
-                title = self.app.translate(screen_name, screen_name)
+                title = self.translate(screen_name, screen_name)
                 val.screen_title = title.upper()

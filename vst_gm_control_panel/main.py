@@ -137,47 +137,6 @@ class ControlPanel(MDApp):
         self.get_datetime()
         self.check_all_screens()
 
-    def translate(self, key, default=None) -> str:
-        '''
-        Purpose:
-        - Translate a key to the current language.
-        Parameters:
-        - key: The key to translate (str).
-        Returns:
-        - str: The translated key.
-        '''
-        translation = self._translations_db.translate(self.language, key)
-        if translation is None:
-            if default:
-                translation = default
-            else:
-                self.log('error', f'No translation found for key: {key}')
-        return translation
-
-    def walk_widget_tree(self, widget):
-        '''
-        Purpose:
-        - Walk the widget tree and perform translations.
-        '''
-        # Check if widget has 'ids' attribute and it's not empty.
-        if hasattr(widget, 'ids') and widget.ids:
-            for key, val in widget.ids.items():
-                # Translate and update text if applicable
-                if hasattr(val, 'text'):
-                    translated_text = self.translate(key)
-                    if translated_text is not None:
-                        val.text = translated_text.upper()
-                # Check if val is an instance of TopBar and key is 'title'
-                if key == 'main_screen':
-                    main_screen = self.translate('main', 'main')
-                    val.screen_title = main_screen.upper()
-                if key == 'test_screen':
-                    test_screen = self.translate('test', 'test')
-                    val.screen_title = test_screen.upper()
-        # Recursively walk through children widgets
-        for child in widget.children:
-            self.walk_widget_tree(child)
-
     def check_all_screens(self, *args):
         '''
         Purpose:
@@ -229,9 +188,10 @@ class ControlPanel(MDApp):
 
     def get_gm_status(self, *args):
         if self.run_cycle:
-            self.gm_status = self.translate('gm_active', 'Active').upper()
+            gm_status = self.language_handler.translate('gm_active', 'active')
         else:
-            self.gm_status = self.translate('gm_idle', 'Idle').upper()
+            gm_status = self.language_handler.translate('gm_idle', 'idle')
+        self.gm_status = gm_status.upper()
 
     def check_last_run_cycle(self, *args):
         last_run_cycle = self._gm_db.get_setting('last_run_cycle')
