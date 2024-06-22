@@ -257,7 +257,7 @@ class ControlPanel(MDApp):
                 self.start_run_cycle()
         else:
             current_time = datetime.now().isoformat()
-            self.db.add_setting('last_run_cycle', current_time)
+            self._gm_db.add_setting('last_run_cycle', current_time)
 
     def get_cycle_count(self):
         run_cycle_count = self._gm_db.get_setting('run_cycle_count')
@@ -328,6 +328,7 @@ class ControlPanel(MDApp):
         self.load_all_kv_files()
         self.configure_screen_manager()
         Clock.schedule_once(self.check_all_screens, 0)
+        Clock.schedule_once(self.check_last_run_cycle, 0)
         # Clock.schedule_once(lambda dt: self.walk_widget_tree(MDApp.get_running_app().root), 0)
         return self.sm
 
