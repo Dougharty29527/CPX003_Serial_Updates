@@ -249,7 +249,7 @@ class ControlPanel(MDApp):
 
     def restore_defaults(self):
         self.debug = False
-        self.run_cycle_interval = 43200
+        self.set_run_cycle_interval(720)
         self.set_pin_delay(10)
 
     def toggle_debug(self):
