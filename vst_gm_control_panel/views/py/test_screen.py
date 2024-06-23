@@ -58,9 +58,9 @@ class TestScreen(MDScreen):
         code_entered = self.app.sm.get_screen('Test').ids.input_field.text
         if self.pin_entry:
             self.app.set_pin_delay(int(code_entered))
-            self.input_string = f'{self.app.translate("pin_update", "Pin delay set to")} {code_entered} ms.'
+            self.input_string = f'{self.app.language_handler.translate("pin_update", "Pin delay set to")} {code_entered} ms.'
         elif self.interval_entry:
             self.app.set_run_cycle_interval(int(code_entered))
-            self.input_string = f'{self.app.translate("cycle_check_interval", "Run cycle check interval set to")} {code_entered} min.'
+            self.input_string = f'{self.app.language_handler.translate("cycle_check_interval", "Run cycle check interval set to")} {code_entered} min.'
         self.pin_entry = False
         self.interval_entry = False

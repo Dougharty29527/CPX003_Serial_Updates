@@ -86,7 +86,7 @@ class ControlPanel(MDApp):
     current_pressure = StringProperty()
     current_run_cycle_count = StringProperty()
     gm_status = StringProperty()
-    pin_delay = StringProperty('10ms')
+    pin_delay_string = StringProperty('PIN DELAY: 10ms')
     run_cycle = BooleanProperty(False)
     run_cycle_interval = NumericProperty(43200)
     alarm = BooleanProperty(False)
@@ -137,6 +137,7 @@ class ControlPanel(MDApp):
         self.language_handler.save_user_language(self.language)
         self.get_datetime()
         self.language_handler.check_all_screens()
+        self.update_pin_delay_string()
 
     def get_datetime(self, *args) -> None:
         '''
@@ -217,7 +218,16 @@ class ControlPanel(MDApp):
     def set_pin_delay(self, delay):
         delay_ms = int(delay) / 1000
         self.mcp.set_pin_delay(delay_ms)
-        self.pin_delay = f'{delay}ms'
+        self.update_pin_delay_string()
+
+    def update_pin_delay_string(self):
+        mcp_pin_delay = self.mcp.pin_delay
+        if mcp_pin_delay:
+            delay = int(mcp_pin_delay * 1000)
+        else:
+            delay = 10
+        pin_delay_string = self.language_handler.translate('pin_delay', 'Pin Delay:')
+        self.pin_delay_string = f'{pin_delay_string.upper()}: {delay}ms'
 
     def restore_defaults(self):
         self.debug = False
@@ -248,6 +258,7 @@ class ControlPanel(MDApp):
         self.load_all_kv_files()
         self.configure_screen_manager()
         self.dropdown_menu = DropdownMenu()
+        self.update_pin_delay_string()
         Clock.schedule_once(self.language_handler.check_all_screens, 0)
         Clock.schedule_once(self.check_last_run_cycle, 0)
         return self.sm
