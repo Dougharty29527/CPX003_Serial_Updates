@@ -17,6 +17,7 @@
                     adaptive_height: True
                     orientation: 'vertical'
                     pos_hint: {'center_x': .5, 'center_y': .5}
+                    spacing: '12dp'
 
                     MDBoxLayout:
                         adaptive_size: True
@@ -54,31 +55,22 @@
 
                     MDBoxLayout:
                         adaptive_size: True
-                        orientation: 'vertical'
-                        spacing: '4dp'
-                        pos_hint: {'center_x': .5, 'center_y': .5}
-
-                        MDButton:
-                            style: 'text'
-                            disabled: True
-
-                            MDButtonText:
-                                text: app.debug_mode_string
-                                font_style: 'Title'
-                                role: 'large'
-                                theme_disabled_color: 'Custom'
-                                disabled_color: app.theme_cls.onPrimaryContainerColor
+                        orientation: 'horizontal'
+                        spacing: '12dp'
+                        pos_hint: {'center_x': .5}
 
                         MDButton:
                             style: 'elevated'
                             radius: 0
-                            pos_hint: {'center_x': .5}
+                            theme_width: 'Custom'
+                            width: '200dp'
                             on_press:
                                 app.toggle_debug()
 
                             MDButtonText:
                                 id: toggle
-                                text: 'TOGGLE'
+                                text: 'TOGGLE DEBUG'
+                                pos_hint: {'center_x': .5, 'center_y': .5}
 
                     MDBoxLayout:
                         adaptive_size: True
