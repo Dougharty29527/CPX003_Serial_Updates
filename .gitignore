@@ -5,4 +5,4 @@
 **/tests
 *log
 *.DS_Store
-*.db
+*app.db
