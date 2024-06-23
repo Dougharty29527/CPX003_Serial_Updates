@@ -80,7 +80,7 @@
 
                 MDBoxLayout:
                     adaptive_size: True
-                    padding: '12dp'
+                    padding: '10dp'
                     pos_hint: {'bottom': 1, 'right': 1}
 
                     MDIconButton:
@@ -89,6 +89,19 @@
                         theme_icon_color: 'Custom'
                         icon_color: app.theme_cls.onPrimaryContainerColor
                         on_press: root.open_sheet(stat_sheet, 'modal')
+
+                MDBoxLayout:
+                    adaptive_height: True
+                    padding: '16dp'
+                    pos_hint: {'bottom': 1, 'left': 1}
+
+                    MDLabel:
+                        text: app.debug_mode_string if app.debug else ''
+                        font_style: 'Title'
+                        role: 'medium'
+                        theme_text_color: 'Custom'
+                        text_color: app.theme_cls.errorContainerColor
+
 
                 SideBar:
 
@@ -270,8 +283,8 @@
 
                         MDLabel:
                             id: diagnostics
-                            theme_font_size: 'Custom'
                             text: 'Diagnostics'
+                            theme_font_size: 'Custom'
                             font_size: '32sp'
                             adaptive_height: True
                             padding: '10dp', '20dp', 0, 0
@@ -280,27 +293,28 @@
                         pos_hint: {'center_x': .5, 'center_y': .5}
 
                         MDListItemHeadlineText:
-                            text: app.gm_status
-
-                        MDListItemSupportingText:
                             id: gm_status_0
                             text: 'Green Machine Status'
+
+                        MDListItemSupportingText:
+                            text: app.gm_status
+
                     MDListItem:
                         pos_hint: {'center_x': .5, 'center_y': .5}
 
                         MDListItemHeadlineText:
-                            text: app.pin_delay_string
-
-                        MDListItemSupportingText:
                             id: pin_delay_0
                             text: 'Pin Delay'
 
+                        MDListItemSupportingText:
+                            text: app.pin_delay_string
+
                     MDListItem:
                         pos_hint: {'center_x': .5, 'center_y': .5}
 
                         MDListItemHeadlineText:
-                            text: app.run_cycle_check_interval_string
-
-                        MDListItemSupportingText:
                             id: run_cycle_check_interval_0
                             text: 'Cycle Check Interval'
+
+                        MDListItemSupportingText:
+                            text: app.run_cycle_check_interval_string

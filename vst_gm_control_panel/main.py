@@ -186,7 +186,6 @@ class ControlPanel(MDApp):
             self.start_run_cycle()
 
     def get_gm_status(self, *args):
-        print(self.mcp.cycle_thread)
         gm_status = self.language_handler.translate('gm_idle', 'idle')
         if self.mcp.cycle_thread is not None:
             self.run_cycle = True
@@ -245,21 +244,8 @@ class ControlPanel(MDApp):
         self.pin_delay_string = f'{delay} ms'
 
     def update_debug_mode_string(self):
-        debug_string = self.language_handler.translate(
-            'debug',
-            'debug'
-        )
-        if self.debug:
-            debug_value = self.language_handler.translate(
-                'true',
-                'true'
-            )
-        else:
-            debug_value = self.language_handler.translate(
-                'false',
-                'false'
-            )
-        self.debug_mode_string = f'{debug_string}: {debug_value}'
+        debug_string = self.language_handler.translate('debug', 'debug')
+        self.debug_mode_string = debug_string.upper()
 
     def restore_defaults(self):
         self.debug = False

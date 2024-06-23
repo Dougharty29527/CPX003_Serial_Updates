@@ -79,4 +79,16 @@
 
         StatusBar:
 
+    MDBoxLayout:
+        adaptive_height: True
+        padding: '16dp'
+        pos_hint: {'bottom': 1, 'left': 1}
+
+        MDLabel:
+            text: app.debug_mode_string if app.debug else ''
+            font_style: 'Title'
+            role: 'medium'
+            theme_text_color: 'Custom'
+            text_color: app.theme_cls.errorContainerColor
+
     SideBar:
