@@ -14,32 +14,21 @@
                     screen_title: 'TEST'
 
                 MDBoxLayout:
-                    spacing: '12dp'
-                    pos_hint: {'center_x': .5, 'center_y': .5}
-                    adaptive_size: True
+                    adaptive_height: True
                     orientation: 'vertical'
+                    pos_hint: {'center_x': .5, 'center_y': .5}
 
                     MDBoxLayout:
                         adaptive_size: True
-                        orientation: 'vertical'
-                        spacing: '4dp'
-                        pos_hint: {'center_x': .5, 'center_y': .5}
-
-                        MDButton:
-                            style: 'text'
-                            disabled: True
-
-                            MDButtonText:
-                                text: app.pin_delay_string
-                                font_style: 'Title'
-                                role: 'large'
-                                theme_disabled_color: 'Custom'
-                                disabled_color: app.theme_cls.onPrimaryContainerColor
+                        orientation: 'horizontal'
+                        spacing: '12dp'
+                        pos_hint: {'center_x': .5}
 
                         MDButton:
                             style: 'elevated'
                             radius: 0
-                            pos_hint: {'center_x': .5}
+                            theme_width: 'Custom'
+                            width: '200dp'
                             on_press:
                                 root.pin_entry = True
                                 root.open_sheet(sheet, 'modal')
@@ -47,28 +36,13 @@
                             MDButtonText:
                                 id: adjust_pin_delay
                                 text: 'ADJUST'
-
-                    MDBoxLayout:
-                        adaptive_size: True
-                        orientation: 'vertical'
-                        spacing: '4dp'
-                        pos_hint: {'center_x': .5, 'center_y': .5}
-
-                        MDButton:
-                            style: 'text'
-                            disabled: True
-
-                            MDButtonText:
-                                text: app.run_cycle_check_interval_string
-                                font_style: 'Title'
-                                role: 'large'
-                                theme_disabled_color: 'Custom'
-                                disabled_color: app.theme_cls.onPrimaryContainerColor
+                                pos_hint: {'center_x': .5, 'center_y': .5}
 
                         MDButton:
                             style: 'elevated'
                             radius: 0
-                            pos_hint: {'center_x': .5}
+                            theme_width: 'Custom'
+                            width: '200dp'
                             on_press:
                                 root.interval_entry = True
                                 root.open_sheet(sheet, 'modal')
@@ -76,6 +50,7 @@
                             MDButtonText:
                                 id: adjust_run_cycle_interval
                                 text: 'ADJUST'
+                                pos_hint: {'center_x': .5, 'center_y': .5}
 
                     MDBoxLayout:
                         adaptive_size: True
@@ -150,7 +125,7 @@
             MDBottomSheetDragHandleButton:
                 icon: 'close'
                 on_release:
-                    stat_sheet.set_state('toggle')
+                    sheet.set_state('toggle')
                 pos_hint: {'top': 1, 'right': 1}
 
             MDScrollView:
@@ -178,7 +153,7 @@
                                 role: 'small'
                                 theme_disabled_color: 'Custom'
                                 disabled_color: app.theme_cls.primaryColor
-                                pos_hint: {'center_x': .5}
+                                pos_hint: {'center_x': .5, 'center_y': .5}
 
                     MDBoxLayout:
                         adaptive_height: True
