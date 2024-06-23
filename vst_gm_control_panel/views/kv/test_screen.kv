@@ -262,7 +262,6 @@
                 do_scroll_x: False
 
                 MDBoxLayout:
-                    id: main_scroll
                     orientation: 'vertical'
                     adaptive_height: True
 
@@ -270,8 +269,9 @@
                         adaptive_height: True 
 
                         MDLabel:
+                            id: diagnostics
                             theme_font_size: 'Custom'
-                            text: 'GM Info'
+                            text: 'Diagnostics'
                             font_size: '32sp'
                             adaptive_height: True
                             padding: '10dp', '20dp', 0, 0
