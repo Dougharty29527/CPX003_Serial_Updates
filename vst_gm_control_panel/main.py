@@ -153,7 +153,7 @@ class ControlPanel(MDApp):
         now_local = datetime.now(ZoneInfo(timezone_map.get(self.language, 'UTC')))
         self.set_locale()
         formatted_date = now_local.strftime('%A, %B %d')
-        formatted_time = now_local.strftime('%I:%M')
+        formatted_time = now_local.strftime('%H:%M')
         self.current_time = formatted_time
         self.current_date = formatted_date
 

@@ -52,20 +52,20 @@ class DropdownMenu(MDDropdownMenu):
         settings_menu = [
             # {'text': f'{self.app.language_handler.translate("set_palette", "Set Palette")}', 'on_release': self.set_palette},
             {'text': f'{self.app.language_handler.translate("set_language", "Set Language")}', 'on_release': self.set_language},
-            {'text': f'{self.app.language_handler.translate("switch_theme", "Switch Theme")}', 'on_release': self.switch_theme},
+            # {'text': f'{self.app.language_handler.translate("switch_theme", "Switch Theme")}', 'on_release': self.switch_theme},
             {'text': f'{self.app.language_handler.translate("dismiss", "Dismiss")}', 'on_release': lambda: self.dismiss_current_menu(self.menu)}        
         ]
         self.open_menu(menu_button, settings_menu)
     
-    def switch_theme(self) -> None:
-        '''
-        Purpose:
-        - Switch the theme of the application.
-        '''
-        if self.app.theme_cls.theme_style == 'Light':
-            self.app.theme_cls.theme_style = 'Dark'
-        else:
-            self.app.theme_cls.theme_style = 'Light'
+    # def switch_theme(self) -> None:
+    #     '''
+    #     Purpose:
+    #     - Switch the theme of the application.
+    #     '''
+    #     if self.app.theme_cls.theme_style == 'Light':
+    #         self.app.theme_cls.theme_style = 'Dark'
+    #     else:
+    #         self.app.theme_cls.theme_style = 'Light'
 
     def switch_language(self, selected_language) -> None:
         '''
@@ -79,34 +79,34 @@ class DropdownMenu(MDDropdownMenu):
         self.second_menu.dismiss()
         self.menu.dismiss()
 
-    def switch_palette(self, selected_palette) -> None:
-        '''
-        Purpose:
-        - Switch the color palette of the application.
-        Parameters:
-        - selected_palette: The selected palette (str).
-        '''
-        self.app.theme_cls.primary_palette = selected_palette
+    # def switch_palette(self, selected_palette) -> None:
+    #     '''
+    #     Purpose:
+    #     - Switch the color palette of the application.
+    #     Parameters:
+    #     - selected_palette: The selected palette (str).
+    #     '''
+    #     self.app.theme_cls.primary_palette = selected_palette
 
-    def set_palette(self) -> None:
-        '''
-        Purpose:
-        - Set the color palette of the application.
-        '''
-        instance_from_menu = self.get_instance_from_menu(self.app.language_handler.translate('set_palette', 'Set Palette'))
-        available_palettes = [
-            name_color.capitalize() for name_color in hex_colormap.keys()
-        ]
+    # def set_palette(self) -> None:
+    #     '''
+    #     Purpose:
+    #     - Set the color palette of the application.
+    #     '''
+    #     instance_from_menu = self.get_instance_from_menu(self.app.language_handler.translate('set_palette', 'Set Palette'))
+    #     available_palettes = [
+    #         name_color.capitalize() for name_color in hex_colormap.keys()
+    #     ]
 
-        menu_items = [
-            {
-                'text': name_palette,
-                'on_release': lambda x=name_palette: self.switch_palette(x)
-            } for name_palette in available_palettes]
-        MDDropdownMenu(
-            caller=instance_from_menu,
-            items=menu_items,
-        ).open()
+    #     menu_items = [
+    #         {
+    #             'text': name_palette,
+    #             'on_release': lambda x=name_palette: self.switch_palette(x)
+    #         } for name_palette in available_palettes]
+    #     MDDropdownMenu(
+    #         caller=instance_from_menu,
+    #         items=menu_items,
+    #     ).open()
 
     def set_language(self) -> None:
         '''
