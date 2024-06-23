@@ -139,122 +139,151 @@
             background_color: app.theme_cls.surfaceColor
             drawer_type: 'standard'
 
-            MDBottomSheetDragHandle:
+            # MDBottomSheetDragHandle:
 
-                MDBottomSheetDragHandleTitle:
-                    id: input_field
-                    text: root.input_string
+            #     MDBottomSheetDragHandleTitle:
+            #         id: input_field
+            #         text: root.input_string
+            #         adaptive_height: True
+            #         pos_hint: {'center_y': .5}
+
+            MDBottomSheetDragHandleButton:
+                icon: 'close'
+                on_release:
+                    stat_sheet.set_state('toggle')
+                pos_hint: {'top': 1, 'right': 1}
+
+            MDScrollView:
+                do_scroll_x: False
+
+                MDBoxLayout:
+                    orientation: 'vertical'
                     adaptive_height: True
-                    pos_hint: {'center_y': .5}
 
-                MDBottomSheetDragHandleButton:
-                    icon: 'close'
-                    on_release:
-                        sheet.set_state('toggle')
-                        root.pin_entry = False
-                        root.interval_entry = False
+                    MDBoxLayout:
+                        adaptive_height: True
+                        pos_hint: {'center_x': .5}
+                        padding: [0, '12dp', 0, '24dp']
 
-            MDBoxLayout:
-                orientation: 'vertical'
-                padding: [0, '75dp', 0, '75dp']
+                        MDButton:
+                            style: 'text'
+                            disabled: True
+                            theme_width: 'Custom'
+                            size_hint_x: 1
 
-                MDBoxLayout:
-                    adaptive_size: True
-                    pos_hint: {'center_x': 0.5}
-                    spacing: '10dp'   
+                            MDButtonText:
+                                id: input_field
+                                text: root.input_string
+                                font_style: 'Headline'
+                                role: 'small'
+                                theme_disabled_color: 'Custom'
+                                disabled_color: app.theme_cls.primaryColor
+                                pos_hint: {'center_x': .5}
 
-                    MDButton:
-                        radius: '5dp'
-                        on_press: root.add_digit(1)
+                    MDBoxLayout:
+                        adaptive_height: True
+                        size_hint_x: .7
+                        orientation: 'vertical'
+                        spacing: '10dp'
+                        pos_hint: {'center_x': .5}
 
-                        MDButtonText:
-                            text: '1'
+                        MDBoxLayout:
+                            adaptive_size: True
+                            pos_hint: {'center_x': .5}
+                            spacing: '10dp'
+                            orientation: 'horizontal' 
 
-                    MDButton:
-                        radius: '5dp'
-                        on_press: root.add_digit(2)
+                            MDButton:
+                                radius: '5dp'
+                                on_press: root.add_digit(1)
 
-                        MDButtonText:
-                            text: '2'
+                                MDButtonText:
+                                    text: '1'
 
-                    MDButton:
-                        radius: '5dp'
-                        on_press: root.add_digit(3)
+                            MDButton:
+                                radius: '5dp'
+                                on_press: root.add_digit(2)
 
-                        MDButtonText:
-                            text: '3'
+                                MDButtonText:
+                                    text: '2'
 
-                    MDButton:
-                        radius: '5dp'
-                        on_press: root.add_digit(4)
+                            MDButton:
+                                radius: '5dp'
+                                on_press: root.add_digit(3)
 
-                        MDButtonText:
-                            text: '4'
+                                MDButtonText:
+                                    text: '3'
 
-                    MDButton:
-                        radius: '5dp'
-                        on_press: root.add_digit(5)
+                            MDButton:
+                                radius: '5dp'
+                                on_press: root.add_digit(4)
 
-                        MDButtonText:
-                            text: '5'
+                                MDButtonText:
+                                    text: '4'
 
-                    MDButton:
-                        radius: '5dp'
-                        on_press: root.backspace()
+                            MDButton:
+                                radius: '5dp'
+                                on_press: root.add_digit(5)
 
-                        MDButtonText:
-                            id: back
-                            text: 'BACK'
+                                MDButtonText:
+                                    text: '5'
 
-                Widget:
+                            MDButton:
+                                radius: '5dp'
+                                on_press: root.backspace()
 
-                MDBoxLayout:
-                    adaptive_size: True
-                    pos_hint: {'center_x': 0.5}
-                    spacing: '10dp'   
+                                MDButtonText:
+                                    id: back
+                                    text: 'BACK'
 
-                    MDButton:
-                        radius: '5dp'
-                        on_press: root.add_digit(6)
+                        MDBoxLayout:
+                            adaptive_size: True
+                            pos_hint: {'center_x': 0.5}
+                            spacing: '10dp'
+                            orientation: 'horizontal' 
 
-                        MDButtonText:
-                            text: '6'
+                            MDButton:
+                                radius: '5dp'
+                                on_press: root.add_digit(6)
 
-                    MDButton:
-                        radius: '5dp'
-                        on_press: root.add_digit(7)
+                                MDButtonText:
+                                    text: '6'
 
-                        MDButtonText:
-                            text: '7'
+                            MDButton:
+                                radius: '5dp'
+                                on_press: root.add_digit(7)
 
-                    MDButton:
-                        radius: '5dp'
-                        on_press: root.add_digit(8)
+                                MDButtonText:
+                                    text: '7'
 
-                        MDButtonText:
-                            text: '8'
+                            MDButton:
+                                radius: '5dp'
+                                on_press: root.add_digit(8)
 
-                    MDButton:
-                        radius: '5dp'
-                        on_press: root.add_digit(9)
+                                MDButtonText:
+                                    text: '8'
 
-                        MDButtonText:
-                            text: '9'
+                            MDButton:
+                                radius: '5dp'
+                                on_press: root.add_digit(9)
 
-                    MDButton:
-                        radius: '5dp'
-                        on_press: root.add_digit(0)
+                                MDButtonText:
+                                    text: '9'
 
-                        MDButtonText:
-                            text: '0'
+                            MDButton:
+                                radius: '5dp'
+                                on_press: root.add_digit(0)
 
-                    MDButton:
-                        radius: '5dp'
-                        on_press: root.submit()
+                                MDButtonText:
+                                    text: '0'
 
-                        MDButtonText:
-                            id: submit
-                            text: 'SUBMIT'
+                            MDButton:
+                                radius: '5dp'
+                                on_press: root.submit()
+
+                                MDButtonText:
+                                    id: submit
+                                    text: 'SUBMIT'
 
         MDBottomSheet:
             id: stat_sheet
@@ -263,18 +292,25 @@
             background_color: app.theme_cls.surfaceColor
             drawer_type: 'standard'
 
-            MDBottomSheetDragHandle:
+            # MDBottomSheetDragHandle:
+            #     adaptive_height: True
 
-                MDBottomSheetDragHandleTitle:
-                    text: ''
-                    adaptive_height: True
-                    pos_hint: {'center_y': .5}
+            #     MDBottomSheetDragHandleTitle:
+            #         text: ''
+            #         adaptive_height: True
+            #         pos_hint: {'center_y': .5}
 
-                MDBottomSheetDragHandleButton:
-                    icon: 'close'
-                    on_release:
-                        stat_sheet.set_state('toggle')
-                    pos_hint: {'top': 1}
+            #     MDBottomSheetDragHandleButton:
+            #         icon: 'close'
+            #         on_release:
+            #             stat_sheet.set_state('toggle')
+            #         pos_hint: {'top': 1}
+
+            MDBottomSheetDragHandleButton:
+                icon: 'close'
+                on_release:
+                    stat_sheet.set_state('toggle')
+                pos_hint: {'top': 1, 'right': 1}
 
             MDScrollView:
                 do_scroll_x: False
