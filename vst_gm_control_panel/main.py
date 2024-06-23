@@ -87,6 +87,8 @@ class ControlPanel(MDApp):
     current_pressure = StringProperty()
     current_run_cycle_count = StringProperty()
     gm_status = StringProperty()
+    current_mode = StringProperty('rest')
+    active_relays = StringProperty('none')
     run_cycle = BooleanProperty(False)
     run_cycle_interval = NumericProperty(43200)
     pin_delay_string = StringProperty('Pin Delay: 10 ms')
@@ -94,6 +96,7 @@ class ControlPanel(MDApp):
     debug_mode_string = StringProperty('Debug Mode: False')
     alarm = BooleanProperty(False)
     debug = BooleanProperty(False)
+    recent_notification = StringProperty('No Recent Notifications')
 
     _logger = Logger(__name__)
     _db = DatabaseManager()
@@ -193,6 +196,7 @@ class ControlPanel(MDApp):
         else:
             self.run_cycle = False
         self.gm_status = gm_status.upper()
+        self.get_current_mode()
 
     def check_last_run_cycle(self, *args):
         last_run_cycle = self._gm_db.get_setting('last_run_cycle')
@@ -216,8 +220,27 @@ class ControlPanel(MDApp):
         self.run_cycle = True
         self.get_cycle_count()
         self.mcp.run_cycle()
-        if self.mcp.mode == None or self.mcp.mode == 'Complete':
-            self.run_cycle = False
+        now = datetime.now()
+        dt = now.strftime('%Y-%m-%d %H:%M:%S')
+        notification = self.language_handler.translate(
+            'run_sequence_notification',
+            'Run Sequence Initiated'
+        )
+        self._user_db.add_setting('latest_notification', f'{dt}: {notification}')
+        self.recent_notification = f'{dt}: {notification}'
+
+    def get_current_mode(self):
+        current_mode = self.mcp.get_mode()
+        if current_mode:
+            mode_string = self.language_handler.translate(current_mode, current_mode)
+            if mode_string is not None:
+                self.current_mode = mode_string.upper()
+        active_relays = self.mcp.get_values()
+        if active_relays == 'None':
+            relay_string = self.language_handler.translate('none', 'none')
+            self.active_relays = relay_string
+        else:
+            self.active_relays = active_relays
 
     def set_run_cycle_interval(self, interval):
         self.run_cycle_interval = int(interval) * 60
@@ -256,6 +279,12 @@ class ControlPanel(MDApp):
         self.debug = not self.debug
         self.update_debug_mode_string()
 
+    def get_latest_update(self):
+        recent_notification = self._user_db.get_setting('latest_notification')
+        if recent_notification:
+            return recent_notification
+        return 'No Recent Notifications'
+
     def build(self) -> ScreenManager:
         '''
         Purpose:
@@ -281,6 +310,7 @@ class ControlPanel(MDApp):
         self.update_run_cycle_check_interval_string()
         Clock.schedule_once(self.language_handler.check_all_screens, 0)
         Clock.schedule_once(self.check_last_run_cycle, 0)
+        self.recent_notification = self.get_latest_update()
         return self.sm
 
 if __name__ == '__main__':

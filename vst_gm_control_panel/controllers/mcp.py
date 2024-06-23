@@ -23,16 +23,21 @@ from utils import DatabaseManager
 # Kivy imports.
 from kivymd.app import MDApp
 
+# Local imports.
+from utils import Logger
+
 class MCP:
     '''
     MCP:
     - This class is used to handle the MCP23017 I2C GPIO expander.
     '''
 
+    _logger = Logger(__name__)
+
     def __init__(self):
         self.app = MDApp.get_running_app()
+        self.log = self._logger.log_message
         self.pin_delay = None
-        self.mode = None
         self._database = DatabaseManager()
         self.db = self._database.gm()
         self._hardware_initialized = False
@@ -56,6 +61,7 @@ class MCP:
         self._stop_cycle_thread = threading.Event()
         self.setup_pins()
         self.set_mode('rest')
+        self.mode = 'rest'
 
     def set_pin_delay(self, pin_delay) -> None:
         '''
@@ -116,7 +122,7 @@ class MCP:
                 if self.pin_delay:
                     self.sleep_with_check(self.pin_delay)
         else:
-            print(f'Invalid mode: {mode}')
+            self.log('error', f'Invalid mode: {mode}')
 
     def set_sequence(self, sequence):
         ''' Set the pins for the specified sequence. '''
@@ -130,7 +136,7 @@ class MCP:
             self.set_mode('rest')
         finally:
             self.set_mode('rest')
-            self.mode = None
+            self.mode = 'rest'
             self.cycle_thread = None
 
     def thread_sequence(self, sequence):
@@ -145,7 +151,9 @@ class MCP:
         ''' Return the names of the motor, v1, v2, and v5 pins that are True. '''
         pin_names = ['motor', 'v1', 'v2', 'v5']
         active_pins = [pin for pin in pin_names if self.pins[pin].value]
-        return ', '.join(active_pins)
+        if any(active_pins):
+            return ', '.join(active_pins)
+        return 'None'
 
     def get_mode(self) -> str:
         ''' Return the current mode. '''
@@ -215,7 +223,6 @@ class MCP:
 
     def stop_cycle(self):
         ''' Stop the current sequence. '''
-        print('Stopping sequence')
         if self.cycle_thread and self.cycle_thread.is_alive():
             self._stop_cycle_thread.set()
             self.cycle_thread.join()

@@ -261,7 +261,7 @@
         MDBottomSheet:
             id: stat_sheet
             size_hint_y: None
-            height: '320dp'
+            height: '450dp'
             background_color: app.theme_cls.surfaceColor
             drawer_type: 'standard'
 
@@ -298,6 +298,8 @@
 
                         MDListItemSupportingText:
                             text: app.gm_status
+                            theme_text_color: 'Custom'
+                            text_color: '#00FF7F' if not app.alarm else '#B22222'
 
                     MDListItem:
                         pos_hint: {'center_x': .5, 'center_y': .5}
@@ -318,3 +320,33 @@
 
                         MDListItemSupportingText:
                             text: app.run_cycle_check_interval_string
+
+                    MDListItem:
+                        pos_hint: {'center_x': .5, 'center_y': .5}
+
+                        MDListItemHeadlineText:
+                            id: mode
+                            text: 'Mode'
+
+                        MDListItemSupportingText:
+                            text: app.current_mode
+
+                    MDListItem:
+                        pos_hint: {'center_x': .5, 'center_y': .5}
+
+                        MDListItemHeadlineText:
+                            id: active_relays
+                            text: 'Active Relays'
+
+                        MDListItemSupportingText:
+                            text: app.active_relays
+
+                    MDListItem:
+                        pos_hint: {'center_x': .5, 'center_y': .5}
+
+                        MDListItemHeadlineText:
+                            id: latest_notification
+                            text: 'Latest Notification'
+
+                        MDListItemSupportingText:
+                            text: app.recent_notification
