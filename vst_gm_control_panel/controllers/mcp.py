@@ -20,6 +20,9 @@ except (ImportError, NotImplementedError):
     MCP23017 = None
 from utils import DatabaseManager
 
+# Kivy imports.
+from kivymd.app import MDApp
+
 class MCP:
     '''
     MCP:
@@ -27,6 +30,7 @@ class MCP:
     '''
 
     def __init__(self):
+        self.app = MDApp.get_running_app()
         self.pin_delay = None
         self.mode = None
         self._database = DatabaseManager()

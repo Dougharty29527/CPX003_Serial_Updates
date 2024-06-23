@@ -14,7 +14,7 @@
                     screen_title: 'TEST'
 
                 MDBoxLayout:
-                    spacing: '24dp'
+                    spacing: '12dp'
                     pos_hint: {'center_x': .5, 'center_y': .5}
                     adaptive_size: True
                     orientation: 'vertical'
@@ -50,8 +50,8 @@
 
                     MDBoxLayout:
                         adaptive_size: True
-                        orientation: 'horizontal'
-                        spacing: '24dp'
+                        orientation: 'vertical'
+                        spacing: '4dp'
                         pos_hint: {'center_x': .5, 'center_y': .5}
 
                         MDButton:
@@ -61,15 +61,9 @@
                             MDButtonText:
                                 text: app.run_cycle_check_interval_string
                                 font_style: 'Title'
-                                role: 'medium'
+                                role: 'large'
                                 theme_disabled_color: 'Custom'
                                 disabled_color: app.theme_cls.onPrimaryContainerColor
-
-                    MDBoxLayout:
-                        adaptive_size: True
-                        orientation: 'horizontal'
-                        spacing: '24dp'
-                        pos_hint: {'center_x': .5, 'center_y': .5}
 
                         MDButton:
                             style: 'elevated'
@@ -85,8 +79,20 @@
 
                     MDBoxLayout:
                         adaptive_size: True
-                        orientation: 'horizontal'
-                        spacing: '24dp'
+                        orientation: 'vertical'
+                        spacing: '4dp'
+                        pos_hint: {'center_x': .5, 'center_y': .5}
+
+                        MDButton:
+                            style: 'text'
+                            disabled: True
+
+                            MDButtonText:
+                                text: app.debug_mode_string
+                                font_style: 'Title'
+                                role: 'large'
+                                theme_disabled_color: 'Custom'
+                                disabled_color: app.theme_cls.onPrimaryContainerColor
 
                         MDButton:
                             style: 'elevated'
@@ -96,8 +102,14 @@
                                 app.toggle_debug()
 
                             MDButtonText:
-                                id: toggle_test_cycle
-                                text: 'TOGGLE TEST CYCLE'
+                                id: toggle
+                                text: 'TOGGLE'
+
+                    MDBoxLayout:
+                        adaptive_size: True
+                        orientation: 'vertical'
+                        padding: [0, '12dp', 0, 0]
+                        pos_hint: {'center_x': .5, 'center_y': .5}
 
                         MDButton:
                             style: 'elevated'
@@ -109,6 +121,14 @@
                             MDButtonText:
                                 id: restore_defaults
                                 text: 'RESTORE DEFAULTS'
+
+                MDIconButton:
+                    id: stat_sheet_button
+                    icon: 'help-circle-outline'
+                    pos_hint: {'bottom': 1, 'right': 1}
+                    theme_icon_color: 'Custom'
+                    icon_color: app.theme_cls.onPrimaryContainerColor
+                    on_press: root.open_sheet(stat_sheet, 'modal')
 
                 SideBar:
 
@@ -235,3 +255,59 @@
                         MDButtonText:
                             id: submit
                             text: 'SUBMIT'
+
+        MDBottomSheet:
+            id: stat_sheet
+            size_hint_y: None
+            height: '320dp'
+            background_color: app.theme_cls.surfaceColor
+            drawer_type: 'standard'
+
+            MDBottomSheetDragHandle:
+
+                MDBottomSheetDragHandleTitle:
+                    text: ''
+                    adaptive_height: True
+                    pos_hint: {'center_y': .5}
+
+                MDBottomSheetDragHandleButton:
+                    icon: 'close'
+                    on_release:
+                        stat_sheet.set_state('toggle')
+                    pos_hint: {'top': 1}
+
+            MDScrollView:
+                do_scroll_x: False
+
+                MDBoxLayout:
+                    id: main_scroll
+                    orientation: 'vertical'
+                    adaptive_height: True
+
+                    MDBoxLayout:
+                        adaptive_height: True 
+
+                        MDLabel:
+                            theme_font_size: 'Custom'
+                            text: 'GM Info'
+                            font_size: '32sp'
+                            adaptive_height: True
+                            padding: '10dp', '20dp', 0, 0
+
+                    MDListItem:
+                        pos_hint: {'center_x': .5, 'center_y': .5}
+
+                        MDListItemHeadlineText:
+                            text: 'GM:'
+
+                        MDListItemSupportingText:
+                            text: app.gm_status
+
+                    MDListItem:
+                        pos_hint: {'center_x': .5, 'center_y': .5}
+
+                        MDListItemHeadlineText:
+                            text: 'Current Mode: ' 
+
+                        MDListItemSupportingText:
+                            text: app.mcp.mode if app.mcp.mode else 'None'

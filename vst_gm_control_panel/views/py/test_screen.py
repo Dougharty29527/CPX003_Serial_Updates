@@ -28,6 +28,10 @@ class TestScreen(MDScreen):
         super().__init__(**kwargs)
         self.app = app
 
+    def open_stat_sheet(self, stat_sheet, drawer_type):
+        stat_sheet.drawer_type = drawer_type
+        stat_sheet.set_state('toggle')
+
     def open_sheet(self, sheet, drawer_type):
         if self.pin_entry:
             self.interval_entry = False

@@ -54,6 +54,7 @@ from components import (
     DropdownMenu,
     SideBar,
     StatusBar,
+    StatusBarSmall,
     TopBar
 )
 from controllers import (
@@ -88,8 +89,9 @@ class ControlPanel(MDApp):
     gm_status = StringProperty()
     run_cycle = BooleanProperty(False)
     run_cycle_interval = NumericProperty(43200)
-    pin_delay_string = StringProperty('Pin Delay: 10ms')
-    run_cycle_check_interval_string = StringProperty('Run Cycle Check Interval: 12hr')
+    pin_delay_string = StringProperty('Pin Delay: 10 ms')
+    run_cycle_check_interval_string = StringProperty('Run Cycle Check Interval: 720 min')
+    debug_mode_string = StringProperty('Debug Mode: False')
     alarm = BooleanProperty(False)
     debug = BooleanProperty(False)
 
@@ -140,6 +142,7 @@ class ControlPanel(MDApp):
         self.language_handler.check_all_screens()
         self.update_pin_delay_string()
         self.update_run_cycle_check_interval_string()
+        self.update_debug_mode_string()
 
     def get_datetime(self, *args) -> None:
         '''
@@ -216,6 +219,7 @@ class ControlPanel(MDApp):
 
     def set_run_cycle_interval(self, interval):
         self.run_cycle_interval = int(interval) * 60
+        self.update_run_cycle_check_interval_string()
 
     def set_pin_delay(self, delay):
         delay_ms = int(delay) / 1000
@@ -231,7 +235,7 @@ class ControlPanel(MDApp):
             'run_cycle_check_interval',
             'Run Cycle Check Interval'
         )
-        self.run_cycle_check_interval_string = f'{interval_string}: {check_interval}min'
+        self.run_cycle_check_interval_string = f'{interval_string}: {check_interval} min'
 
     def update_pin_delay_string(self):
         mcp_pin_delay = self.mcp.pin_delay
@@ -243,7 +247,24 @@ class ControlPanel(MDApp):
             'pin_delay',
             'Pin Delay'
         )
-        self.pin_delay_string = f'{delay_string}: {delay}ms'
+        self.pin_delay_string = f'{delay_string}: {delay} ms'
+
+    def update_debug_mode_string(self):
+        debug_string = self.language_handler.translate(
+            'debug',
+            'debug'
+        )
+        if self.debug:
+            debug_value = self.language_handler.translate(
+                'true',
+                'true'
+            )
+        else:
+            debug_value = self.language_handler.translate(
+                'false',
+                'false'
+            )
+        self.debug_mode_string = f'{debug_string}: {debug_value}'
 
     def restore_defaults(self):
         self.debug = False
@@ -252,6 +273,7 @@ class ControlPanel(MDApp):
 
     def toggle_debug(self):
         self.debug = not self.debug
+        self.update_debug_mode_string()
 
     def build(self) -> ScreenManager:
         '''

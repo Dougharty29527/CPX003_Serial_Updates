@@ -72,3 +72,31 @@
                 theme_text_color: 'Custom'
                 text_color: app.theme_cls.secondaryColor
                 radius: 0
+
+<StatusBarSmall>:
+    orientation: 'horizontal'
+    adaptive_width: True
+    size_hint_y: None
+    height: '32dp'
+    spacing: 0
+
+    MDBoxLayout:
+        pos_hint: {'center_x': .5}
+
+        MDLabel:
+            text: 'GM: '
+            font_style: 'Headline'
+            theme_font_size: 'Custom'
+            font_size: '12sp'
+            text_theme_color: 'Custom'
+            text_color: app.theme_cls.onPrimaryContainerColor
+            padding: 0
+
+        MDLabel:
+            text: app.gm_status
+            font_style: 'Headline'
+            theme_font_size: 'Custom'
+            font_size: '12sp'
+            text_theme_color: 'Custom'
+            text_color: app.theme_cls.onPrimaryContainerColor
+            padding: 0
