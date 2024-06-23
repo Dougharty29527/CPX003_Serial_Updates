@@ -74,7 +74,10 @@ class LanguageHandler:
             for key, val in widget.ids.items():
                 # Translate and update text if applicable
                 if hasattr(val, 'text'):
-                    translated_text = self.translate(key)
+                    if 'adjust' in key:
+                        translated_text = self.translate('adjust', 'adjust')
+                    else:
+                        translated_text = self.translate(key)
                     if translated_text is not None:
                         val.text = translated_text.upper()
                 self.update_screen_title(key, val)

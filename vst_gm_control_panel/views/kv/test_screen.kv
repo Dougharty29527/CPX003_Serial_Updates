@@ -21,8 +21,9 @@
 
                     MDBoxLayout:
                         adaptive_size: True
-                        orientation: 'horizontal'
-                        spacing: '24dp'
+                        orientation: 'vertical'
+                        spacing: '4dp'
+                        pos_hint: {'center_x': .5, 'center_y': .5}
 
                         MDButton:
                             style: 'text'
@@ -44,13 +45,31 @@
                                 root.open_sheet(sheet, 'modal')
 
                             MDButtonText:
-                                id: adjust
+                                id: adjust_pin_delay
                                 text: 'ADJUST'
 
                     MDBoxLayout:
                         adaptive_size: True
                         orientation: 'horizontal'
                         spacing: '24dp'
+                        pos_hint: {'center_x': .5, 'center_y': .5}
+
+                        MDButton:
+                            style: 'text'
+                            disabled: True
+
+                            MDButtonText:
+                                text: app.run_cycle_check_interval_string
+                                font_style: 'Title'
+                                role: 'medium'
+                                theme_disabled_color: 'Custom'
+                                disabled_color: app.theme_cls.onPrimaryContainerColor
+
+                    MDBoxLayout:
+                        adaptive_size: True
+                        orientation: 'horizontal'
+                        spacing: '24dp'
+                        pos_hint: {'center_x': .5, 'center_y': .5}
 
                         MDButton:
                             style: 'elevated'
@@ -61,8 +80,8 @@
                                 root.open_sheet(sheet, 'modal')
 
                             MDButtonText:
-                                id: enter_cycle_interval
-                                text: 'ENTER CYCLE INTERVAL'
+                                id: adjust_run_cycle_interval
+                                text: 'ADJUST'
 
                     MDBoxLayout:
                         adaptive_size: True

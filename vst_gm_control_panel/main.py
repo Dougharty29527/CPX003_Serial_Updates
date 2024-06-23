@@ -86,9 +86,10 @@ class ControlPanel(MDApp):
     current_pressure = StringProperty()
     current_run_cycle_count = StringProperty()
     gm_status = StringProperty()
-    pin_delay_string = StringProperty('PIN DELAY: 10ms')
     run_cycle = BooleanProperty(False)
     run_cycle_interval = NumericProperty(43200)
+    pin_delay_string = StringProperty('Pin Delay: 10ms')
+    run_cycle_check_interval_string = StringProperty('Run Cycle Check Interval: 12hr')
     alarm = BooleanProperty(False)
     debug = BooleanProperty(False)
 
@@ -138,6 +139,7 @@ class ControlPanel(MDApp):
         self.get_datetime()
         self.language_handler.check_all_screens()
         self.update_pin_delay_string()
+        self.update_run_cycle_check_interval_string()
 
     def get_datetime(self, *args) -> None:
         '''
@@ -220,14 +222,28 @@ class ControlPanel(MDApp):
         self.mcp.set_pin_delay(delay_ms)
         self.update_pin_delay_string()
 
+    def update_run_cycle_check_interval_string(self):
+        if self.run_cycle_interval:
+            check_interval = int(self.run_cycle_interval / 60)
+        else:
+            check_interval = 720
+        interval_string = self.language_handler.translate(
+            'run_cycle_check_interval',
+            'Run Cycle Check Interval'
+        )
+        self.run_cycle_check_interval_string = f'{interval_string}: {check_interval}min'
+
     def update_pin_delay_string(self):
         mcp_pin_delay = self.mcp.pin_delay
         if mcp_pin_delay:
             delay = int(mcp_pin_delay * 1000)
         else:
             delay = 10
-        pin_delay_string = self.language_handler.translate('pin_delay', 'Pin Delay:')
-        self.pin_delay_string = f'{pin_delay_string.upper()}: {delay}ms'
+        delay_string = self.language_handler.translate(
+            'pin_delay',
+            'Pin Delay'
+        )
+        self.pin_delay_string = f'{delay_string}: {delay}ms'
 
     def restore_defaults(self):
         self.debug = False
@@ -259,6 +275,7 @@ class ControlPanel(MDApp):
         self.configure_screen_manager()
         self.dropdown_menu = DropdownMenu()
         self.update_pin_delay_string()
+        self.update_run_cycle_check_interval_string()
         Clock.schedule_once(self.language_handler.check_all_screens, 0)
         Clock.schedule_once(self.check_last_run_cycle, 0)
         return self.sm
