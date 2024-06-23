@@ -130,7 +130,8 @@ class MCP:
             self.set_mode('rest')
         finally:
             self.set_mode('rest')
-            self.mode = 'Complete'
+            self.mode = None
+            self.cycle_thread = None
 
     def thread_sequence(self, sequence):
         ''' Run the specified sequence in a new thread. '''

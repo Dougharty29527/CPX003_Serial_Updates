@@ -74,12 +74,21 @@ class LanguageHandler:
             for key, val in widget.ids.items():
                 # Translate and update text if applicable
                 if hasattr(val, 'text'):
-                    if 'adjust' in key:
-                        translated_text = self.translate('adjust', 'adjust')
-                    else:
-                        translated_text = self.translate(key)
+                    translated_text = self.translate(key)
                     if translated_text is not None:
                         val.text = translated_text.upper()
+                    if key == 'pin_delay_0':
+                        pin_delay = self.translate('pin_delay', 'pin_delay')
+                        if pin_delay is not None:
+                            val.text = pin_delay.upper()
+                    if key == 'run_cycle_check_interval_0':
+                        interval_check = self.translate('run_cycle_check_interval', 'run_cycle_check_interval')
+                        if interval_check is not None:
+                            val.text = interval_check.upper()
+                    if key == 'gm_status_0':
+                        gm = self.translate('gm_status', 'gm_status')
+                        if gm is not None:
+                            val.text = gm.upper()
                 self.update_screen_title(key, val)
         # Recursively walk through children widgets
         for child in widget.children:

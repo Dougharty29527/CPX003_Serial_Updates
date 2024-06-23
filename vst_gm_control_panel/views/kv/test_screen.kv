@@ -17,19 +17,18 @@
                     adaptive_height: True
                     orientation: 'vertical'
                     pos_hint: {'center_x': .5, 'center_y': .5}
-                    spacing: '12dp'
 
                     MDBoxLayout:
                         adaptive_size: True
-                        orientation: 'horizontal'
-                        spacing: '12dp'
+                        orientation: 'vertical'
+                        spacing: '16dp'
                         pos_hint: {'center_x': .5}
 
                         MDButton:
                             style: 'elevated'
                             radius: 0
                             theme_width: 'Custom'
-                            width: '200dp'
+                            width: '275dp'
                             on_press:
                                 root.pin_entry = True
                                 root.open_sheet(sheet, 'modal')
@@ -43,7 +42,7 @@
                             style: 'elevated'
                             radius: 0
                             theme_width: 'Custom'
-                            width: '200dp'
+                            width: '275dp'
                             on_press:
                                 root.interval_entry = True
                                 root.open_sheet(sheet, 'modal')
@@ -53,17 +52,11 @@
                                 text: 'ADJUST'
                                 pos_hint: {'center_x': .5, 'center_y': .5}
 
-                    MDBoxLayout:
-                        adaptive_size: True
-                        orientation: 'horizontal'
-                        spacing: '12dp'
-                        pos_hint: {'center_x': .5}
-
                         MDButton:
                             style: 'elevated'
                             radius: 0
                             theme_width: 'Custom'
-                            width: '200dp'
+                            width: '275dp'
                             on_press:
                                 app.toggle_debug()
 
@@ -72,30 +65,30 @@
                                 text: 'TOGGLE DEBUG'
                                 pos_hint: {'center_x': .5, 'center_y': .5}
 
-                    MDBoxLayout:
-                        adaptive_size: True
-                        orientation: 'vertical'
-                        padding: [0, '12dp', 0, 0]
-                        pos_hint: {'center_x': .5, 'center_y': .5}
-
                         MDButton:
                             style: 'elevated'
                             radius: 0
-                            pos_hint: {'center_x': .5}
+                            theme_width: 'Custom'
+                            width: '275dp'
                             on_press:
                                 app.restore_defaults()
 
                             MDButtonText:
                                 id: restore_defaults
                                 text: 'RESTORE DEFAULTS'
+                                pos_hint: {'center_x': .5, 'center_y': .5}
 
-                MDIconButton:
-                    id: stat_sheet_button
-                    icon: 'help-circle-outline'
+                MDBoxLayout:
+                    adaptive_size: True
+                    padding: '12dp'
                     pos_hint: {'bottom': 1, 'right': 1}
-                    theme_icon_color: 'Custom'
-                    icon_color: app.theme_cls.onPrimaryContainerColor
-                    on_press: root.open_sheet(stat_sheet, 'modal')
+
+                    MDIconButton:
+                        id: stat_sheet_button
+                        icon: 'help-circle-outline'
+                        theme_icon_color: 'Custom'
+                        icon_color: app.theme_cls.onPrimaryContainerColor
+                        on_press: root.open_sheet(stat_sheet, 'modal')
 
                 SideBar:
 
@@ -141,8 +134,8 @@
                             MDButtonText:
                                 id: input_field
                                 text: root.input_string
-                                font_style: 'Headline'
-                                role: 'small'
+                                font_style: 'Title'
+                                role: 'medium'
                                 theme_disabled_color: 'Custom'
                                 disabled_color: app.theme_cls.primaryColor
                                 pos_hint: {'center_x': .5, 'center_y': .5}
@@ -259,20 +252,6 @@
             background_color: app.theme_cls.surfaceColor
             drawer_type: 'standard'
 
-            # MDBottomSheetDragHandle:
-            #     adaptive_height: True
-
-            #     MDBottomSheetDragHandleTitle:
-            #         text: ''
-            #         adaptive_height: True
-            #         pos_hint: {'center_y': .5}
-
-            #     MDBottomSheetDragHandleButton:
-            #         icon: 'close'
-            #         on_release:
-            #             stat_sheet.set_state('toggle')
-            #         pos_hint: {'top': 1}
-
             MDBottomSheetDragHandleButton:
                 icon: 'close'
                 on_release:
@@ -301,16 +280,27 @@
                         pos_hint: {'center_x': .5, 'center_y': .5}
 
                         MDListItemHeadlineText:
-                            text: 'GM:'
+                            text: app.gm_status
 
                         MDListItemSupportingText:
-                            text: app.gm_status
+                            id: gm_status_0
+                            text: 'Green Machine Status'
+                    MDListItem:
+                        pos_hint: {'center_x': .5, 'center_y': .5}
+
+                        MDListItemHeadlineText:
+                            text: app.pin_delay_string
+
+                        MDListItemSupportingText:
+                            id: pin_delay_0
+                            text: 'Pin Delay'
 
                     MDListItem:
                         pos_hint: {'center_x': .5, 'center_y': .5}
 
                         MDListItemHeadlineText:
-                            text: 'Current Mode: ' 
+                            text: app.run_cycle_check_interval_string
 
                         MDListItemSupportingText:
-                            text: app.mcp.mode if app.mcp.mode else 'None'
+                            id: run_cycle_check_interval_0
+                            text: 'Cycle Check Interval'
