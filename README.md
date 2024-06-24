@@ -96,6 +96,7 @@ sudo systemctl stop saver.service
 sudo systemctl disable control.service
 sudo systemctl disable soracom.service
 sudo systemctl disable saver.service
+sudo systemctl daemon-reload
 sudo rm -rf /etc/systemd/system/control.service
 sudo rm -rf /etc/systemd/system/soracom.service
 sudo rm -rf /etc/systemd/system/saver.service
