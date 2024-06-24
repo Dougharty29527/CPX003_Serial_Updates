@@ -84,3 +84,24 @@ RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
+
+
+
+
+
+remove old control:
+sudo systemctl stop control.service
+sudo systemctl stop soracom.service
+sudo systemctl stop saver.service
+sudo systemctl disable control.service
+sudo systemctl disable soracom.service
+sudo systemctl disable saver.service
+sudo rm -rf /etc/systemd/system/control.service
+sudo rm -rf /etc/systemd/system/soracom.service
+sudo rm -rf /etc/systemd/system/saver.service
+sudo rm -rf /home/pi/python
+sudo adduser cpx003
+sudo usermod -aG sudo cpx003
+su - cpx003
+sudo apt update
+
