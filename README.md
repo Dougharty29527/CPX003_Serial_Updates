@@ -106,3 +106,11 @@ sudo usermod -aG sudo cpx003
 su - cpx003
 sudo apt update
 
+switch user
+
+sudo deluser pi
+sudo deluser --remove-home pi 
+sudo deluser --remove-all-files pi
+sudo deluser pi sudo
+
+
