@@ -108,6 +108,12 @@ sudo apt update
 
 switch user
 
+sudo usermod -aG i2c cpx003
+sudo usermod -aG input cpx003
+sudo chmod 666 /dev/i2c-1
+sudo chmod 666 /dev/input/event*
+
+
 
 
 
