@@ -108,9 +108,6 @@ sudo apt update
 
 switch user
 
-sudo deluser pi
-sudo deluser --remove-home pi 
-sudo deluser --remove-all-files pi
-sudo deluser pi sudo
+
 
 
