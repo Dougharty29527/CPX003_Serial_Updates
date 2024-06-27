@@ -33,6 +33,8 @@ import data.config.settings
 from datetime import datetime, timedelta
 import locale
 import os
+import socket
+import subprocess
 from zoneinfo import ZoneInfo
 
 # Kivy imports.
@@ -50,12 +52,20 @@ from kivymd.uix.widget import Widget
 from materialyoucolor.utils.platform_utils import SCHEMES
 
 # Local imports.
-from components import (
+from __init__ import __version__
+from views.pages import (
+    MainScreen,
+    TestScreen,
+    TimeEntryScreen
+)
+from views.components import (
     DropdownMenu,
-    SideBar,
     StatusBar,
-    StatusBarSmall,
-    TopBar
+    TopBar,
+    NavDrawerItem,
+    SideBar,
+    NoDragMDBottomSheet,
+    Diagnostics
 )
 from controllers import (
     PressureSensor,
@@ -67,7 +77,6 @@ from utils import (
     LanguageHandler,
     Logger
 )
-from views import MainScreen, TestScreen
 
 
 class ControlPanel(MDApp):
@@ -78,7 +87,8 @@ class ControlPanel(MDApp):
 
     SCREEN_CONFIG = {
         'Main': MainScreen,
-        'Test': TestScreen
+        'Test': TestScreen,
+        'TimeEntry': TimeEntryScreen
     }
 
     language = StringProperty()
@@ -97,6 +107,9 @@ class ControlPanel(MDApp):
     alarm = BooleanProperty(False)
     debug = BooleanProperty(False)
     recent_notification = StringProperty('No Recent Notifications')
+    manual_time_set = BooleanProperty(False)
+    accepted_dialog = BooleanProperty(False)
+    manual_time_set = BooleanProperty(False)
 
     _logger = Logger(__name__)
     _db = DatabaseManager()
@@ -105,10 +118,36 @@ class ControlPanel(MDApp):
         super().__init__(**kwargs)
         self._dir = os.path.dirname(__file__)
         self.log = self._logger.log_message
+        self._gm_db = self._db.gm()
         self._translations_db = self._db.translations()
         self._user_db = self._db.user()
-        self._gm_db = self._db.gm()
+        self.language_handler = LanguageHandler()
         self.sm = ScreenManager(transition=NoTransition())
+
+    def setup_io(self):
+        '''
+        Purpose:
+        - Setup the input/output for the application.
+        '''
+        self.pressure_sensor = PressureSensor()
+        self.mcp = MCP()
+
+    def get_gm_settings(self):
+        '''
+        Purpose:
+        - Get the Green Machine settings.
+        '''
+        self.get_cycle_count()
+        self.update_pin_delay_string()
+        self.update_run_cycle_check_interval_string()
+        self.recent_notification = self.get_latest_update()
+
+    def get_user_settings(self):
+        '''
+        Purpose:
+        - Get the user settings from the database.
+        '''
+        self.language_handler.load_user_language()
 
     def load_all_kv_files(self) -> None:
         '''
@@ -129,7 +168,12 @@ class ControlPanel(MDApp):
             self.sm.add_widget(screen_class(self, name=screen_name))
 
     def switch_screen(self, screen_name='Main'):
-        ''' Switch to the screen that was pressed. '''
+        '''
+        Purpose:
+        - Switch the screen to the specified screen.
+        Parameters:
+        - screen_name: The name of the screen to switch to (str).
+        '''
         self.sm.current = screen_name
 
     def switch_language(self, selected_language) -> None:
@@ -147,11 +191,21 @@ class ControlPanel(MDApp):
         self.update_run_cycle_check_interval_string()
         self.update_debug_mode_string()
 
+    def check_manual_time(self):
+        '''
+        Purpose:
+        - Check if the time has been manually set.
+        '''
+        manual_time = self._user_db.get_setting('manual_time_set')
+        if manual_time:
+            self.manual_time_set = True
+
     def get_datetime(self, *args) -> None:
         '''
         Purpose:
         - Get the current date and time.
         '''
+        now_local = datetime.now()
         timezone_map = {'ES': 'Europe/Madrid', 'EN': 'America/New_York'}
         now_local = datetime.now(ZoneInfo(timezone_map.get(self.language, 'UTC')))
         self.set_locale()
@@ -177,6 +231,17 @@ class ControlPanel(MDApp):
         Clock.schedule_interval(self.get_pressure, 1)
         Clock.schedule_interval(self.get_gm_status, 1)
         Clock.schedule_interval(self.check_last_run_cycle, 60)
+        Clock.schedule_once(self.language_handler.check_all_screens, 0)
+        Clock.schedule_once(self.check_last_run_cycle, 0)
+        # Clock.schedule_interval(self.log_fps, 1)
+
+    def log_fps(self, *args):
+        '''
+        Purpose:
+        - Log the current FPS.
+        '''
+        logger = Logger('fps')
+        logger.log_message('info', f'FPS: {Clock.get_rfps()}')
 
     def get_pressure(self, *args) -> None:
         '''
@@ -184,32 +249,57 @@ class ControlPanel(MDApp):
         - Get the current pressure reading.
         '''
         thresholds = PressureThresholds()
-        self.current_pressure = self.pressure_sensor.get_pressure()
-        if float(self.current_pressure) > float(thresholds.variable):
+        current_pressure = self.pressure_sensor.get_pressure()
+        if self.language == 'EN':
+            self.current_pressure = f'{current_pressure} IWC'
+        else:
+            self.current_pressure = current_pressure
+        if float(current_pressure) > float(thresholds.variable):
             self.start_run_cycle()
 
+    def calibrate_pressure_sensor(self):
+        '''
+        Purpose:
+        - Calibrate the pressure sensor.
+        '''
+        self.pressure_sensor.calibrate()
+
     def get_gm_status(self, *args):
-        gm_status = self.language_handler.translate('gm_idle', 'idle')
-        if self.mcp.cycle_thread is not None:
-            self.run_cycle = True
-            gm_status = self.language_handler.translate('gm_active', 'active')
-        else:
+        '''
+        Purpose:
+        - Get the current status of the Green Machine.
+        '''
+        gm = self.language_handler.translate('gm_status', 'GREEN MACHINE STATUS')
+        if self.mcp.cycle_thread is None:
             self.run_cycle = False
-        self.gm_status = gm_status.upper()
+            status = self.language_handler.translate('gm_idle', 'IDLE')
+            self.gm_status = f'{status.upper()}'
+        else:
+            self.run_cycle = True
+            status = self.language_handler.translate('gm_active', 'ACTIVE')
+            self.gm_status = f'{status.upper()}'
         self.get_current_mode()
 
     def check_last_run_cycle(self, *args):
+        '''
+        Purpose:
+        - Check the last run cycle and start a new one if necessary.
+        '''
         last_run_cycle = self._gm_db.get_setting('last_run_cycle')
-        if last_run_cycle:
+        if last_run_cycle is None:
+            current_time = datetime.now().isoformat()
+            self._gm_db.add_setting('last_run_cycle', current_time)
+        else:
             last_run_time = datetime.fromisoformat(last_run_cycle)
             current_time = datetime.now()
             if current_time - last_run_time >= timedelta(seconds=self.run_cycle_interval):
                 self.start_run_cycle()
-        else:
-            current_time = datetime.now().isoformat()
-            self._gm_db.add_setting('last_run_cycle', current_time)
 
     def get_cycle_count(self):
+        '''
+        Purpose:
+        - Get the current run cycle count.
+        '''
         run_cycle_count = self._gm_db.get_setting('run_cycle_count')
         if run_cycle_count:
             self.current_run_cycle_count = str(run_cycle_count)
@@ -217,6 +307,10 @@ class ControlPanel(MDApp):
             self.current_run_cycle_count = '0'
 
     def start_run_cycle(self):
+        '''
+        Purpose:
+        - Start the run cycle for the MCP.
+        '''
         self.run_cycle = True
         self.get_cycle_count()
         self.mcp.run_cycle()
@@ -230,6 +324,10 @@ class ControlPanel(MDApp):
         self.recent_notification = f'{dt}: {notification}'
 
     def get_current_mode(self):
+        '''
+        Purpose:
+        - Get the current mode of the MCP.
+        '''
         current_mode = self.mcp.get_mode()
         if current_mode:
             mode_string = self.language_handler.translate(current_mode, current_mode)
@@ -243,15 +341,31 @@ class ControlPanel(MDApp):
             self.active_relays = active_relays
 
     def set_run_cycle_interval(self, interval):
+        '''
+        Purpose:
+        - Set the run cycle interval for the run cycle check.
+        Parameters:
+        - interval: The interval in minutes (int).
+        '''
         self.run_cycle_interval = int(interval) * 60
         self.update_run_cycle_check_interval_string()
 
     def set_pin_delay(self, delay):
+        '''
+        Purpose:
+        - Set the pin delay for the MCP.
+        Parameters:
+        - delay: The delay in milliseconds (int).
+        '''
         delay_ms = int(delay) / 1000
         self.mcp.set_pin_delay(delay_ms)
         self.update_pin_delay_string()
 
     def update_run_cycle_check_interval_string(self):
+        '''
+        Purpose:
+        - Update the run cycle check interval string.
+        '''
         if self.run_cycle_interval:
             check_interval = int(self.run_cycle_interval / 60)
         else:
@@ -259,6 +373,10 @@ class ControlPanel(MDApp):
         self.run_cycle_check_interval_string = f'{check_interval} min'
 
     def update_pin_delay_string(self):
+        '''
+        Purpose:
+        - Update the pin delay string.
+        '''
         mcp_pin_delay = self.mcp.pin_delay
         if mcp_pin_delay:
             delay = int(mcp_pin_delay * 1000)
@@ -267,23 +385,70 @@ class ControlPanel(MDApp):
         self.pin_delay_string = f'{delay} ms'
 
     def update_debug_mode_string(self):
+        '''
+        Purpose:
+        - Update the debug mode string.
+        '''
         debug_string = self.language_handler.translate('debug', 'debug')
         self.debug_mode_string = debug_string.upper()
 
     def restore_defaults(self):
+        '''
+        Purpose:
+        - Restore the default application settings.
+        '''
         self.debug = False
         self.set_run_cycle_interval(720)
         self.set_pin_delay(10)
 
     def toggle_debug(self):
+        '''
+        Purpose:
+        - Toggle the debug mode.
+        '''
         self.debug = not self.debug
         self.update_debug_mode_string()
 
     def get_latest_update(self):
+        '''
+        Purpose:
+        - Get the latest notification.
+        '''
         recent_notification = self._user_db.get_setting('latest_notification')
         if recent_notification:
             return recent_notification
         return 'No Recent Notifications'
+
+    def open_bottom_sheet(self, sheet):
+        '''
+        Purpose:
+        - Open the bottom sheet.
+        Parameters:
+        - sheet: The bottom sheet to open (NoDragMDBottomSheet).
+        '''
+        sheet.drawer_type = 'modal'
+        sheet.set_state('toggle')
+
+    def restart_service(self):
+        '''
+        Purpose:
+        - Restart the GM Control Panel service.
+        '''
+        try:
+            subprocess.run(['sudo', 'systemctl', 'stop', 'gm_control_panel.service'])
+            subprocess.run(['sudo', 'systemctl', 'start', 'gm_control_panel.service'])
+        except subprocess.CalledProcessError as e:
+            self.log(f'Error restarting service: {e}')
+
+    def reboot_machine(self):
+        '''
+        Purpose:
+        - Reboot the machine.
+        '''
+        try:
+            subprocess.run(['sudo', 'reboot'])
+        except subprocess.CalledProcessError as e:
+            self.log(f'Error rebooting machine: {e}')
 
     def build(self) -> ScreenManager:
         '''
@@ -296,21 +461,18 @@ class ControlPanel(MDApp):
         self.icon = os.path.join(self._dir, 'assets', 'images', 'vst_light.png')
         self.theme_cls.primary_palette = 'Steelblue'
         self.theme_cls.theme_style = 'Dark'
-        self.language_handler = LanguageHandler()
-        self.pressure_sensor = PressureSensor()
-        self.mcp = MCP()
-        self.language_handler.load_user_language()
+        self.software = 'CPX-003'
+        self.software_version = __version__
+        self.device_name = socket.gethostname().upper()
+        self.setup_io()
+        self.get_user_settings()
+        self.check_manual_time()
         self.get_datetime()
-        self.get_cycle_count()
+        self.get_gm_settings()
         self.set_update_intervals()
         self.load_all_kv_files()
         self.configure_screen_manager()
         self.dropdown_menu = DropdownMenu()
-        self.update_pin_delay_string()
-        self.update_run_cycle_check_interval_string()
-        Clock.schedule_once(self.language_handler.check_all_screens, 0)
-        Clock.schedule_once(self.check_last_run_cycle, 0)
-        self.recent_notification = self.get_latest_update()
         return self.sm
 
 if __name__ == '__main__':

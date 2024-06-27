@@ -6,15 +6,26 @@
 ===========================================================
 '''
 
+# Standard imports.
 from collections import deque
+
+# Third-party imports.
+try:
+    import board
+    import busio
+    import adafruit_ads1x15.ads1115 as ADS
+    from adafruit_ads1x15.analog_in import AnalogIn
+except (ImportError, NotImplementedError):
+    busio = None
+    board = None
+    ADS = None
+    AnalogIn = None
+
+# Local imports.
 from utils import (
     Logger,
     DatabaseManager
 )
-import board
-import busio
-import adafruit_ads1x15.ads1115 as ADS
-from adafruit_ads1x15.analog_in import AnalogIn
 
 
 class PressureSensor:
@@ -24,18 +35,20 @@ class PressureSensor:
     This class is used to handle the pressure sensor.
     '''
     _logger = Logger(__name__)
-    log = _logger.log_message
-    _hardware_available = False
-    _warnings_logged = {'board': False, 'busio': False, 'ads': False}
-    _database = DatabaseManager()
 
-    def __init__(self, adc_zero=15422.0, gain=1):
-        self.db = self._database.gm()
+    def __init__(self, gain=1):
+        self.log = self._logger.log_message
+        self._database = DatabaseManager()
+        self._db = self._database.gm()
+        self._hardware_initialized = False
+        if busio is None or board is None or ADS is None or AnalogIn is None:
+            return
         self.i2c = busio.I2C(board.SCL, board.SDA)
         self._adc = ADS.ADS1115(self.i2c)
+        self._hardware_initialized = True
         self._channel = AnalogIn(self._adc, ADS.P0)
         self._adc.gain = gain
-        self.adc_zero = float(self.db.get_setting('adc_zero')) if self.db.get_setting('adc_zero') is not None else adc_zero
+        self.adc_zero = self.get_adc()
         self.pressure_readings = deque(maxlen=60)
 
     @staticmethod
@@ -51,10 +64,25 @@ class PressureSensor:
         ''' Map a value from one range to another. '''
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
+    def get_adc(self):
+        '''
+        Purpose:
+        - Get the ADC value.
+        '''
+        adc_zero = self._db.get_setting('adc_zero')
+        if adc_zero is None:
+            return 15422.0
+        else:
+            return float(adc_zero)
+
     def get_pressure(self) -> str:
-        ''' Get the pressure reading from the sensor. '''
-        # if not self._hardware_available:
-        #     return '-99.9'
+        '''
+        Purpose:
+        - Get the pressure reading from the pressure sensor.
+        '''
+        if not self._hardware_initialized:
+            self.log('warning', 'Pressure sensor hardware not initialized.')
+            return '-99.9'
         try:
             for _ in range(30):
                 value = self._channel.value
@@ -67,13 +95,17 @@ class PressureSensor:
             return '-99.9'
 
     def calibrate(self):
-        ''' Recalibrate the pressure sensor. '''
-        if not self._hardware_available:
+        '''
+        Purpose:
+        - Calibrate the pressure sensor.
+        '''
+        if not self._hardware_initialized:
+            self.log('warning', 'Pressure sensor hardware not initialized.')
             return 'ERR'
         self.adc_zero = self._channel.value
         self.pressure_readings.clear()
         try:
-            self.db.add_setting('adc_zero', self.adc_zero)
+            self._db.add_setting('adc_zero', self.adc_zero)
         except ValueError as e:
             self.log('warning', f'{e}')
         return self.adc_zero

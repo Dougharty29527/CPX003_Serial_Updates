@@ -61,7 +61,6 @@ class LanguageHandler:
         if translation is None:
             if default:
                 translation = default
-            self.log('error', f'No translation found for key: {key}')
         return translation
 
     def walk_app_widget_tree(self, widget):
@@ -77,6 +76,10 @@ class LanguageHandler:
                     translated_text = self.translate(key)
                     if translated_text is not None:
                         val.text = translated_text.upper()
+                    if key == 'gm_status':
+                        gm = self.translate('gm_status', 'GREEN MACHINE STATUS')
+                        if gm is not None:
+                            val.text = gm.upper()
                     if key == 'pin_delay_0':
                         pin_delay = self.translate('pin_delay', 'pin_delay')
                         if pin_delay is not None:
@@ -86,7 +89,7 @@ class LanguageHandler:
                         if interval_check is not None:
                             val.text = interval_check.upper()
                     if key == 'gm_status_0':
-                        gm = self.translate('gm_status', 'gm_status')
+                        gm = self.translate('gm_status', 'GREEN MACHINE STATUS')
                         if gm is not None:
                             val.text = gm.upper()
                 self.update_screen_title(key, val)
@@ -97,7 +100,8 @@ class LanguageHandler:
     def update_screen_title(self, key, val):
         for screen, screen_name in {
             'main_screen': 'main',
-            'test_screen': 'test'
+            'test_screen': 'test',
+            'time_entry_screen': 'time_entry'
         }.items():
             if key == screen:
                 title = self.translate(screen_name, screen_name)

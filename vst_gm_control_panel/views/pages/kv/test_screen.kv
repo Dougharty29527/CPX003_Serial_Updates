@@ -24,59 +24,115 @@
                         spacing: '16dp'
                         pos_hint: {'center_x': .5}
 
-                        MDButton:
-                            style: 'elevated'
-                            radius: 0
-                            theme_width: 'Custom'
-                            width: '275dp'
-                            on_press:
-                                root.pin_entry = True
-                                root.open_sheet(sheet, 'modal')
+                        MDBoxLayout:
+                            adaptive_size: True
+                            orientation: 'horizontal'
+                            pos_hint: {'center_x': .5, 'center_y':.5}
+                            spacing: '16dp'
 
-                            MDButtonText:
-                                id: pin_delay
-                                text: 'ADJUST'
-                                pos_hint: {'center_x': .5, 'center_y': .5}
+                            MDButton:
+                                style: 'elevated'
+                                radius: 0
+                                theme_width: 'Custom'
+                                width: '250dp'
+                                radius: '5dp'
+                                on_press:
+                                    root.pin_entry = True
+                                    root.open_sheet(sheet)
 
-                        MDButton:
-                            style: 'elevated'
-                            radius: 0
-                            theme_width: 'Custom'
-                            width: '275dp'
-                            on_press:
-                                root.interval_entry = True
-                                root.open_sheet(sheet, 'modal')
+                                MDButtonText:
+                                    id: pin_delay
+                                    text: 'ADJUST'
+                                    pos_hint: {'center_x': .5, 'center_y': .5}
 
-                            MDButtonText:
-                                id: run_cycle_check_interval
-                                text: 'ADJUST'
-                                pos_hint: {'center_x': .5, 'center_y': .5}
+                            MDButton:
+                                style: 'elevated'
+                                radius: 0
+                                theme_width: 'Custom'
+                                width: '250dp'
+                                radius: '5dp'
+                                on_press:
+                                    root.interval_entry = True
+                                    root.open_sheet(sheet)
 
-                        MDButton:
-                            style: 'elevated'
-                            radius: 0
-                            theme_width: 'Custom'
-                            width: '275dp'
-                            on_press:
-                                app.toggle_debug()
+                                MDButtonText:
+                                    id: run_cycle_check_interval
+                                    text: 'ADJUST'
+                                    pos_hint: {'center_x': .5, 'center_y': .5}
 
-                            MDButtonText:
-                                id: toggle
-                                text: 'TOGGLE DEBUG'
-                                pos_hint: {'center_x': .5, 'center_y': .5}
+                        MDBoxLayout:
+                            adaptive_size: True
+                            orientation: 'horizontal'
+                            pos_hint: {'center_x': .5, 'center_y':.5}
+                            spacing: '16dp'
 
-                        MDButton:
-                            style: 'elevated'
-                            radius: 0
-                            theme_width: 'Custom'
-                            width: '275dp'
-                            on_press:
-                                app.restore_defaults()
+                            MDButton:
+                                style: 'elevated'
+                                radius: 0
+                                theme_width: 'Custom'
+                                width: '250dp'
+                                radius: '5dp'
+                                on_press:
+                                    app.calibrate_pressure_sensor()
 
-                            MDButtonText:
-                                id: restore_defaults
-                                text: 'RESTORE DEFAULTS'
-                                pos_hint: {'center_x': .5, 'center_y': .5}
+                                MDButtonText:
+                                    id: calibrate
+                                    text: 'CALIBRATE SENSOR'
+                                    pos_hint: {'center_x': .5, 'center_y': .5}
+
+                            MDButton:
+                                style: 'elevated'
+                                radius: 0
+                                theme_width: 'Custom'
+                                width: '250dp'
+                                radius: '5dp'
+                                on_press:
+                                    app.toggle_debug()
+
+                                MDButtonText:
+                                    id: toggle
+                                    text: 'TOGGLE DEBUG'
+                                    pos_hint: {'center_x': .5, 'center_y': .5}
+
+                        MDBoxLayout:
+                            adaptive_size: True
+                            orientation: 'horizontal'
+                            pos_hint: {'center_x': .5, 'center_y':.5}
+                            spacing: '16dp'
+
+                            MDButton:
+                                style: 'elevated'
+                                theme_width: 'Custom'
+                                width: '250dp'
+                                radius: '5dp'
+                                on_press:
+                                    app.restore_defaults()
+
+                                MDButtonText:
+                                    id: restore_defaults
+                                    text: 'RESTORE DEFAULTS'
+                                    pos_hint: {'center_x': .5, 'center_y': .5}
+
+                            MDButton:
+                                style: 'elevated'
+                                radius: 0
+                                theme_width: 'Custom'
+                                width: '250dp'
+                                radius: '5dp'
+                                on_press:
+                                    app.reboot_machine()
+
+                                MDButtonText:
+                                    id: reboot_machine
+                                    text: 'REBOOT MACHINE'
+                                    pos_hint: {'center_x': .5, 'center_y': .5}
+
+                        MDBoxLayout:
+                            adaptive_size: True
+                            orientation: 'horizontal'
+                            pos_hint: {'center_x': .5, 'center_y':.5}
+                            spacing: '16dp'
+
 
                 MDBoxLayout:
                     adaptive_size: True
@@ -88,7 +144,7 @@
                         icon: 'help-circle-outline'
                         theme_icon_color: 'Custom'
                         icon_color: app.theme_cls.onPrimaryContainerColor
-                        on_press: root.open_sheet(stat_sheet, 'modal')
+                        on_press: app.open_bottom_sheet(stat_sheet)
 
                 MDBoxLayout:
                     adaptive_height: True
@@ -102,23 +158,14 @@
                         theme_text_color: 'Custom'
                         text_color: app.theme_cls.errorColor
 
-
                 SideBar:
 
-        MDBottomSheet:
+        NoDragMDBottomSheet:
             id: sheet
             size_hint_y: None
             height: '320dp'
             background_color: app.theme_cls.surfaceColor
             drawer_type: 'standard'
-
-            # MDBottomSheetDragHandle:
-
-            #     MDBottomSheetDragHandleTitle:
-            #         id: input_field
-            #         text: root.input_string
-            #         adaptive_height: True
-            #         pos_hint: {'center_y': .5}
 
             MDBottomSheetDragHandleButton:
                 icon: 'close'
@@ -203,11 +250,14 @@
 
                             MDButton:
                                 radius: '5dp'
+                                theme_width: 'Custom'
+                                width: '85dp'
                                 on_press: root.backspace()
 
                                 MDButtonText:
                                     id: back
                                     text: 'BACK'
+                                    pos_hint: {'center_x': .5, 'center_y': .5}
 
                         MDBoxLayout:
                             adaptive_size: True
@@ -252,101 +302,14 @@
 
                             MDButton:
                                 radius: '5dp'
+                                theme_width: 'Custom'
+                                width: '85dp'
                                 on_press: root.submit()
 
                                 MDButtonText:
                                     id: submit
                                     text: 'SUBMIT'
+                                    pos_hint: {'center_x': .5, 'center_y': .5}
 
-        MDBottomSheet:
+        Diagnostics:
             id: stat_sheet
-            size_hint_y: None
-            height: '450dp'
-            background_color: app.theme_cls.surfaceColor
-            drawer_type: 'standard'
-
-            MDBottomSheetDragHandleButton:
-                icon: 'close'
-                on_release:
-                    stat_sheet.set_state('toggle')
-                pos_hint: {'top': 1, 'right': 1}
-
-            MDScrollView:
-                do_scroll_x: False
-
-                MDBoxLayout:
-                    orientation: 'vertical'
-                    adaptive_height: True
-
-                    MDBoxLayout:
-                        adaptive_height: True 
-
-                        MDLabel:
-                            id: diagnostics
-                            text: 'Diagnostics'
-                            theme_font_size: 'Custom'
-                            font_size: '32sp'
-                            adaptive_height: True
-                            padding: '10dp', '20dp', 0, 0
-
-                    MDListItem:
-                        pos_hint: {'center_x': .5, 'center_y': .5}
-
-                        MDListItemHeadlineText:
-                            id: gm_status_0
-                            text: 'Green Machine Status'
-
-                        MDListItemSupportingText:
-                            text: app.gm_status
-                            theme_text_color: 'Custom'
-                            text_color: '#00FF7F' if not app.alarm else '#B22222'
-
-                    MDListItem:
-                        pos_hint: {'center_x': .5, 'center_y': .5}
-
-                        MDListItemHeadlineText:
-                            id: pin_delay_0
-                            text: 'Pin Delay'
-
-                        MDListItemSupportingText:
-                            text: app.pin_delay_string
-
-                    MDListItem:
-                        pos_hint: {'center_x': .5, 'center_y': .5}
-
-                        MDListItemHeadlineText:
-                            id: run_cycle_check_interval_0
-                            text: 'Cycle Check Interval'
-
-                        MDListItemSupportingText:
-                            text: app.run_cycle_check_interval_string
-
-                    MDListItem:
-                        pos_hint: {'center_x': .5, 'center_y': .5}
-
-                        MDListItemHeadlineText:
-                            id: mode
-                            text: 'Mode'
-
-                        MDListItemSupportingText:
-                            text: app.current_mode
-
-                    MDListItem:
-                        pos_hint: {'center_x': .5, 'center_y': .5}
-
-                        MDListItemHeadlineText:
-                            id: active_relays
-                            text: 'Active Relays'
-
-                        MDListItemSupportingText:
-                            text: app.active_relays
-
-                    MDListItem:
-                        pos_hint: {'center_x': .5, 'center_y': .5}
-
-                        MDListItemHeadlineText:
-                            id: latest_notification
-                            text: 'Latest Notification'
-
-                        MDListItemSupportingText:
-                            text: app.recent_notification

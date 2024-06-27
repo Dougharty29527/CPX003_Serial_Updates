@@ -20,10 +20,12 @@
             MDButton:
                 style: 'text'
                 disabled: True
+                theme_width: 'Custom'
+                width: '260dp'
 
                 MDButtonText:
                     id: pressure
-                    text: 'UST PRESSURE (IWC)'
+                    text: 'UST PRESSURE: '
                     font_style: 'Headline'
                     role: 'large'
                     theme_disabled_color: 'Custom'
@@ -35,11 +37,11 @@
 
                 MDButtonText:
                     text: app.current_pressure
-                    font_style: 'Display'
-                    role: 'small'
+                    font_style: 'Headline'
+                    role: 'large'
                     theme_disabled_color: 'Custom'
                     disabled_color: app.theme_cls.onPrimaryContainerColor if app.current_pressure != '-99.9' else app.theme_cls.errorContainerColor
-                    padding: [0] if app.language == 'EN' else ['72dp', 0, 0, 0]
+                    padding: 0
 
         MDBoxLayout:
             adaptive_size: True
@@ -48,10 +50,12 @@
             MDButton:
                 style: 'text'
                 disabled: True
+                theme_width: 'Custom'
+                width: '260dp'
 
                 MDButtonText:
                     id: run_cycles
-                    text: 'RUN CYCLES'
+                    text: 'RUN CYCLES: '
                     font_style: 'Headline'
                     role: 'large'
                     theme_disabled_color: 'Custom'
@@ -63,11 +67,11 @@
 
                 MDButtonText:
                     text: app.current_run_cycle_count
-                    font_style: 'Display'
-                    role: 'small'
+                    font_style: 'Headline'
+                    role: 'large'
                     theme_disabled_color: 'Custom'
                     disabled_color: app.theme_cls.onPrimaryContainerColor
-                    padding: ['122dp', 0, 0, 0] if app.language == 'EN' else [0]
+                    padding: 0
 
         Widget:
 

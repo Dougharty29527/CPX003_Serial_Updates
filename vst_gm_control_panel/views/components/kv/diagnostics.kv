@@ -1,0 +1,121 @@
+#:kivy 2.3.0
+
+<Diagnostics>
+    size_hint_y: None
+    height: '450dp'
+    background_color: app.theme_cls.surfaceColor
+
+    MDBottomSheetDragHandleButton:
+        icon: 'close'
+        on_release:
+            root.set_state('toggle')
+        pos_hint: {'top': 1, 'right': 1}
+
+    MDScrollView:
+        do_scroll_x: False
+
+        MDBoxLayout:
+            orientation: 'vertical'
+            adaptive_height: True
+
+            MDBoxLayout:
+                adaptive_height: True 
+
+                MDLabel:
+                    id: diagnostics
+                    text: 'Diagnostics'
+                    theme_font_size: 'Custom'
+                    font_size: '32sp'
+                    adaptive_height: True
+                    padding: '10dp', '20dp', 0, 0
+
+            MDListItem:
+                pos_hint: {'center_x': .5, 'center_y': .5}
+
+                MDListItemHeadlineText:
+                    id: gm_status_0
+                    text: 'Green Machine Status'
+
+                MDListItemSupportingText:
+                    text: app.gm_status
+                    theme_text_color: 'Custom'
+                    text_color: '#00FF7F' if not app.alarm else '#B22222'
+
+            MDListItem:
+                pos_hint: {'center_x': .5, 'center_y': .5}
+
+                MDListItemHeadlineText:
+                    id: pin_delay_0
+                    text: 'Pin Delay'
+
+                MDListItemSupportingText:
+                    text: app.pin_delay_string
+
+            MDListItem:
+                pos_hint: {'center_x': .5, 'center_y': .5}
+
+                MDListItemHeadlineText:
+                    id: run_cycle_check_interval_0
+                    text: 'Cycle Check Interval'
+
+                MDListItemSupportingText:
+                    text: app.run_cycle_check_interval_string
+
+            MDListItem:
+                pos_hint: {'center_x': .5, 'center_y': .5}
+
+                MDListItemHeadlineText:
+                    id: mode
+                    text: 'Mode'
+
+                MDListItemSupportingText:
+                    text: app.current_mode
+
+            MDListItem:
+                pos_hint: {'center_x': .5, 'center_y': .5}
+
+                MDListItemHeadlineText:
+                    id: active_relays
+                    text: 'Active Relays'
+
+                MDListItemSupportingText:
+                    text: app.active_relays
+
+            MDListItem:
+                pos_hint: {'center_x': .5, 'center_y': .5}
+
+                MDListItemHeadlineText:
+                    id: latest_notification
+                    text: 'Latest Notification'
+
+                MDListItemSupportingText:
+                    text: app.recent_notification
+
+            MDListItem:
+                pos_hint: {'center_x': .5, 'center_y': .5}
+
+                MDListItemHeadlineText:
+                    id: device_name
+                    text: 'DEVICE NAME'
+
+                MDListItemSupportingText:
+                    text: app.device_name
+
+            MDListItem:
+                pos_hint: {'center_x': .5, 'center_y': .5}
+
+                MDListItemHeadlineText:
+                    text: 'SOFTWARE'
+
+                MDListItemSupportingText:
+                    text: app.software
+
+            MDListItem:
+                pos_hint: {'center_x': .5, 'center_y': .5}
+
+                MDListItemHeadlineText:
+                    id: software_version
+                    text: 'SOFTWARE VERSION'
+
+                MDListItemSupportingText:
+                    text: app.software_version

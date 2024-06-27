@@ -1,5 +1,8 @@
-/boot/config.txt:
+# Configuration and Setup Instructions
 
+## Update /boot/config.txt
+
+```
 # CPi-C070WR4C
 
 # LCD display settings
@@ -55,18 +58,17 @@ enable_uart=1
 
 # Disable cursor
 cursor_blanking=1
+```
 
+## Update /boot/cmdline.txt
 
-
-/boot/cmdline.txt:
-
+```
 console=tty3 console=serial0,115200 root=PARTUUID=5a94f090-02 rootfstype=ext4 fsck.repair=yes rootwait dwc_otg.lpm_enable=0 vt.global_cursor_default=0 fbcon=map:10 quiet consoleblank=1 logo.nologo
+```
 
+## Add /etc/systemd/system/gm_control_panel.service
 
-
-
-/etc/systemd/system/gm_control_panel.service:
-
+```
 [Unit]
 Description=Green Machine Control Panel Service
 After=network.target
@@ -84,12 +86,13 @@ RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
+```
 
+# This section is for upgrading a system containing the archived control panel software.
 
+## Remove Old Control Services
 
-
-
-remove old control:
+```bash
 sudo systemctl stop control.service
 sudo systemctl stop soracom.service
 sudo systemctl stop saver.service
@@ -101,19 +104,22 @@ sudo rm -rf /etc/systemd/system/control.service
 sudo rm -rf /etc/systemd/system/soracom.service
 sudo rm -rf /etc/systemd/system/saver.service
 sudo rm -rf /home/pi/python
+```
+
+## Add New User and Permissions
+
+```bash
 sudo adduser cpx003
 sudo usermod -aG sudo cpx003
 su - cpx003
 sudo apt update
+```
 
-switch user
+## Switch User
 
+```bash
 sudo usermod -aG i2c cpx003
 sudo usermod -aG input cpx003
 sudo chmod 666 /dev/i2c-1
 sudo chmod 666 /dev/input/event*
-
-
-
-
-
+```

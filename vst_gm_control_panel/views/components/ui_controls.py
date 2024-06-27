@@ -1,35 +1,49 @@
 '''
-Menu Component.
+User interaction modules.
 '''
 
 # Kivy imports.
-from kivymd.app import MDApp
-from kivymd.uix.menu import MDDropdownMenu
+from kivy.properties import BooleanProperty, StringProperty
 from kivy.utils import hex_colormap
+from kivymd.uix.bottomsheet import MDBottomSheet
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.button import MDButton
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.menu import MDDropdownMenu
 
-# Third party imports.
-from materialyoucolor.utils.platform_utils import SCHEMES
+# Local imports.
+from .base_widget import BaseWidget
 
 
-class DropdownMenu(MDDropdownMenu):
+class NoDragMDBottomSheet(MDBottomSheet):
     '''
-    SettingsMenu:
-    - Class to set up the settings menu.
+    NoDragMDBottomSheet:
+    - Class to disable dragging on the bottom sheet.
+    '''
+
+    def on_touch_move(self, touch):
+        return False
+
+
+class DropdownMenu(BaseWidget, MDDropdownMenu):
+    '''
+    DropdownMenu:
+    - Class to set up the basic settings menu.
     '''
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        app = None
         self.menu = None
         self.second_menu = None
 
-    def on_kv_post(self, base_widget):
-        '''
-        Initialize the settings menu.
-        '''
-        self.app = MDApp.get_running_app()
-
     def open_menu(self, menu_button, items) -> None:
+        '''
+        Purpose:
+        - Open the menu.
+        Parameters:
+        - menu_button: The button that triggered the menu (MDFloatingActionButton).
+        - items: The items to add to the menu (list).
+        '''
         self.dismiss_current_menu()
         menu_items = []
         for item in items:
@@ -49,9 +63,16 @@ class DropdownMenu(MDDropdownMenu):
             self.menu.dismiss()
 
     def settings_menu(self, menu_button) -> None:
+        '''
+        Purpose:
+        - Create the settings menu.
+        Parameters:
+        - menu_button: The button that triggered the menu (MDFloatingActionButton).
+        '''
         settings_menu = [
             # {'text': f'{self.app.language_handler.translate("set_palette", "Set Palette")}', 'on_release': self.set_palette},
             {'text': f'{self.app.language_handler.translate("set_language", "Set Language")}', 'on_release': self.set_language},
+            {'text': f'{self.app.language_handler.translate("time_entry", "Time Entry")}', 'on_release': self.time_selection},
             # {'text': f'{self.app.language_handler.translate("switch_theme", "Switch Theme")}', 'on_release': self.switch_theme},
             {'text': f'{self.app.language_handler.translate("dismiss", "Dismiss")}', 'on_release': lambda: self.dismiss_current_menu(self.menu)}        
         ]
@@ -142,3 +163,28 @@ class DropdownMenu(MDDropdownMenu):
         rv = self.menu.ids.md_menu
         index = next(i for i, data in enumerate(rv.data) if data['text'] == name_item)
         return rv.view_adapter.get_view(index, rv.data[0], rv.layout_manager.view_opts[index]['viewclass'])
+
+    def time_selection(self):
+        '''
+        Purpose:
+        - Open the time selection screen and close the settings menu.
+        '''
+        self.dismiss_current_menu(self.menu)
+        self.app.switch_screen('TimeEntry')
+
+
+class TopBar(BaseWidget, MDBoxLayout):
+    ''' 
+    TopBar:
+    - Class to set up the apps header.
+    '''
+
+    pass
+
+
+class Diagnostics(NoDragMDBottomSheet):
+    '''
+    Diagnostics:
+    - Class to display the diagnostics menu.
+    '''
+    pass

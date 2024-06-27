@@ -90,6 +90,8 @@ class MCP:
                 self.pins[pin].direction = Direction.OUTPUT
             for pin in ['tls', 'panel_power']:
                 self.pins[pin].direction = Direction.INPUT
+        else:
+            self.log('error', 'Hardware not initialized.')
 
     def thread_mode(self, mode) -> None:
         '''
