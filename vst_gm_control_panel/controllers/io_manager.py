@@ -38,10 +38,6 @@ from kivy.clock import Clock
 
 # NOTE: PressureSensor import REMOVED — ESP32 reads ADS1015 directly at 60Hz
 # and sends computed pressure values in its serial status JSON packet
-    
-    @value.setter
-    def value(self, val):
-        self._value = val
 
 
 class ModeManager:
@@ -251,8 +247,9 @@ class IOManager:
         self.max_current_failure_count = 10
         self.last_current_value = '0.00'
         
-        # Pin delay kept for sleep_with_check() timing compatibility
-        self.pin_delay = 0.01
+        # SERIAL-ONLY: pin_delay removed — was 10ms I2C noise avoidance delay
+        # between each MCP23017 pin write. No I2C bus exists in this build.
+        self.pin_delay = 0  # Zero delay — relay commands are instant via serial
         
         # =====================================================================
         # SERIAL-ONLY: No physical pins. 'pins' dict retained as empty stubs
@@ -484,9 +481,9 @@ class IOManager:
         Set to rest mode.
         
         =====================================================================
-        SERIAL-ONLY: Updates ModeManager (mmap). The serial manager's
-        _mode_check_cycle() detects the change within 500ms and sends
-        mode 0 (rest) to ESP32, which turns off all cycle relays:
+        SERIAL-ONLY: Updates ModeManager (mmap) then sends mode 0 directly
+        to ESP32 via serial (instant, ~1ms). Falls back to 100ms polling
+        if direct send fails. Turns off all cycle relays:
             Motor=OFF, CR1=OFF, CR2=OFF, CR5=OFF
         
         The shutdown relay is managed separately via set_shutdown_relay().
@@ -495,7 +492,6 @@ class IOManager:
         """
         try:
             # Update mode using ultra-fast memory-mapped file
-            # Serial manager polls this and sends to ESP32 for relay control
             max_attempts = 3
             for attempt in range(max_attempts):
                 try:
@@ -508,6 +504,15 @@ class IOManager:
             # Update stub pins for get_values() compatibility
             for pin in ['motor', 'v1', 'v2', 'v5']:
                 self.pins[pin].value = False
+            
+            # SPEED FIX: Send rest (mode 0) directly to ESP32 if in main process
+            try:
+                if (multiprocessing.current_process().name == 'MainProcess' and
+                    hasattr(self, 'app') and hasattr(self.app, 'serial_manager') and
+                    self.app.serial_manager is not None):
+                    self.app.serial_manager.send_mode_immediate(0)
+            except Exception:
+                pass  # Non-fatal: polling fallback handles it
                     
         except Exception as e:
             Logger.error(f'IOManager: Error in set_rest: {e}')
@@ -517,8 +522,8 @@ class IOManager:
         Set to bleed mode.
         
         =====================================================================
-        SERIAL-ONLY: Updates ModeManager (mmap). Serial manager detects
-        the change and sends mode 8 (bleed) to ESP32, which sets relays:
+        SERIAL-ONLY: Updates ModeManager (mmap) then sends mode 8 directly
+        to ESP32 via serial. Sets relays:
             Motor=OFF, CR1=OFF, CR2=ON, CR5=ON
         
         All I2C pin writes removed — ESP32 handles physical relay control.
@@ -535,16 +540,23 @@ class IOManager:
                 self.pins[pin].value = True
             
             # ModeManager is updated by the caller (typically pressure check logic)
-            # Serial manager will detect the change and send mode 8 to ESP32
+            # SPEED FIX: Also send mode 8 directly to ESP32 if in main process
+            try:
+                if (multiprocessing.current_process().name == 'MainProcess' and
+                    hasattr(self, 'app') and hasattr(self.app, 'serial_manager') and
+                    self.app.serial_manager is not None):
+                    self.app.serial_manager.send_mode_immediate(8)
+            except Exception:
+                pass  # Non-fatal: polling fallback handles it
         except Exception as e:
             Logger.error(f'IOManager: Error in set_bleed: {e}')
 
     def set_pin_delay(self, pin_delay):
         """
-        Purpose:
-        - Set the pin delay.
+        SERIAL-ONLY: No-op — pin delay was for I2C bus noise avoidance.
+        Kept as stub so any caller doesn't crash. Value is always 0.
         """
-        self.pin_delay = pin_delay
+        pass  # No I2C bus — no delay needed between relay commands
 
     def get_mode_times(self, cycle_type='normal'):
         '''
@@ -621,9 +633,9 @@ class IOManager:
         
         =====================================================================
         SERIAL-ONLY: This method updates the ModeManager mmap file with the
-        requested mode. The serial manager's _mode_check_cycle() (in modem.py)
-        polls ModeManager every 500ms. When it detects a change, it sends
-        the mode number to ESP32 via serial:
+        requested mode, then sends the mode directly to ESP32 via serial
+        when running in the main process (instant). For child processes,
+        modem.py polls ModeManager every 100ms and sends on change:
         
             {"type":"data","mode":N}
         
@@ -673,8 +685,9 @@ class IOManager:
             
             # ================================================================
             # CORE ACTION: Write mode to ModeManager mmap file.
-            # Serial manager (modem.py) polls this every 0.5s and sends the
-            # mode number to ESP32 when it changes. This IS the relay control.
+            # Serial manager (modem.py) polls this every 100ms and sends the
+            # mode number to ESP32 when it changes. Main process also sends
+            # directly via serial below (bypasses polling for instant response).
             # ================================================================
             for attempt in range(max_attempts):
                 try:
@@ -694,8 +707,28 @@ class IOManager:
                     break
                 self.pins[pin].value = value
             
-            # Brief settle time — retained for cycle timing compatibility
-            time.sleep(0.2)
+            # ================================================================
+            # SPEED FIX: Send mode to ESP32 directly via serial (bypass polling).
+            # In the main process, we have access to self.app.serial_manager
+            # and can send the mode command immediately (~1ms). This eliminates
+            # the 100ms polling delay for UI-triggered mode changes.
+            #
+            # In child processes (cycle sequences), self.app.serial_manager is
+            # a forked copy — we must NOT write to its serial port. The mmap
+            # polling in modem.py _mode_check_cycle() handles child processes.
+            # ================================================================
+            mode_num = {'rest': 0, 'run': 1, 'purge': 2, 'burp': 3, 'bleed': 8, 'leak': 9}.get(mode, 0)
+            try:
+                if (multiprocessing.current_process().name == 'MainProcess' and 
+                    hasattr(self, 'app') and hasattr(self.app, 'serial_manager') and 
+                    self.app.serial_manager is not None):
+                    # Main process: send directly to ESP32 (instant relay control)
+                    self.app.serial_manager.send_mode_immediate(mode_num)
+                    Logger.debug(f'IOManager: Direct serial send mode {mode_num} ({mode})')
+            except Exception as serial_err:
+                # Non-fatal: polling will pick it up as fallback
+                Logger.debug(f'IOManager: Direct serial send failed (polling fallback): {serial_err}')
+            
             active_pins = self.get_values()
             
         except Exception as e:
@@ -872,12 +905,22 @@ class IOManager:
 
     def process_mode(self, mode):
         """
-        Purpose:
-        - Run the specified mode in a new process - simplified version based on working 0.4.10.
+        Apply the requested relay mode.
+        
+        =====================================================================
+        SPEED FIX: Previously spawned a new multiprocessing.Process() for
+        each mode change. On Raspberry Pi, fork() takes 200-500ms — adding
+        massive latency to every step in a cycle sequence. This was needed
+        in the old I2C build because MCP23017 pin writes could block/hang.
+        
+        SERIAL-ONLY: set_mode() now just writes a string to the ModeManager
+        mmap file (~0.1ms). No blocking I2C, no reason to fork. Direct
+        call eliminates 200-500ms of subprocess overhead per mode change.
+        =====================================================================
         """
         self._stop_mode_event.clear()
-        self.mode_process = multiprocessing.Process(target=self.set_mode, args=(mode,))
-        self.mode_process.start()
+        # Direct call — no subprocess fork needed for serial-only mmap writes
+        self.set_mode(mode)
 
 
     def process_sequence(self, sequence, is_manual=False):

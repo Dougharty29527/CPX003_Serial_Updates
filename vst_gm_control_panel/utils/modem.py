@@ -514,6 +514,52 @@ class SerialManager:
                 self._log('warning', f'Invalid JSON from ESP32: {line} - {e}')
                 return None
                 
+            # =================================================================
+            # SERIAL-ONLY: Handle commands forwarded from ESP32 web portal.
+            # When Linux is connected, the ESP32 web portal's "Start Cycle"
+            # and "Stop" buttons forward commands to Linux via serial instead
+            # of running the failsafe cycle engine. This lets Linux manage
+            # cycles through its normal IOManager path (with alarms, DB, etc.)
+            #
+            # Expected formats:
+            #   {"command":"start_cycle","type":"run"}
+            #   {"command":"start_cycle","type":"manual_purge"}
+            #   {"command":"start_cycle","type":"clean"}
+            #   {"command":"stop_cycle"}
+            # =================================================================
+            if 'command' in data:
+                cmd = data['command']
+                if cmd == 'start_cycle':
+                    cycle_type = data.get('type', 'run')
+                    self._log('info', f'ESP32 web portal requested start_cycle: {cycle_type}')
+                    try:
+                        app = self.data_handler.app
+                        if hasattr(app, 'io') and app.io:
+                            if cycle_type == 'run':
+                                app.io.run_cycle()
+                            elif cycle_type == 'manual_purge':
+                                app.io.run_cycle(is_manual=True)
+                            elif cycle_type == 'clean':
+                                if hasattr(app.io, 'canister_clean'):
+                                    app.io.canister_clean()
+                                else:
+                                    app.io.run_cycle()  # Fallback to normal cycle
+                            self._log('info', f'Started {cycle_type} cycle from web portal')
+                    except Exception as e:
+                        self._log('error', f'Error starting cycle from web portal: {e}')
+                    return data
+                    
+                elif cmd == 'stop_cycle':
+                    self._log('info', 'ESP32 web portal requested stop_cycle')
+                    try:
+                        app = self.data_handler.app
+                        if hasattr(app, 'io') and app.io:
+                            app.io.stop_cycle()
+                            self._log('info', 'Stopped cycle from web portal')
+                    except Exception as e:
+                        self._log('error', f'Error stopping cycle from web portal: {e}')
+                    return data
+            
             # Check for passthrough REQUEST (string like "remote 60")
             # vs passthrough STATUS (integer 0 or 1)
             if 'passthrough' in data:
@@ -968,7 +1014,7 @@ class SerialManager:
         '''
         Poll ModeManager for mode changes and send to ESP32 immediately.
         
-        SERIAL-ONLY: Runs every 0.5 seconds via Kivy Clock. Reads the
+        SERIAL-ONLY: Runs every 0.1 seconds (100ms) via Kivy Clock. Reads the
         current mode from the memory-mapped file (written by IOManager or
         its child processes) and sends it to ESP32 only when it changes.
         This bridges the gap between multiprocessing mode writes and the
@@ -1017,16 +1063,17 @@ class SerialManager:
             self.RECEIVE_INTERVAL
         )
         
-        # SERIAL-ONLY: Poll ModeManager every 0.5s for immediate relay control.
-        # When IOManager (or its child processes) changes the mode via ModeManager,
-        # this detects the change and sends it to ESP32 within 500ms.
-        # This is the ONLY mechanism that controls physical relays.
+        # SERIAL-ONLY: Poll ModeManager for mode changes and send to ESP32.
+        # SPEED FIX: Reduced from 500ms to 100ms. When a cycle sequence runs
+        # in a child process, this is the bridge that detects mmap mode changes
+        # and sends them to ESP32. At 100ms, relay commands reach ESP32 within
+        # ~200ms total (100ms poll + 100ms ESP32 read interval).
         self._mode_check_event = Clock.schedule_interval(
             self._mode_check_cycle,
-            0.5  # 500ms polling — fast enough for relay control, light on CPU
+            0.1  # 100ms polling — fast relay response, still light on CPU
         )
         
-        self._log('info', f'Started: send every {self.UPDATE_INTERVAL}s, receive check every {self.RECEIVE_INTERVAL}s, mode poll every 0.5s')
+        self._log('info', f'Started: send every {self.UPDATE_INTERVAL}s, receive check every {self.RECEIVE_INTERVAL}s, mode poll every 0.1s')
 
     def stop(self):
         '''Stop periodic updates, PPP if running, and close serial'''
