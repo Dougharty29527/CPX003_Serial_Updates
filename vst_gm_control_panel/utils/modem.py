@@ -1106,6 +1106,39 @@ class SerialManager:
         except Exception as e:
             self._log('error', f'Error sending normal command: {e}')
 
+    def send_calibration_command(self):
+        '''
+        Send pressure calibration command to ESP32 — zeros the pressure sensor.
+        
+        SERIAL-ONLY: Assumes the pressure sensor is currently at atmospheric
+        pressure (0.0 IWC). ESP32 collects 60 ADC samples, computes a trimmed
+        mean, and saves the new zero point to EEPROM. The calibration persists
+        across reboots.
+        
+        Mirrors Python pressure_sensor.py calibrate() behavior.
+        
+        Example:
+            send_calibration_command()  # ESP32 recalibrates pressure zero point
+        '''
+        if self.ppp_active or self.is_passthrough_active():
+            self._log('warning', 'Cannot calibrate during PPP/passthrough')
+            return False
+        
+        if not self.serial_port or not self.serial_port.is_open:
+            if not self._initialize_serial():
+                return False
+        
+        try:
+            # {"type":"cmd","cmd":"cal"} — command message, not a data packet
+            msg = json.dumps({'type': 'cmd', 'cmd': 'cal'}, separators=(',', ':'))
+            self.serial_port.write((msg + '\n').encode('ascii'))
+            self.serial_port.flush()
+            self._log('info', 'Sent calibration command to ESP32 — pressure zero point will be recalculated')
+            return True
+        except Exception as e:
+            self._log('error', f'Error sending calibration command: {e}')
+            return False
+
     def _mode_check_cycle(self, *args):
         '''
         Poll ModeManager for mode changes and send to ESP32 immediately.

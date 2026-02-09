@@ -240,6 +240,12 @@ All web portal commands pass `from_web=True` to bypass the Kivy screen guard.
 **Original:** PPP passthrough was not handled by modem.py.  
 **Updated:** Full PPP lifecycle management including `connect_ppp()`, `disconnect_ppp()`, `handle_passthrough_request()`, `_start_ppp()`, `_stop_ppp()`, and `_ppp_timeout_monitor()`. Manages the `pppd` subprocess, serial port handoff, and automatic timeout.
 
+### Added: `send_calibration_command()` — Pressure Sensor Zero Calibration (Rev 10.7)
+**Original:** Did not exist. Pressure calibration was done locally in Python via `pressure_sensor.py calibrate()` using the ADS1115 ADC directly over I2C and saving to the Python database.  
+**Updated:** Sends `{"type":"cmd","cmd":"cal"}` to ESP32 via serial. The ESP32 performs the calibration locally (60 samples, trimmed mean, sanity check) and saves the new zero point to EEPROM. Uses the new `"type":"cmd"` message type to keep commands separate from `"type":"data"` status packets.
+
+**Why:** With the ADC now on the ESP32 (ADS1015), the calibration must happen on the ESP32 side. The Python program triggers it; the ESP32 executes and persists the result.
+
 ---
 
 ## File: `utils/data_handler.py` — Mode Map Update
@@ -419,6 +425,7 @@ _backup_i2c_compatible/
 | Rev 10.4 | 2/9/2026 | Fixed web portal tests/cycles not starting: added `from_web=True` parameter to bypass Kivy screen guards. Full web portal button audit completed. Modem.py debug log fixed to show only received fields (not all cached values). |
 | Rev 10.5 | 2/9/2026 | **ESP32 firmware fix**: Serial data mode field now ignored when a web portal test is running (`testRunning` guard). Prevents Linux periodic payload (`"mode":0`) from killing active tests. ESP32 `stop_cycle` serial command also clears test state. Diagnostic logging added to `set_sequence()` child process for leak test troubleshooting. ESP32 sensor packets now sent at 5Hz (200ms) with SD card status. Cellular/datetime data sent only on fresh modem retrieval. |
 | Rev 10.6 | 2/6/2026 | **Fix "CHECK I/O BOARD CONNECTION" false alarm.** `hardware_available` changed from `False` to `True` — the ESP32 serial link IS the I/O board hardware. The old `False` value caused `main.py`'s `get_gm_status()` to show a red error banner and return early, preventing alarms (overfill, etc.) from triggering the buzzer. Also added `send_normal_command()` to `modem.py` and updated `set_shutdown_relay()` in `io_manager.py` to send `{"mode":"normal"}` when clearing a 72-hour shutdown, eliminating the need for an ESP32 reboot. |
+| Rev 10.7 | 2/9/2026 | **Pressure sensor calibration command.** Added `send_calibration_command()` to `modem.py` — sends `{"type":"cmd","cmd":"cal"}` to ESP32 to zero the pressure sensor at atmospheric pressure. ESP32 collects 60 ADC samples, computes trimmed mean, saves new zero point to EEPROM. Calibration persists across reboots. New `"type":"cmd"` message type keeps commands separate from data packets. Also available from web portal Maintenance screen button. |
 
 ---
 
@@ -440,5 +447,8 @@ _backup_i2c_compatible/
 - [ ] Trigger 72-hour shutdown — verify shutdown command sent to ESP32
 - [ ] Clear 72-hour shutdown — verify `{"mode":"normal"}` sent to ESP32 (GPIO13 restored HIGH, no reboot needed)
 - [ ] Enter passthrough mode — verify serial sends are suspended
+- [ ] Calibrate pressure from web portal — verify zero point updated and saved to EEPROM
+- [ ] Calibrate pressure from Python (`send_calibration_command()`) — verify ESP32 recalibrates
+- [ ] Reboot ESP32 — verify calibration persists (loaded from EEPROM at boot)
 - [ ] Verify no I2C-related error messages in log
 - [ ] Verify `gmctl` log shows only received packet fields (no repeated datetime/rsrp)
