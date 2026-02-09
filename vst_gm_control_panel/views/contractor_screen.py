@@ -285,6 +285,10 @@ class ContractorScreen(MDScreen):
         Sends {"type":"cmd","cmd":"cal"} to ESP32 via serial_manager.send_calibration_command().
         ESP32 collects 60 ADC samples, computes trimmed mean, saves zero point to EEPROM.
         
+        The current sensor reading becomes the new 0.0 IWC reference point.
+        Works correctly at any altitude — e.g., if reading -0.5 IWC before
+        calibration, it will read 0.0 IWC afterward.
+        
         Previously called self.app.io.pressure_sensor.calibrate which read the ADS1115
         over I2C directly — that hardware path no longer exists.
         
