@@ -246,6 +246,65 @@ All web portal commands pass `from_web=True` to bypass the Kivy screen guard.
 
 **Why:** With the ADC now on the ESP32 (ADS1015), the calibration must happen on the ESP32 side. The Python program triggers it; the ESP32 executes and persists the result.
 
+### Added: `ps_cal` Response Parser — Save ESP32 Calibration to Database (Rev 10.7)
+**Original:** Did not exist. The original `pressure_sensor.py` saved the `adc_zero` value to `gm_db` after calibrating locally.  
+**Updated:** `receive_esp32_status()` now parses the `ps_cal` field from incoming ESP32 JSON packets. When ESP32 completes a calibration, it sends `{"type":"data","ps_cal":964.50}` back via serial. Python receives this, extracts the value, and saves it to `app.gm_db.add_setting('adc_zero', cal_value)` — using the same database key as the original `pressure_sensor.py`.
+
+**Why:** The calibration is now performed on the ESP32 side (where the ADS1015 ADC lives), but the Python database still needs a copy of the calibration factor for consistency and as a backup reference. The `ps_cal` response closes the loop: Python triggers calibration → ESP32 executes → ESP32 sends result back → Python saves to database.
+
+**Code added (lines ~714-748):**
+```python
+if 'ps_cal' in data:
+    try:
+        cal_value = float(data['ps_cal'])
+        self._log('info', f'Received pressure calibration from ESP32: ps_cal={cal_value}')
+        if hasattr(self, 'data_handler') and self.data_handler:
+            app = getattr(self.data_handler, 'app', None)
+            if app and hasattr(app, 'gm_db'):
+                app.gm_db.add_setting('adc_zero', cal_value)
+                self._log('info', f'Saved pressure calibration to database: adc_zero={cal_value}')
+    except (ValueError, TypeError) as e:
+        self._log('error', f'Invalid ps_cal value: {data["ps_cal"]} — {e}')
+```
+
+---
+
+## File: `views/contractor_screen.py` — Calibration Button Fix (Rev 10.7)
+
+### Fixed: `show_calibration_dialog()` — Crash on Calibrate Button (Rev 10.7)
+**Original:** Called `self.app.io.pressure_sensor.calibrate` as the dialog accept callback. In the serial-only build, `pressure_sensor` was removed from `IOManager` (the ADS1115 ADC is no longer on the Linux I2C bus), so pressing the button threw `AttributeError: 'IOManager' object has no attribute 'pressure_sensor'` and crashed the application.  
+**Updated:** The `accept_method` now points to `self._send_calibration_to_esp32`, a new method on the contractor screen class.
+
+**Error that was occurring:**
+```
+File "contractor_screen.py", line 303, in show_calibration_dialog
+    accept_method=self.app.io.pressure_sensor.calibrate,
+AttributeError: 'IOManager' object has no attribute 'pressure_sensor'
+```
+
+### Added: `_send_calibration_to_esp32()` — Serial Calibration Callback (Rev 10.7)
+**Original:** Did not exist.  
+**Updated:** New method called when user confirms the calibration dialog. Retrieves `self.app.serial_manager` and calls `send_calibration_command()`. Logs success/failure via Kivy Logger. Accepts `*args` to match the dialog callback signature.
+
+**Code (lines ~321-343):**
+```python
+def _send_calibration_to_esp32(self, *args):
+    from kivy.logger import Logger
+    serial_mgr = getattr(self.app, 'serial_manager', None)
+    if serial_mgr:
+        result = serial_mgr.send_calibration_command()
+        if result:
+            Logger.info('PressureSensor: Calibration command sent to ESP32')
+        else:
+            Logger.warning('PressureSensor: Failed to send calibration command')
+    else:
+        Logger.error('PressureSensor: No serial manager available')
+```
+
+### Updated: Calibration Dialog Text (Rev 10.7)
+**Original:** Warning text said "pressure sensor must be open to atmospheric air in order to calibrate."  
+**Updated:** Docstring clarifies that calibration sets the current reading to 0.0 IWC regardless of altitude. If the sensor reads -0.5 IWC due to altitude, after calibration it will read 0.0 IWC.
+
 ---
 
 ## File: `utils/data_handler.py` — Mode Map Update
@@ -316,6 +375,8 @@ The `stop_cycle` command handler (both from web and serial) now also clears `tes
 | Settings | Reboot ESP32 | `restart` | ESP32 `ESP.restart()` | OK |
 | Config | Save Name | GET /setdevicename | ESP32 + PW "gm2026" | OK |
 | Config | Watchdog Toggle | GET /setwatchdog | ESP32 + PW "gm2026" | OK |
+| Maintenance | Calibrate Pressure | `calibrate_pressure` | ESP32 local (60 samples, EEPROM save) | NEW 10.7 |
+| Contractor | Calibrate Sensor | `send_calibration_command()` | Python → ESP32 `{"type":"cmd","cmd":"cal"}` | FIXED 10.7 |
 
 ---
 
@@ -425,7 +486,7 @@ _backup_i2c_compatible/
 | Rev 10.4 | 2/9/2026 | Fixed web portal tests/cycles not starting: added `from_web=True` parameter to bypass Kivy screen guards. Full web portal button audit completed. Modem.py debug log fixed to show only received fields (not all cached values). |
 | Rev 10.5 | 2/9/2026 | **ESP32 firmware fix**: Serial data mode field now ignored when a web portal test is running (`testRunning` guard). Prevents Linux periodic payload (`"mode":0`) from killing active tests. ESP32 `stop_cycle` serial command also clears test state. Diagnostic logging added to `set_sequence()` child process for leak test troubleshooting. ESP32 sensor packets now sent at 5Hz (200ms) with SD card status. Cellular/datetime data sent only on fresh modem retrieval. |
 | Rev 10.6 | 2/6/2026 | **Fix "CHECK I/O BOARD CONNECTION" false alarm.** `hardware_available` changed from `False` to `True` — the ESP32 serial link IS the I/O board hardware. The old `False` value caused `main.py`'s `get_gm_status()` to show a red error banner and return early, preventing alarms (overfill, etc.) from triggering the buzzer. Also added `send_normal_command()` to `modem.py` and updated `set_shutdown_relay()` in `io_manager.py` to send `{"mode":"normal"}` when clearing a 72-hour shutdown, eliminating the need for an ESP32 reboot. |
-| Rev 10.7 | 2/9/2026 | **Pressure sensor calibration command.** Added `send_calibration_command()` to `modem.py` — sends `{"type":"cmd","cmd":"cal"}` to ESP32 to zero the pressure sensor at atmospheric pressure. ESP32 collects 60 ADC samples, computes trimmed mean, saves new zero point to EEPROM. Calibration persists across reboots. New `"type":"cmd"` message type keeps commands separate from data packets. Also available from web portal Maintenance screen button. |
+| Rev 10.7 | 2/9/2026 | **Pressure sensor calibration (3 files changed).** `modem.py`: Added `send_calibration_command()` — sends `{"type":"cmd","cmd":"cal"}` to ESP32. Added `ps_cal` response parser — saves ESP32 calibration result to `gm_db` as `adc_zero`. `contractor_screen.py`: Fixed crash — replaced `self.app.io.pressure_sensor.calibrate` (removed in serial-only build) with `_send_calibration_to_esp32()`. Updated dialog text for altitude clarity. New `"type":"cmd"` message type. ESP32 sends `{"type":"data","ps_cal":964.50}` back after calibration. |
 
 ---
 
@@ -447,8 +508,10 @@ _backup_i2c_compatible/
 - [ ] Trigger 72-hour shutdown — verify shutdown command sent to ESP32
 - [ ] Clear 72-hour shutdown — verify `{"mode":"normal"}` sent to ESP32 (GPIO13 restored HIGH, no reboot needed)
 - [ ] Enter passthrough mode — verify serial sends are suspended
-- [ ] Calibrate pressure from web portal — verify zero point updated and saved to EEPROM
-- [ ] Calibrate pressure from Python (`send_calibration_command()`) — verify ESP32 recalibrates
+- [ ] Calibrate pressure from web portal Maintenance screen — verify zero point updated and saved to EEPROM
+- [ ] Calibrate pressure from Contractor screen button — verify no crash, command sent to ESP32
+- [ ] Verify ESP32 sends `{"type":"data","ps_cal":xxx}` back to Linux after calibration
+- [ ] Verify `gmctl` log shows "Saved pressure calibration to database: adc_zero=xxx"
 - [ ] Reboot ESP32 — verify calibration persists (loaded from EEPROM at boot)
 - [ ] Verify no I2C-related error messages in log
 - [ ] Verify `gmctl` log shows only received packet fields (no repeated datetime/rsrp)
