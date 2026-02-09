@@ -710,6 +710,33 @@ class SerialManager:
                     self.esp32_failsafe = bool(int(data['failsafe']))
                 except (ValueError, TypeError):
                     pass
+            
+            # ================================================================
+            # CALIBRATION RESPONSE: ESP32 sends {"type":"data","ps_cal":964.5}
+            # after completing a pressure sensor zero-point calibration.
+            # Save the calibration factor to the Python database (gm_db) so
+            # the Linux program has a persistent copy of the ADC zero point.
+            # Key: 'adc_zero' — matches original pressure_sensor.py convention.
+            #
+            # Usage: Triggered automatically when ESP32 finishes calibration.
+            #   ESP32 sends → modem.py parses → saves to gm_db → logs result.
+            # ================================================================
+            if 'ps_cal' in data:
+                try:
+                    cal_value = float(data['ps_cal'])
+                    self._log('info', f'Received pressure calibration from ESP32: ps_cal={cal_value}')
+                    # Save to Python database using same key as original pressure_sensor.py
+                    if hasattr(self, 'data_handler') and self.data_handler:
+                        app = getattr(self.data_handler, 'app', None)
+                        if app and hasattr(app, 'gm_db'):
+                            app.gm_db.add_setting('adc_zero', cal_value)
+                            self._log('info', f'Saved pressure calibration to database: adc_zero={cal_value}')
+                        else:
+                            self._log('warning', 'Cannot save ps_cal — gm_db not available')
+                    else:
+                        self._log('warning', 'Cannot save ps_cal — data_handler not available')
+                except (ValueError, TypeError) as e:
+                    self._log('error', f'Invalid ps_cal value: {data["ps_cal"]} — {e}')
                 
             self.esp32_last_update = time.time()
             
