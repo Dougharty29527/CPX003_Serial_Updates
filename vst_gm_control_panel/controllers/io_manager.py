@@ -860,17 +860,29 @@ class IOManager:
     def set_sequence(self, sequence):
         """
         Set the pins for the specified sequence - simplified version based on working 0.4.10.
+        
+        Runs in a CHILD PROCESS (forked by multiprocessing.Process in process_sequence).
+        Writes mode to ModeManager mmap, which modem.py polls every 100ms and sends
+        to ESP32 via serial. The main process handles all serial I/O.
         """
         self.purge_check = False
+        Logger.debug(f'IOManager: [CHILD PID={os.getpid()}] set_sequence started with: {sequence}')
         try:
             for i, (mode, delay) in enumerate(sequence):
+                Logger.debug(f'IOManager: [CHILD] Step {i}: mode={mode}, delay={delay}s')
+                
                 # Use safe logging method that creates a fresh connection
-                self.log_notification_safely(f'Starting {mode} mode.')
+                try:
+                    self.log_notification_safely(f'Starting {mode} mode.')
+                except Exception as log_err:
+                    Logger.debug(f'IOManager: [CHILD] log_notification_safely failed (non-fatal): {log_err}')
                 
                 if self._stop_cycle_event.is_set():
+                    Logger.debug(f'IOManager: [CHILD] Stop event detected, breaking sequence')
                     break
                     
                 self.process_mode(mode)
+                Logger.debug(f'IOManager: [CHILD] process_mode({mode}) completed, sleeping {delay}s')
                 
                 if mode == 'purge':
                     if self.purge_check is False:
@@ -880,12 +892,17 @@ class IOManager:
                         self.cancel_purge_timer()
                         
                 self.sleep_with_check(delay)
+                Logger.debug(f'IOManager: [CHILD] sleep_with_check completed for step {i}')
                 
         except KeyboardInterrupt:
-            self._end_sequence()
+            Logger.debug(f'IOManager: [CHILD] KeyboardInterrupt in set_sequence')
         except Exception as e:
-            self._end_sequence()
+            Logger.error(f'IOManager: [CHILD] EXCEPTION in set_sequence: {type(e).__name__}: {e}')
         finally:
+            # _end_sequence() is called ONLY here in the finally block.
+            # Previously it was also called in except blocks, causing a double call
+            # (finally ALWAYS runs, even after except). Single call is correct.
+            Logger.debug(f'IOManager: [CHILD] set_sequence finally block — calling _end_sequence()')
             self._end_sequence()
 
     def _load_step_progress(self):
@@ -1428,32 +1445,48 @@ class IOManager:
         """
         Set the sequence for a leak test.
         
+        Activates leak mode (mode 9): CR1 ON, CR2 ON, CR5 ON, Motor OFF.
+        Runs for 30 minutes (3 minutes in debug mode).
+        
         Args:
             from_web (bool): True when triggered by the ESP32 web portal via serial.
                 When True, the Kivy screen guard is skipped because the web portal
                 has its own password protection and the touchscreen may be on any screen.
         """
+        Logger.info(f'IOManager: leak_test() called (from_web={from_web})')
+        
         # Explicit safety check - never allow leak tests on protected administrative screens
         # SKIP when from_web=True — web portal commands are not tied to a Kivy screen.
         # The web portal has its own password gate (Maintenance PW 878).
-        if not from_web and hasattr(self.app, 'sm') and self.app.sm.current in [
-            'Admin',
-            'ClearAlarms',
-            'CodeEntry',
-            'Contractor',
-            'FunctionalityTest',
-            'Main',
-            'Faults',
-            'TimeEntry',
-            'Maintenance',
-            'ManualMode',
-            'OverfillOverride',
-            'Shutdown',
-            'System',
-            'SystemConfig'
-        ]:
-            # Ensure we're in rest mode
-            self.set_rest()
+        if not from_web and hasattr(self.app, 'sm'):
+            current_screen = self.app.sm.current
+            blocked_screens = [
+                'Admin',
+                'ClearAlarms',
+                'CodeEntry',
+                'Contractor',
+                'FunctionalityTest',
+                'Main',
+                'Faults',
+                'TimeEntry',
+                'Maintenance',
+                'ManualMode',
+                'OverfillOverride',
+                'Shutdown',
+                'System',
+                'SystemConfig'
+            ]
+            if current_screen in blocked_screens:
+                Logger.warning(f'IOManager: leak_test() BLOCKED by screen guard — current screen is "{current_screen}"')
+                # Ensure we're in rest mode
+                self.set_rest()
+                return
+            else:
+                Logger.info(f'IOManager: leak_test() screen guard PASSED — current screen is "{current_screen}"')
+        
+        # Check if another cycle process is already running
+        if self.cycle_process is not None and self.cycle_process.is_alive():
+            Logger.warning(f'IOManager: leak_test() BLOCKED — cycle_process already running (PID={self.cycle_process.pid})')
             return
             
         if self.app.debug:
@@ -1461,6 +1494,7 @@ class IOManager:
         else:
             leak_time = 60 * 30
 
+        Logger.info(f'IOManager: leak_test() starting process_sequence with leak mode for {leak_time}s')
         self.process_sequence([
             ('leak', leak_time)
         ])
