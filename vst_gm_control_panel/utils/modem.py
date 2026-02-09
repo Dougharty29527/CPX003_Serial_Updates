@@ -1058,8 +1058,8 @@ class SerialManager:
         '''
         Send shutdown command to ESP32 — sets DISP_SHUTDN (GPIO13) LOW.
         
-        SERIAL-ONLY: ESP32 recognizes {"mode":"shutdown"} as the ONLY way
-        to trigger DISP_SHUTDN LOW. The pin starts HIGH on every ESP32 boot.
+        SERIAL-ONLY: ESP32 recognizes {"mode":"shutdown"} to trigger
+        DISP_SHUTDN LOW. Use send_normal_command() to restore it HIGH.
         
         Example:
             send_shutdown_command()  # ESP32 sets GPIO13 LOW (site shutdown)
@@ -1076,9 +1076,35 @@ class SerialManager:
             msg = json.dumps({'type': 'data', 'mode': 'shutdown'}, separators=(',', ':'))
             self.serial_port.write((msg + '\n').encode('ascii'))
             self.serial_port.flush()
-            self._log('info', 'Sent shutdown command to ESP32')
+            self._log('info', 'Sent shutdown command to ESP32 — DISP_SHUTDN LOW')
         except Exception as e:
             self._log('error', f'Error sending shutdown command: {e}')
+
+    def send_normal_command(self):
+        '''
+        Send normal command to ESP32 — restores DISP_SHUTDN (GPIO13) HIGH.
+        
+        SERIAL-ONLY: Clears a previous 72-hour shutdown. ESP32 recognizes
+        {"mode":"normal"} and calls deactivateDispShutdown() to set GPIO13 HIGH.
+        
+        Example:
+            send_normal_command()  # ESP32 sets GPIO13 HIGH (site restored)
+        '''
+        if self.ppp_active or self.is_passthrough_active():
+            return
+        
+        if not self.serial_port or not self.serial_port.is_open:
+            if not self._initialize_serial():
+                return
+        
+        try:
+            # ESP32 checks: if (modeStr == "normal") deactivateDispShutdown();
+            msg = json.dumps({'type': 'data', 'mode': 'normal'}, separators=(',', ':'))
+            self.serial_port.write((msg + '\n').encode('ascii'))
+            self.serial_port.flush()
+            self._log('info', 'Sent normal command to ESP32 — DISP_SHUTDN HIGH (site restored)')
+        except Exception as e:
+            self._log('error', f'Error sending normal command: {e}')
 
     def _mode_check_cycle(self, *args):
         '''

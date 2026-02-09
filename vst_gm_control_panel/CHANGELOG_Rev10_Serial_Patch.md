@@ -418,6 +418,7 @@ _backup_i2c_compatible/
 | Rev 10.3 | 2/9/2026 | Serial buffer drain: Python reads all buffered lines and uses only the latest (fixes stale pressure). Direct ESP32 reads for `_get_pressure()` and `_get_current()` (removes Kivy StringProperty indirection). ESP32 ADC rolling average window reduced from 3.3s to 1s. |
 | Rev 10.4 | 2/9/2026 | Fixed web portal tests/cycles not starting: added `from_web=True` parameter to bypass Kivy screen guards. Full web portal button audit completed. Modem.py debug log fixed to show only received fields (not all cached values). |
 | Rev 10.5 | 2/9/2026 | **ESP32 firmware fix**: Serial data mode field now ignored when a web portal test is running (`testRunning` guard). Prevents Linux periodic payload (`"mode":0`) from killing active tests. ESP32 `stop_cycle` serial command also clears test state. Diagnostic logging added to `set_sequence()` child process for leak test troubleshooting. ESP32 sensor packets now sent at 5Hz (200ms) with SD card status. Cellular/datetime data sent only on fresh modem retrieval. |
+| Rev 10.6 | 2/6/2026 | **Fix "CHECK I/O BOARD CONNECTION" false alarm.** `hardware_available` changed from `False` to `True` — the ESP32 serial link IS the I/O board hardware. The old `False` value caused `main.py`'s `get_gm_status()` to show a red error banner and return early, preventing alarms (overfill, etc.) from triggering the buzzer. Also added `send_normal_command()` to `modem.py` and updated `set_shutdown_relay()` in `io_manager.py` to send `{"mode":"normal"}` when clearing a 72-hour shutdown, eliminating the need for an ESP32 reboot. |
 
 ---
 
@@ -435,8 +436,9 @@ _backup_i2c_compatible/
 - [ ] Start functionality test from web portal — verify 10x run/purge cycle
 - [ ] Start manual mode from touchscreen — verify full sequence sent
 - [ ] Trigger bleed mode — verify mode 8 sent to ESP32
-- [ ] Trigger overfill — verify alarm fires from ESP32 serial data
+- [ ] Trigger overfill — verify alarm fires, buzzer sounds, status bar shows alarm (not "CHECK I/O BOARD")
 - [ ] Trigger 72-hour shutdown — verify shutdown command sent to ESP32
+- [ ] Clear 72-hour shutdown — verify `{"mode":"normal"}` sent to ESP32 (GPIO13 restored HIGH, no reboot needed)
 - [ ] Enter passthrough mode — verify serial sends are suspended
 - [ ] Verify no I2C-related error messages in log
 - [ ] Verify `gmctl` log shows only received packet fields (no repeated datetime/rsrp)

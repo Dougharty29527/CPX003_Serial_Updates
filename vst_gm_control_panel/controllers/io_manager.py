@@ -232,13 +232,16 @@ class IOManager:
         Logger.info('IOManager: Initialized ModeManager for ultra-fast mode operations')
         
         # =====================================================================
-        # SERIAL-ONLY: No I2C hardware initialization.
-        # hardware_available is always False — all sensor data comes from ESP32
-        # via serial_manager. The serial manager's _mode_check_cycle() detects
-        # mode changes from ModeManager and sends them to ESP32 for relay control.
+        # SERIAL-ONLY: No I2C hardware, but hardware IS available via ESP32 serial.
+        # 
+        # CRITICAL: hardware_available MUST be True. The main.py get_gm_status()
+        # function checks this flag every 3 seconds — if False, it shows
+        # "CHECK I/O BOARD CONNECTION", sets the status bar red, and RETURNS EARLY
+        # before processing alarms or triggering the buzzer. Setting this True
+        # tells main.py that the IO board is reachable (via serial, not I2C).
         # =====================================================================
-        self.hardware_available = False
-        self.hardware_error = 'Serial-only build — I2C hardware not used'
+        self.hardware_available = True
+        self.hardware_error = None
         self._hardware_init_pid = os.getpid()
         
         # Current readings state — values come from ESP32 serial, not local ADC
@@ -1651,18 +1654,19 @@ class IOManager:
         Set the shutdown relay to a specific state with profile-aware control.
         
         =====================================================================
-        SERIAL-ONLY: Sends shutdown command to ESP32 via serial_manager.
-        When state=False (shutdown activated), sends {"mode":"shutdown"} which
-        is the ONLY way to set ESP32 DISP_SHUTDN (GPIO13) LOW.
+        SERIAL-ONLY: Controls ESP32 DISP_SHUTDN (GPIO13) via serial commands.
         
-        When state=True (normal operation), ESP32 DISP_SHUTDN starts HIGH on
-        every boot, so no re-enable command is needed — ESP32 handles this.
+        state=False (shutdown): Sends {"mode":"shutdown"} → GPIO13 LOW
+            Triggered by 72-hour alarm or CS9 vac_pump/pressure_sensor faults.
+        
+        state=True (normal):    Sends {"mode":"normal"}  → GPIO13 HIGH
+            Sent when 72-hour alarm clears, restoring site power.
         
         All I2C MCP23017 pin 4 writes have been removed.
         =====================================================================
         
         Args:
-            state: True to turn on the relay, False to turn it off
+            state: True = site normal (GPIO13 HIGH), False = site shutdown (GPIO13 LOW)
             alarm_type: Type of alarm requesting the change (for profile checking)
         """
         try:
@@ -1680,14 +1684,16 @@ class IOManager:
             else:
                 self.pins['shutdown'].value = state
             
-            # Send shutdown command to ESP32 via serial
+            # Send command to ESP32 via serial
             serial_mgr = getattr(self.app, 'serial_manager', None)
             if serial_mgr:
                 if not state:
                     # Shutdown activated — tell ESP32 to pull DISP_SHUTDN LOW
                     serial_mgr.send_shutdown_command()
-                # Note: state=True (re-enable) requires ESP32 reboot to reset GPIO13 HIGH.
-                # ESP32 DISP_SHUTDN starts HIGH on boot — no command needed to re-enable.
+                else:
+                    # Normal operation restored — tell ESP32 to set DISP_SHUTDN HIGH
+                    # This clears a previous 72-hour shutdown without requiring ESP32 reboot
+                    serial_mgr.send_normal_command()
             
         except Exception as e:
             self._log('error', f'Error setting shutdown relay: {e}')

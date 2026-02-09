@@ -1,4 +1,4 @@
-# Python Control Panel — Changes Summary (Rev 10.5)
+# Python Control Panel — Changes Summary (Rev 10.6)
 
 **Project:** VST GM Control Panel (Linux/Raspberry Pi)  
 **Date:** February 9, 2026  
@@ -195,3 +195,4 @@ The ESP32 does NOT make these decisions during normal operation. It simply repor
 | Rev 10.3 | 2/9/2026 | Faster pressure updates. Serial buffer drain for freshest data. Direct ESP32 pressure/current reads for CBOR payload. |
 | Rev 10.4 | 2/9/2026 | Fixed web portal tests/cycles not starting. Screen guards bypass for web portal commands. Full web portal button audit. Modem.py debug log shows only received fields. |
 | Rev 10.5 | 2/9/2026 | ESP32 ignores serial mode overrides during web portal tests. 5Hz sensor packets. Fresh-only cellular data. Child process diagnostic logging. |
+| Rev 10.6 | 2/6/2026 | Fixed "CHECK I/O BOARD CONNECTION" false alarm blocking buzzer and alarm display. Added `{"mode":"normal"}` command to clear 72-hour shutdown without ESP32 reboot. |
