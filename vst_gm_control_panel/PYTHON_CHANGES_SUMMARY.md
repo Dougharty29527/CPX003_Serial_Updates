@@ -176,3 +176,4 @@ The ESP32 does NOT make these decisions during normal operation. It simply repor
 | Rev 10.1 | 2/8/2026 | Performance fix (6s → 200ms relay response). Password-protected web portal. Web portal test commands connected to Python. |
 | Rev 10.2 | 2/8/2026 | Fixed stale CBOR pressure (ESP32 now uses own ADC, not Python echo). Web portal tests connected. |
 | Rev 10.3 | 2/9/2026 | Faster pressure updates. Serial buffer drain for freshest data. Direct ESP32 pressure/current reads for CBOR payload. Architecture documented. |
+| Rev 10.4 | 2/9/2026 | Fixed web portal tests/cycles not starting. Screen guards now allow web portal commands. Full web portal button audit completed. |

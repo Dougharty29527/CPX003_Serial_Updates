@@ -554,13 +554,15 @@ class SerialManager:
                     try:
                         app = self.data_handler.app
                         if hasattr(app, 'io') and app.io:
+                            # from_web=True bypasses the Kivy screen guard — the web portal
+                            # has its own interface and isn't tied to a touchscreen screen.
                             if cycle_type == 'run':
-                                app.io.run_cycle()
+                                app.io.run_cycle(from_web=True)
                             elif cycle_type == 'manual_purge':
-                                app.io.run_cycle(is_manual=True)
+                                app.io.run_cycle(is_manual=True, from_web=True)
                             elif cycle_type == 'clean':
                                 if hasattr(app.io, 'canister_clean'):
-                                    app.io.canister_clean()
+                                    app.io.canister_clean(from_web=True)
                                 else:
                                     app.io.run_cycle()  # Fallback to normal cycle
                             self._log('info', f'Started {cycle_type} cycle from web portal')
@@ -597,20 +599,22 @@ class SerialManager:
                         if hasattr(app, 'io') and app.io:
                             if test_type == 'leak':
                                 # Leak test: 30 min in leak mode (CR1+CR2+CR5 ON, no motor)
+                                # from_web=True bypasses the Kivy screen guard — the web portal
+                                # has its own password protection and isn't tied to a screen.
                                 if hasattr(app.io, 'leak_test'):
-                                    app.io.leak_test()
+                                    app.io.leak_test(from_web=True)
                                 else:
                                     self._log('warning', 'IOManager has no leak_test() method')
                             elif test_type == 'func':
                                 # Functionality test: 10x (60s run + 60s purge)
                                 if hasattr(app.io, 'functionality_test'):
-                                    app.io.functionality_test()
+                                    app.io.functionality_test(from_web=True)
                                 else:
                                     self._log('warning', 'IOManager has no functionality_test() method')
                             elif test_type == 'eff':
                                 # Efficiency test: 120s fill/run phase
                                 if hasattr(app.io, 'efficiency_test_fill_run'):
-                                    app.io.efficiency_test_fill_run()
+                                    app.io.efficiency_test_fill_run(from_web=True)
                                 else:
                                     self._log('warning', 'IOManager has no efficiency_test_fill_run() method')
                             else:

@@ -1032,16 +1032,20 @@ class IOManager:
         self.purge_timer.cancel()
         self.purge_timer = None
 
-    def run_cycle(self, is_manual=False):
+    def run_cycle(self, is_manual=False, from_web=False):
         """
         Purpose:
         - Set the sequence for a run cycle.
         
         Args:
             is_manual (bool): Whether this is part of a manual mode cycle
+            from_web (bool): True when triggered by the ESP32 web portal via serial.
+                When True, the Kivy screen guard is skipped because the web portal
+                has its own interface and the touchscreen may be on any screen.
         """
         # Explicit safety check - never allow run cycles on protected administrative screens
-        if hasattr(self.app, 'sm') and self.app.sm.current in [
+        # SKIP when from_web=True — web portal commands are not tied to a Kivy screen.
+        if not from_web and hasattr(self.app, 'sm') and self.app.sm.current in [
             'Admin',
             'ClearAlarms',
             'CodeEntry',
@@ -1247,12 +1251,18 @@ class IOManager:
         self._stop_cycle_event.clear()  # Reset the stop event
         self.process_sequence(sequence)
 
-    def functionality_test(self):
+    def functionality_test(self, from_web=False):
         """
         Set the sequence for a functionality test.
+        
+        Args:
+            from_web (bool): True when triggered by the ESP32 web portal via serial.
+                When True, the Kivy screen guard is skipped because the web portal
+                has its own password protection and the touchscreen may be on any screen.
         """
         # Explicit safety check - never allow functionality tests on protected administrative screens
-        if hasattr(self.app, 'sm') and self.app.sm.current in [
+        # SKIP when from_web=True — web portal commands are not tied to a Kivy screen.
+        if not from_web and hasattr(self.app, 'sm') and self.app.sm.current in [
             'Admin',
             'ClearAlarms',
             'CodeEntry',
@@ -1291,13 +1301,19 @@ class IOManager:
         except Exception as e:
             self._log('error', f'Error in functionality test: {e}')
 
-    def canister_clean(self):
+    def canister_clean(self, from_web=False):
         """
         Set the sequence for a canister clean cycle.
+        
+        Args:
+            from_web (bool): True when triggered by the ESP32 web portal via serial.
+                When True, the Kivy screen guard is skipped because the web portal
+                has its own password protection and the touchscreen may be on any screen.
         """
         # Explicit safety check - never allow canister clean on protected administrative screens
         # Note: CanisterClean screen is allowed (not in blocked list) so canister clean can run on its own screen
-        if hasattr(self.app, 'sm') and self.app.sm.current in [
+        # SKIP when from_web=True — web portal commands are not tied to a Kivy screen.
+        if not from_web and hasattr(self.app, 'sm') and self.app.sm.current in [
             'Admin',
             'ClearAlarms',
             'CodeEntry',
@@ -1327,12 +1343,18 @@ class IOManager:
             ('run', clean_time)  # Motor ON, V1 ON, V2 OFF, V5 ON
         ])
 
-    def efficiency_test_fill_run(self):
+    def efficiency_test_fill_run(self, from_web=False):
         """
         Set the sequence for an efficiency test fill/run cycle.
+        
+        Args:
+            from_web (bool): True when triggered by the ESP32 web portal via serial.
+                When True, the Kivy screen guard is skipped because the web portal
+                has its own password protection and the touchscreen may be on any screen.
         """
         # Explicit safety check - never allow efficiency test on protected administrative screens
-        if hasattr(self.app, 'sm') and self.app.sm.current in [
+        # SKIP when from_web=True — web portal commands are not tied to a Kivy screen.
+        if not from_web and hasattr(self.app, 'sm') and self.app.sm.current in [
             'Admin',
             'ClearAlarms',
             'CodeEntry',
@@ -1402,12 +1424,19 @@ class IOManager:
 
         self.process_sequence(sequence)
 
-    def leak_test(self):
+    def leak_test(self, from_web=False):
         """
         Set the sequence for a leak test.
+        
+        Args:
+            from_web (bool): True when triggered by the ESP32 web portal via serial.
+                When True, the Kivy screen guard is skipped because the web portal
+                has its own password protection and the touchscreen may be on any screen.
         """
         # Explicit safety check - never allow leak tests on protected administrative screens
-        if hasattr(self.app, 'sm') and self.app.sm.current in [
+        # SKIP when from_web=True — web portal commands are not tied to a Kivy screen.
+        # The web portal has its own password gate (Maintenance PW 878).
+        if not from_web and hasattr(self.app, 'sm') and self.app.sm.current in [
             'Admin',
             'ClearAlarms',
             'CodeEntry',

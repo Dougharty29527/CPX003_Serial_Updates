@@ -140,6 +140,68 @@ See that directory's `README.md` for restoration instructions.
 
 **Why these matter for CBOR:** The `_get_pressure()` and `_get_current()` functions feed the data payload that Python sends to the ESP32 every 15 seconds for CBOR cellular transmission. While the ESP32 now uses its own ADC readings for CBOR pressure/current (so the Python values are redundant for that purpose), keeping them accurate ensures the serial data stream is consistent and debuggable. The values in the "Sent" log line will now match what the ESP32 is reporting.
 
+---
+
+## File: `controllers/io_manager.py` — Web Portal Screen Guard Fix (Rev 10.4)
+
+### Fixed: `leak_test()`, `functionality_test()`, `efficiency_test_fill_run()`, `canister_clean()`, `run_cycle()` — Web Portal Commands Blocked by Screen Guard
+
+**The Problem:** Every test and cycle function had a "screen guard" — a safety check that prevents the function from running unless the user is on the correct Kivy touchscreen. For example, `leak_test()` would only run if the touchscreen was on the `LeakTest` screen. If the user was on ANY other screen (Main, Maintenance, Faults, etc.), the function silently returned without doing anything.
+
+This was by design for the touchscreen interface. But when the ESP32 web portal sends a command via serial (e.g., the user presses "Start" on the Leak Test web page), the Python program receives it while the touchscreen is sitting on whatever screen the operator left it on — typically `Main`. Since `Main` is in the blocked screen list, the command was silently discarded. No error, no log message — it just didn't work.
+
+**The Fix:** Added a `from_web=False` parameter to all affected functions. When `from_web=True`, the Kivy screen guard is skipped entirely. The web portal has its own security (Maintenance password gate "878") so the guard is redundant for web commands.
+
+**Functions fixed:**
+- `leak_test(from_web=False)` — Leak Test (30 min, mode 9)
+- `functionality_test(from_web=False)` — Functionality Test (10 x run/purge cycles)
+- `efficiency_test_fill_run(from_web=False)` — Efficiency Test (120s fill/run)
+- `canister_clean(from_web=False)` — Canister Clean (15 min motor run)
+- `run_cycle(is_manual=False, from_web=False)` — Run Cycle and Manual Purge
+
+**Why this is important:** Field technicians frequently use the web portal on their phones to run tests and start cycles remotely, especially when the touchscreen is not easily accessible (e.g., unit mounted high, inside enclosure). Without this fix, NONE of the web portal's test or cycle buttons worked unless someone happened to navigate the touchscreen to the exact matching Kivy screen first.
+
+## File: `utils/modem.py` — Pass from_web=True for All Web Commands (Rev 10.4)
+
+All web portal command handlers in `receive_esp32_status()` now pass `from_web=True` when calling IOManager functions:
+- `app.io.run_cycle(from_web=True)` for start_cycle/run
+- `app.io.run_cycle(is_manual=True, from_web=True)` for start_cycle/manual_purge
+- `app.io.canister_clean(from_web=True)` for start_cycle/clean
+- `app.io.leak_test(from_web=True)` for start_test/leak
+- `app.io.functionality_test(from_web=True)` for start_test/func
+- `app.io.efficiency_test_fill_run(from_web=True)` for start_test/eff
+
+---
+
+## Web Portal Button Audit (Rev 10.4) — All Confirmed Working
+
+| Screen | Button | Command | Handler | Status |
+|--------|--------|---------|---------|--------|
+| Main | Start Cycle | `start_cycle/run` | ESP32 → Linux `run_cycle(from_web=True)` | FIXED |
+| Main | Stop | `stop_cycle` | ESP32 → Linux `stop_cycle()` | OK |
+| Maintenance | Unlock | Client-side PW "878" | Shows menu | OK |
+| Maintenance | Clear Press Alarm | `clear_press_alarm` | ESP32 local reset | OK |
+| Maintenance | Clear Motor Alarm | `clear_motor_alarm` | ESP32 local reset | OK |
+| Maintenance | Run Tests | `nav('tests')` | Navigation | OK |
+| Maintenance | Diagnostics | `nav('diagnostics')` | Navigation | OK |
+| Maintenance | Clean Canister | `nav('clean')` | Navigation | OK |
+| Maintenance | Passthrough | `showPtModal()` | Modal + GET /setpassthrough | OK |
+| Leak Test | Start | `start_test/leak` | ESP32 → Linux `leak_test(from_web=True)` | FIXED |
+| Leak Test | Stop | `stop_test` | ESP32 → Linux `stop_cycle()` | OK |
+| Functionality | Start | `start_test/func` | ESP32 → Linux `functionality_test(from_web=True)` | FIXED |
+| Functionality | Stop | `stop_test` | ESP32 → Linux `stop_cycle()` | OK |
+| Efficiency | Start | `start_test/eff` | ESP32 → Linux `efficiency_test_fill_run(from_web=True)` | FIXED |
+| Efficiency | Stop | `stop_test` | ESP32 → Linux `stop_cycle()` | OK |
+| Clean Canister | Start Clean | `start_cycle/clean` | ESP32 → Linux `canister_clean(from_web=True)` | FIXED |
+| Clean Canister | Stop | `stop_cycle` | ESP32 → Linux `stop_cycle()` | OK |
+| Manual Mode | Manual Purge | `start_cycle/manual_purge` | ESP32 → Linux `run_cycle(manual=True, from_web=True)` | FIXED |
+| Manual Mode | Stop | `stop_cycle` | ESP32 → Linux `stop_cycle()` | OK |
+| Profiles | Select + Confirm | `set_profile` + PW "1793" | ESP32 server-side validation | OK |
+| Overfill Override | Confirm Override | `overfill_override` | ESP32 local reset | OK |
+| Settings | Reboot ESP32 | `restart` | ESP32 `ESP.restart()` | OK |
+| Config | Save Name | GET /setdevicename | ESP32 + PW "gm2026" | OK |
+| Config | Watchdog Toggle | GET /setwatchdog | ESP32 + PW "gm2026" | OK |
+
 ### Updated: Comments clarified throughout
 - `UPDATE_INTERVAL` comment updated to clarify it serves CBOR payload only
 - `_send_cycle()` docstring updated to reflect CBOR-only purpose
