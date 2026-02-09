@@ -559,6 +559,47 @@ class SerialManager:
                     except Exception as e:
                         self._log('error', f'Error stopping cycle from web portal: {e}')
                     return data
+                
+                # =================================================================
+                # SERIAL-ONLY: Web portal test commands forwarded by ESP32.
+                # The web portal's Tests screens (Leak, Functionality, Efficiency)
+                # send start_test with a type, which ESP32 forwards here as JSON:
+                #   {"command":"start_test","type":"leak"}
+                #   {"command":"start_test","type":"func"}
+                #   {"command":"start_test","type":"eff"}
+                # Each maps to the corresponding IOManager test function.
+                # stop_test is handled by stop_cycle above (same Python function).
+                # =================================================================
+                elif cmd == 'start_test':
+                    test_type = data.get('type', '')
+                    self._log('info', f'ESP32 web portal requested start_test: {test_type}')
+                    try:
+                        app = self.data_handler.app
+                        if hasattr(app, 'io') and app.io:
+                            if test_type == 'leak':
+                                # Leak test: 30 min in leak mode (CR1+CR2+CR5 ON, no motor)
+                                if hasattr(app.io, 'leak_test'):
+                                    app.io.leak_test()
+                                else:
+                                    self._log('warning', 'IOManager has no leak_test() method')
+                            elif test_type == 'func':
+                                # Functionality test: 10x (60s run + 60s purge)
+                                if hasattr(app.io, 'functionality_test'):
+                                    app.io.functionality_test()
+                                else:
+                                    self._log('warning', 'IOManager has no functionality_test() method')
+                            elif test_type == 'eff':
+                                # Efficiency test: 120s fill/run phase
+                                if hasattr(app.io, 'efficiency_test_fill_run'):
+                                    app.io.efficiency_test_fill_run()
+                                else:
+                                    self._log('warning', 'IOManager has no efficiency_test_fill_run() method')
+                            else:
+                                self._log('warning', f'Unknown test type: {test_type}')
+                            self._log('info', f'Started {test_type} test from web portal')
+                    except Exception as e:
+                        self._log('error', f'Error starting test from web portal: {e}')
+                    return data
             
             # Check for passthrough REQUEST (string like "remote 60")
             # vs passthrough STATUS (integer 0 or 1)

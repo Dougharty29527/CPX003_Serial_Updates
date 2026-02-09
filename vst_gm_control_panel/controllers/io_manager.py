@@ -356,8 +356,8 @@ class IOManager:
         =====================================================================
         SERIAL-ONLY: All sensor data comes from the ESP32 IO Board via serial.
         The ESP32 reads the ADS1015 ADC at 60Hz with rolling averages and sends
-        computed pressure (IWC) and current (amps) values in its 15-second
-        status JSON packet. This loop copies those values into the existing
+        computed pressure (IWC) and current (amps) values every 1 second in its
+        fast sensor packet. This loop copies those values into the existing
         cache variables so all UI code (get_cached_pressure, get_cached_current)
         works without modification.
         
@@ -371,7 +371,7 @@ class IOManager:
                 # ============================================================
                 # Read pressure and current from ESP32 serial manager.
                 # serial_manager.esp32_pressure and .esp32_current are updated
-                # every time a status JSON is received from the ESP32 (≈15s).
+                # every 1 second from ESP32's fast sensor packet.
                 # ============================================================
                 serial_mgr = getattr(self.app, 'serial_manager', None)
                 if serial_mgr and serial_mgr.esp32_last_update is not None:
