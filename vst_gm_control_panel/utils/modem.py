@@ -50,7 +50,7 @@ class SerialManager:
     # Serial configuration
     SERIAL_PORT = '/dev/serial0'
     BAUD_RATE = 115200
-    UPDATE_INTERVAL = 15      # Send data to ESP32 every 15 seconds
+    UPDATE_INTERVAL = 15      # Send data to ESP32 every 15 seconds (CBOR payload only)
     RECEIVE_INTERVAL = 1      # Check for incoming ESP32 data every 1 second
     RECONNECT_DELAY = 5
 
@@ -491,21 +491,40 @@ class SerialManager:
             # Check if data is waiting
             if self.serial_port.in_waiting == 0:
                 return None
-                
-            # Read line (JSON ends with newline)
-            raw_data = self.serial_port.readline()
-            if not raw_data:
+            
+            # =================================================================
+            # SPEED FIX: Drain the ENTIRE serial buffer and use only the LATEST
+            # message. Previously, readline() read the oldest queued message.
+            # ESP32 sends a packet every 1 second, and any timing drift causes
+            # messages to pile up. Reading only the oldest meant pressure values
+            # were always stale (seconds behind the actual ADC reading).
+            #
+            # Now: read all available lines, keep only the last valid JSON.
+            # This ensures pressure/current values are always fresh (<1 second old).
+            # =================================================================
+            latest_line = None
+            lines_drained = 0
+            while self.serial_port.in_waiting > 0:
+                try:
+                    raw_data = self.serial_port.readline()
+                    if raw_data:
+                        decoded = raw_data.decode('ascii', errors='ignore').strip()
+                        if decoded.startswith('{'):
+                            latest_line = decoded
+                        lines_drained += 1
+                except Exception:
+                    break  # Stop draining on any read error
+                # Safety limit — don't loop forever on a flooded buffer
+                if lines_drained > 50:
+                    break
+            
+            if lines_drained > 2:
+                self._log('debug', f'Drained {lines_drained} buffered lines (using latest)')
+            
+            if not latest_line:
                 return None
-                
-            # Decode and strip whitespace
-            line = raw_data.decode('ascii', errors='ignore').strip()
-            if not line:
-                return None
-                
-            # Must start with { to be valid JSON
-            if not line.startswith('{'):
-                self._log('debug', f'Non-JSON data received: {line}')
-                return None
+            
+            line = latest_line
                 
             # Parse JSON
             try:
@@ -837,23 +856,29 @@ class SerialManager:
             return 0
 
     def _get_pressure(self):
-        '''Get pressure value as float'''
+        '''Get pressure value as float — reads DIRECTLY from ESP32 serial data.
+        
+        SPEED FIX: Previously read from self.data_handler.app.current_pressure,
+        which is a Kivy StringProperty ("X.XX IWC") updated by a 1-second Clock.
+        That added up to 1 second of extra staleness and required string parsing.
+        Now reads self.esp32_pressure directly — the freshest value from the
+        last serial packet received from the ESP32 (updated every ~1 second).
+        '''
         try:
-            raw = self.data_handler.app.current_pressure
-            if raw:
-                return round(float(str(raw).replace(' IWC', '')), 2)
-            return 0.0
-        except (ValueError, AttributeError):
+            return round(float(self.esp32_pressure), 2)
+        except (ValueError, TypeError, AttributeError):
             return 0.0
 
     def _get_current(self):
-        '''Get motor current as float'''
+        '''Get motor current as float — reads DIRECTLY from ESP32 serial data.
+        
+        SPEED FIX: Previously read from self.data_handler.app.current_amps,
+        which is a Kivy StringProperty ("X.XX A") updated by a 1-second Clock.
+        Now reads self.esp32_current directly for freshest possible value.
+        '''
         try:
-            raw = self.data_handler.app.current_amps
-            if raw:
-                return round(float(str(raw).replace(' A', '')), 2)
-            return 0.0
-        except (ValueError, AttributeError):
+            return round(float(self.esp32_current), 2)
+        except (ValueError, TypeError, AttributeError):
             return 0.0
 
     def _get_cpu_temp(self):
@@ -957,7 +982,7 @@ class SerialManager:
             self._log('error', f'Error in receive cycle: {e}')
     
     def _send_cycle(self, *args):
-        '''Send sensor data to ESP32 (runs every 15 seconds)'''
+        '''Send sensor data to ESP32 every 15 seconds (feeds CBOR payload builder)'''
         # Skip if PPP is active (serial port is in use by pppd)
         if self.ppp_active:
             return
@@ -1091,7 +1116,7 @@ class SerialManager:
         # Initial send after brief delay
         Clock.schedule_once(self._send_cycle, 5)
 
-        # Schedule periodic data sending (every 15 seconds)
+        # Schedule periodic data sending (every 15 seconds — feeds CBOR builder on ESP32)
         self._send_event = Clock.schedule_interval(
             self._send_cycle,
             self.UPDATE_INTERVAL

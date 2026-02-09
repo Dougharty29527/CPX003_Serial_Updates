@@ -1,7 +1,7 @@
-# Python Control Panel — Changes Summary (Rev 10.1)
+# Python Control Panel — Changes Summary (Rev 10.3)
 
 **Project:** VST GM Control Panel (Linux/Raspberry Pi)  
-**Date:** February 8, 2026  
+**Date:** February 9, 2026  
 **Purpose:** Adapt the Python control software to work with the new ESP32 IO Board (Rev 10+), replacing all direct I2C hardware control with serial communication.
 
 ---
@@ -146,8 +146,25 @@ With a README explaining how to restore if needed.
 └──────────────────┘                               └──────────────────┘
 ```
 
-**Linux → ESP32:** Mode commands, device info, cycle count, fault codes  
-**ESP32 → Linux:** Sensor data (1s), full status (15s), web portal commands  
+**Linux → ESP32 (every 15 seconds):** Device ID, cycle count, fault codes, pressure, current. This data is used **only** for building CBOR payloads that are transmitted via cellular to the cloud server. The pressure and current values in this message are **not** used by the ESP32 for its own CBOR — the ESP32 uses its own real-time ADC readings instead, so cellular data is always fresh regardless of this 15-second interval.
+
+**ESP32 → Linux (every 1 second):** Pressure (IWC), current (amps), overfill status, relay mode. This is the **critical path** — the Linux controller uses these values for all real-time decisions: starting and stopping run cycles, detecting alarm conditions, and triggering safety shutdowns. Every message must carry the freshest possible sensor data.
+
+**ESP32 → Linux (every 15 seconds):** Full status including datetime, SD card health, LTE connection, cell signal quality, active profile, failsafe state. This is supplementary information for display and logging — not time-sensitive.
+
+---
+
+## How the System Decides When to Operate
+
+The Linux device (Raspberry Pi) is the brain of the system. It receives real-time pressure and current readings from the ESP32 every 1 second. Based on those readings, it decides:
+
+1. **When to start a run cycle** — Pressure rises above the configured threshold
+2. **When to stop a run cycle** — Pressure drops below the stop point or timer expires
+3. **When to trigger alarms** — Pressure stuck at zero, motor current too high, overfill detected
+4. **When to perform a purge** — After a configured number of run cycles
+5. **When to enter bleed mode** — Pressure needs to be relieved
+
+The ESP32 does NOT make these decisions during normal operation. It simply reports sensor data and executes relay commands. The only time the ESP32 takes control is in "failsafe mode" — when the Linux device has been unresponsive for an extended period.
 
 ---
 
@@ -157,3 +174,5 @@ With a README explaining how to restore if needed.
 |---------|------|-------------|
 | Rev 10.0 | 2/8/2026 | Initial serial-only build. I2C removed, serial relay control. |
 | Rev 10.1 | 2/8/2026 | Performance fix (6s → 200ms relay response). Password-protected web portal. Web portal test commands connected to Python. |
+| Rev 10.2 | 2/8/2026 | Fixed stale CBOR pressure (ESP32 now uses own ADC, not Python echo). Web portal tests connected. |
+| Rev 10.3 | 2/9/2026 | Faster pressure updates. Serial buffer drain for freshest data. Direct ESP32 pressure/current reads for CBOR payload. Architecture documented. |

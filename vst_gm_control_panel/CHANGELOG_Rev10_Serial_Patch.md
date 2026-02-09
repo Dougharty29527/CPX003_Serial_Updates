@@ -1,7 +1,7 @@
 # Changelog: Rev 10 Serial-Only Build
 
-**Date:** February 8, 2026
-**Build Version:** 2.0 — Serial-Only (MCP23017/ADS1115 phased out)
+**Date:** February 9, 2026
+**Build Version:** 2.3 — Serial-Only (MCP23017/ADS1115 phased out)
 **Purpose:** Optimized Python control panel for ESP32 IO Board Rev 10+. All I2C hardware code removed. Relay control and sensor data flow exclusively via serial JSON.
 
 ---
@@ -120,9 +120,30 @@ See that directory's `README.md` for restoration instructions.
 
 ---
 
-## File: `utils/modem.py` — Comment Updates
+## File: `utils/modem.py` — Serial Buffer + Payload Freshness Fixes (Rev 10.3)
 
-All "REV 10 PATCH" comments updated to "SERIAL-ONLY" to reflect that serial is the **only** control path, not a fallback. No logic changes from the patch version.
+### Updated: `receive_esp32_status()` — Serial Buffer Drain (was single readline)
+**Was:** Called `self.serial_port.readline()` which reads the **oldest** message in the serial buffer. If the ESP32 sends a message every 1 second but Python doesn't read fast enough, messages pile up. Python would process data that was already 5-10 seconds old while newer data sat waiting in the buffer.
+
+**Now:** Reads **all** available lines from the serial buffer and uses only the **last** valid JSON message. This guarantees the pressure and current values are from the most recent ESP32 transmission (less than 1 second old).
+
+**Why:** The Linux controller makes real-time decisions based on pressure readings (start cycles, detect alarms). Reading stale buffered data meant the controller was reacting to conditions that no longer existed. For example, pressure may have already dropped below the alarm threshold 5 seconds ago, but the controller wouldn't know until it caught up through the backlog.
+
+### Updated: `_get_pressure()` — Direct ESP32 Read (was Kivy StringProperty chain)
+**Was:** Read from `self.data_handler.app.current_pressure` — a Kivy UI property formatted as `"-14.22 IWC"`. Required stripping the " IWC" suffix and converting back to float. This value was updated by a separate 1-second Kivy Clock timer, adding up to 1 additional second of staleness.
+
+**Now:** Reads `self.esp32_pressure` directly — the raw float value stored when the last serial packet was received. No string conversion, no UI dependency, no extra delay.
+
+### Updated: `_get_current()` — Direct ESP32 Read (same fix as pressure)
+**Was:** Read from `self.data_handler.app.current_amps` with " A" suffix parsing.
+**Now:** Reads `self.esp32_current` directly.
+
+**Why these matter for CBOR:** The `_get_pressure()` and `_get_current()` functions feed the data payload that Python sends to the ESP32 every 15 seconds for CBOR cellular transmission. While the ESP32 now uses its own ADC readings for CBOR pressure/current (so the Python values are redundant for that purpose), keeping them accurate ensures the serial data stream is consistent and debuggable. The values in the "Sent" log line will now match what the ESP32 is reporting.
+
+### Updated: Comments clarified throughout
+- `UPDATE_INTERVAL` comment updated to clarify it serves CBOR payload only
+- `_send_cycle()` docstring updated to reflect CBOR-only purpose
+- Schedule comment updated to clarify 15-second interval feeds CBOR builder
 
 ---
 
@@ -176,7 +197,7 @@ _backup_i2c_compatible/
 | Python I2C imports | 5 libraries | 0 |
 | I2C bus accesses | ~60/second (ADC) + pin writes | 0 |
 | Relay control latency | <1ms (I2C direct) | <500ms (serial poll) |
-| ADC read rate | 60Hz (Python thread) | 60Hz (ESP32, sent every 15s) |
+| ADC read rate | 60Hz (Python thread) | 60Hz (ESP32, sent to Linux every 1s) |
 | Overfill detection | Single pin read | 8/5 hysteresis (more robust) |
 | Required hardware | MCP23017 + ADS1115 on I2C | ESP32 Rev 10+ on serial |
 
