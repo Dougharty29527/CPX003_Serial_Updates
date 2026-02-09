@@ -713,13 +713,13 @@ class SerialManager:
                 
             self.esp32_last_update = time.time()
             
-            self._log('debug', f'ESP32 status: datetime={self.esp32_datetime}, '
-                              f'sdcard={self.esp32_sdcard_status}, '
-                              f'passthrough={self.esp32_passthrough}, '
-                              f'lte={self.esp32_lte_connected}, '
-                              f'rsrp={self.esp32_rsrp}, rsrq={self.esp32_rsrq}, '
-                              f'pressure={self.esp32_pressure}, current={self.esp32_current}, '
-                              f'overfill={self.esp32_overfill}')
+            # REV 10.5: Log ONLY the fields that were actually in THIS packet.
+            # Fast sensor packets (5Hz) contain: pressure, current, overfill, sdcard, relayMode
+            # Fresh cellular packets (~60s) contain: datetime, lte, rsrp, rsrq, passthrough, etc.
+            # Previously this logged ALL cached values on every packet, making it look
+            # like datetime/rsrp/rsrq were being repeated — they were just cached.
+            received_fields = ', '.join(f'{k}={v}' for k, v in data.items())
+            self._log('debug', f'ESP32 packet: {received_fields}')
             
             # Trigger callback if passthrough status changed
             if self.esp32_passthrough != old_passthrough:
