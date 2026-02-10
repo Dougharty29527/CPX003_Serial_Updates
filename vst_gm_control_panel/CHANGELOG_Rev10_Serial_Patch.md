@@ -1,8 +1,41 @@
 # Changelog: Rev 10 Serial-Only Build
 
-**Date:** February 9, 2026  
+**Date:** February 10, 2026  
 **Build Version:** 2.5 — Serial-Only (MCP23017/ADS1115 phased out)  
 **Purpose:** Optimized Python control panel for ESP32 IO Board Rev 10+. All I2C hardware code removed. Relay control and sensor data flow exclusively via serial JSON.
+
+---
+
+## MODIFIED PYTHON FILES — COMPLETE LIST
+
+**ALL 5 of these files MUST be updated together.** Copying only some files will cause failures (e.g., leak test not working, overfill not triggering buzzer, mode commands not sent).
+
+| # | File Path | Revisions Modified | Summary |
+|---|-----------|-------------------|---------|
+| 1 | `controllers/io_manager.py` | 10.0, 10.1, 10.2, 10.4, 10.5, 10.6 | **MAJOR REWRITE.** All I2C pin writes removed. Relay control via serial JSON. `from_web=True` bypass for web portal. Sensor reads from serial cache. `hardware_available = True`. Leak test child process logging. `set_shutdown_relay()` sends serial command. |
+| 2 | `utils/modem.py` | 10.0, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7 | **MAJOR REWRITE.** Bidirectional serial JSON hub. Receives ESP32 sensor data (5Hz). Sends mode commands instantly. Web portal command dispatch. PPP passthrough. Buffer drain (latest-only). Calibration command + ps_cal response parser. |
+| 3 | `views/contractor_screen.py` | 10.7 | Fixed crash on Calibrate button (removed `pressure_sensor` reference). New `_send_calibration_to_esp32()` method. Updated dialog text for altitude. |
+| 4 | `utils/alarm_manager.py` | 10.0 | Removed I2C `pins['tls'].value` read for overfill. Now reads `serial_mgr.esp32_overfill` only. |
+| 5 | `utils/data_handler.py` | 10.0 | Added `bleed: 8` and `leak: 9` to mode map. Without these, leak test sends mode 0 (rest) instead of mode 9. |
+
+### Files NOT Changed (no update needed)
+
+| File | Reason |
+|------|--------|
+| `main.py` | Reads pressure/current via `io.get_cached_pressure()` — already works with serial cache |
+| `views/*.py` (except contractor_screen) | All screens use Kivy app properties — no direct hardware access |
+| `utils/cycle_state_manager.py` | Cycle state is local — no hardware interaction |
+| `utils/profile_handler.py` | Profile management is local — no hardware interaction |
+| `utils/database_manager.py` | Database operations unchanged |
+
+### CRITICAL: If Your Coworker Only Copied 3 Files
+
+If only `modem.py`, `io_manager.py`, and `contractor_screen.py` were updated:
+
+- **Leak test will FAIL** — `data_handler.py` is missing `leak: 9` in the mode map, so `get_current_mode()` returns mode 0 (rest) instead of mode 9 when leak test is requested. The ESP32 receives mode 0 and sets all relays to rest.
+- **Overfill buzzer won't sound** — `alarm_manager.py` still tries to read the I2C `pins['tls'].value` (a `_StubPin` returning `False`), never reading the actual ESP32 overfill state from serial.
+
+**Solution:** Copy ALL 5 files listed above.
 
 ---
 
