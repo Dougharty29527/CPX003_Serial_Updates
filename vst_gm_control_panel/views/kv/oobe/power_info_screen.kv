@@ -1,0 +1,74 @@
+#:kivy 2.3.0
+
+<PowerInfoScreen>
+    md_bg_color: '#13202E'
+
+    TopBar:
+
+    MDBoxLayout:
+        adaptive_size: True
+        pos_hint: {'top': .975, 'center_x': .5}
+        StatusBar:
+
+    # Main content
+    MDBoxLayout:
+        adaptive_size: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'center_y': .45}
+        spacing: dp(30)
+
+        MDBoxLayout:
+            adaptive_size: True
+            orientation: 'vertical'
+            spacing: dp(24)
+            pos_hint: {'center_x': .5}
+            padding: [0, dp(50), 0, 0]
+        
+            OOBETitleLabel:
+                id: power_info_title
+                text: 'POWER INFORMATION'
+            
+            MDBoxLayout:
+                adaptive_size: True
+                orientation: 'vertical'
+                spacing: dp(16)
+                pos_hint: {'center_x': .5}
+                padding: [dp(20), dp(20), dp(20), 0]
+                
+                OOBEDescriptionLabel:
+                    id: power_info_line1
+                
+                OOBEDescriptionLabel:
+                    id: power_info_line2
+                
+                OOBEDescriptionLabel:
+                    id: power_info_line3
+    
+            # Continue button container
+            MDBoxLayout:
+                adaptive_size: True
+                orientation: 'vertical'
+                spacing: dp(24)
+                pos_hint: {'center_x': .5}
+                padding: [0, dp(20), 0, dp(60)]
+                
+                # Confirm button
+                DefaultBtn:
+                    id: continue_btn
+                    on_release: root.on_continue()
+                    text: 'CONTINUE'
+                    width: dp(200)
+                    md_bg_color: '#253849'
+                    pos_hint: {'center_x': .5}
+    
+    # Back button
+    MDBoxLayout:
+        adaptive_size: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'center_y': .09}
+        padding: [0, dp(27), 0, 0]
+
+        BackBtn:
+            on_press: root.go_back()
+
+    StatIndicator:

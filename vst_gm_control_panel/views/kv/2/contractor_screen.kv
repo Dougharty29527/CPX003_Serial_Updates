@@ -1,0 +1,145 @@
+#:kivy 2.3.0
+
+<ContractorScreen>
+    md_bg_color: app.theme_cls.onPrimaryColor
+
+    TopBar:  # Header
+
+    MDBoxLayout:  # GM Status Bar Container
+        adaptive_size: True
+        pos_hint: {'top': .975, 'center_x': .5}
+
+        StatusBar:
+
+    MDBoxLayout:  # Main Content Area
+        adaptive_height: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'center_y': .6 if app.profile == 'CS8' else .5}
+        spacing: dp(24)
+        padding: [0, dp(8), 0, dp(12)] if app.profile != 'CS8' and not app.admin_mode else [0, dp(4), 0, dp(24)]
+
+        Widget:  # Add space between header and buttons
+            size_hint_y: None
+            height: dp(8)
+
+        MDBoxLayout:  # Button Container
+            adaptive_size: True
+            orientation: 'horizontal'
+            spacing: dp(24)
+            pos_hint: {'center_x': .5}
+
+            DefaultBtnContainer:  # Left column
+                spacing: dp(18)
+
+                DefaultBtn:
+                    id: calibrate_sensor
+                    text: 'CALIBRATE SENSOR'
+                    on_press: root.show_calibration_dialog()
+
+                DefaultBtn:
+                    id: manual_mode
+                    text: 'MANUAL MODE'
+                    on_press: app.switch_screen('ManualMode')
+
+                DefaultBtn:
+                    id: system_screen
+                    text: 'SYSTEM'
+                    on_press: app.elevated_switch_screen('System')
+
+            DefaultBtnContainer:  # Right column
+                spacing: dp(18)
+                padding: [0, 0, 0, dp(42)] if app.profile != 'CS8' and not app.admin_mode else [0, 0, 0, 0]
+
+                DefaultBtn:
+                    id: overfill_override
+                    text: 'OVERFILL OVERRIDE'
+                    on_press: app.switch_screen('OverfillOverride')
+
+                DefaultBtn:
+                    id: restart_app
+                    text: 'RESTART APP'
+                    on_press: root.show_restart_dialog()
+
+                MDBoxLayout:
+                    size_hint_y: None
+                    height: dp(43) if app.profile == 'CS8' or app.admin_mode else 0
+                    opacity: 1 if app.profile == 'CS8' or app.admin_mode else 0
+
+                    DefaultBtn:
+                        id: adjustments
+                        text: app.language_handler.translate('adjustments', 'ADJUSTMENTS')
+                        on_press: app.switch_screen('Adjustments')
+                        opacity: 1 if app.profile == 'CS8' or app.admin_mode else 0
+                        disabled: app.profile != 'CS8' and not app.admin_mode
+
+        Widget:
+
+    MDBoxLayout:  # Clear Pressure Alarms Container
+        adaptive_size: True
+        orientation: 'vertical'
+        spacing: dp(8)
+        pos_hint: {'center_x': .5, 'center_y': .27}
+        padding: [0, dp(43), 0, 0]
+        opacity: 1 if app.profile == 'CS8' or app.admin_mode else 0
+        disabled: app.profile != 'CS8' and not app.admin_mode
+
+        MDDivider:
+            size_hint_x: 1
+            pos_hint: {'center_x': .5}
+
+        MDBoxLayout:
+            adaptive_size: True
+            orientation: 'horizontal'
+            spacing: dp(4)
+            pos_hint: {'center_x': .5}
+
+            MDLabel:
+                id: pressure_alarms_label
+                text: root.pressure_alarms_label_text
+                theme_font_size: 'Custom'
+                font_size: sp(16)
+                theme_text_color: 'Custom'
+                text_color: app.theme_cls.rippleColor
+                adaptive_size: True
+                pos_hint: {'center_y': .5}
+
+            MDLabel:
+                id: pressure_alarms_status
+                text: root.pressure_alarms_status_text
+                theme_font_size: 'Custom'
+                font_size: sp(16)
+                theme_text_color: 'Custom'
+                text_color: root.pressure_alarms_color
+                adaptive_size: True
+                pos_hint: {'center_y': .5}
+
+        MDBoxLayout:
+            adaptive_size: True
+            pos_hint: {'center_x': .5}
+
+            DefaultBtn:
+                id: clear
+                text: 'CLEAR'
+                width: dp(225)
+                height: dp(43)
+                on_press: root.show_clear_alarm_dialog()
+
+        MDDivider:
+            size_hint_x: 1
+            pos_hint: {'center_x': .5}
+
+    FullAccessIndicator:  # Admin Access Indicator
+
+    StatIndicator:  # Pressure + Motor Readings
+
+    VersionIndicator:
+
+    SideBar:
+
+    MDBoxLayout:  # Back Button
+        adaptive_size: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'y': .06}
+
+        BackBtn:
+            on_press: app.switch_screen('Maintenance')

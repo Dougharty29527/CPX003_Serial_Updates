@@ -1,0 +1,92 @@
+#:kivy 2.3.0
+
+<OverfillOverrideScreen>
+    md_bg_color: app.theme_cls.onPrimaryColor
+
+    TopBar:
+
+    MDBoxLayout:
+        adaptive_size: True
+        pos_hint: {'top': .975, 'center_x': .5}
+
+        StatusBar:
+
+    MDBoxLayout:
+        adaptive_height: True
+        size_hint_x: .687
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'center_y': .466}
+        spacing: '32dp'
+
+        MDBoxLayout:
+            adaptive_height: True
+            orientation: 'vertical'
+            pos_hint: {'center_x': .5}
+            spacing: '12dp'
+            padding: [0, '30dp', 0, '21dp']
+
+            TestTextLabel:
+                id: overfill_warning_one
+                text: 'THE OVERFILL OVERRIDE FUNCTION SHOULD ONLY BE USED'
+                font_size: '16sp'
+
+            TestTextLabel:
+                id: overfill_warning_two
+                text: 'DURING RELAY TESTING IN THE FUEL MONITORING SYSTEM.'
+                font_size: '16sp'
+
+            TestTextLabel:
+                id: overfill_warning_three
+                text: 'IF THE TANK EXCEEDS 90%, INDICATING A REAL OVERFILL'
+                font_size: '16sp'
+
+            MDBoxLayout:
+                adaptive_size: True
+                orientation: 'horizontal'
+                pos_hint: {'center_x': .5}
+                spacing: '12dp'
+
+                TestTextLabel:
+                    id: overfill_warning_four
+                    text: 'CONDITION,'
+                    font_size: '16sp'
+
+                TestTextLabel:
+                    id: overfill_warning_five
+                    text: 'DO NOT'
+                    font_size: '16sp'
+                    text_color: app.theme_cls.onErrorColor
+
+                TestTextLabel:
+                    id: overfill_warning_six
+                    text: 'OVERRIDE THE ALARM.'
+                    font_size: '16sp'
+
+            TestTextLabel:
+                id: overfill_warning_seven
+                text: 'DOING SO MAY RESULT IN SYSTEM DAMAGE.'
+                font_size: '16sp'
+
+        DefaultBtnContainer:
+            orientation: 'horizontal'
+
+            DefaultBtn:
+                id: confirm_override
+                text: 'CONFIRM OVERRIDE'
+                on_press: root.show_override_dialog()
+
+    MDBoxLayout:  # Back Button
+        adaptive_size: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'y': .06}
+
+        BackBtn:
+            on_press: app.switch_screen('Contractor')
+
+    FullAccessIndicator:
+
+    StatIndicator:
+
+    VersionIndicator:
+
+    SideBar:

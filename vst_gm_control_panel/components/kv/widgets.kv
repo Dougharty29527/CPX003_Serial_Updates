@@ -1,0 +1,373 @@
+#:kivy 2.3.0
+
+#------------------------------------------------------------------------------
+# MDBoxLayout WIDGETS
+#------------------------------------------------------------------------------
+
+# Container for default buttons
+<DefaultBtnContainer@MDBoxLayout>:
+    adaptive_size: True
+    orientation: 'vertical'
+    pos_hint: {'center_x': .5, 'center_y':.5}
+    spacing: dp(12)
+
+# Container for keypad buttons
+<KeypadBtnContainer@MDBoxLayout>:
+    adaptive_size: True
+    pos_hint: {'center_x': .5}
+    spacing: '12dp'
+    orientation: 'horizontal'
+
+# Debug mode indicator displayed when app is in debug mode
+<DebugModeIndicator@MDBoxLayout>:
+    adaptive_size: True
+    padding: '10dp'
+    pos_hint: {'center_x': .5}
+
+    InfoLabel:
+        text: app.debug_mode_string if app.debug else ''
+        font_size: '18sp'
+        text_color: app.theme_cls.errorColor
+        pos_hint: {'center_x': .5, 'center_y': .5}
+
+# Admin access indicator with shield icon
+<FullAccessIndicator@MDBoxLayout>:
+    adaptive_size: True
+    padding: '10dp'
+    pos_hint: {'bottom': 1, 'left': 1}
+
+    MDIconButton:
+        icon: 'shield-account-outline' if app.admin_mode and app.user_access_level == 4 else ''
+        theme_font_size: 'Custom'
+        font_size: '27sp'
+        theme_text_color: 'Custom'
+        text_color: app.admin_color
+        on_press: app.switch_screen('Admin') if app.admin_mode and app.user_access_level == 4 else None
+
+# Status indicator for pressure and motor current
+<StatIndicator@MDBoxLayout>:
+    adaptive_size: True
+    padding: '10dp'
+    pos_hint: {'bottom': 1, 'right': 1}
+    orientation: 'vertical'
+
+    MDBoxLayout:
+        adaptive_size: True
+        orientation: 'horizontal'
+
+        InfoLabel:
+            text: 'P :  '
+
+        InfoLabel:
+            text: app.current_pressure
+            text_color: app.theme_cls.errorContainerColor if app.current_pressure == '-99.9' else app.theme_cls.onErrorContainerColor
+
+    MDBoxLayout:
+        adaptive_size: True
+        orientation: 'horizontal'
+
+        InfoLabel:
+            text: 'M :  '
+
+        InfoLabel:
+            text: app.current_amps
+            text_color: app.theme_cls.onErrorContainerColor
+
+# Software version indicator
+<VersionIndicator@MDBoxLayout>:
+    adaptive_size: True
+    padding: dp(8)
+    pos_hint: {'center_x': .5}
+    orientation: 'horizontal'
+
+    InfoLabel:
+        text: f'{app.gm_part_number}'
+        font_size: sp(15)
+        text_color: app.theme_cls.secondaryColor
+        pos_hint: {'center_x': .5, 'center_y': .5}
+
+# Active relay status indicator (only visible in developer mode)
+<RelayStatus@MDBoxLayout>:
+    adaptive_size:True
+    padding: dp(10)
+    pos_hint:{'center_x': .23, 'center_y': .945}
+
+    InfoLabel:
+        text: app.active_relay_string if app.developer_mode else ''
+        font_size: sp(17)
+        text_color: app.theme_cls.onErrorContainerColor
+
+#------------------------------------------------------------------------------
+# MDButton WIDGETS
+#------------------------------------------------------------------------------
+
+# Standard button used throughout the application
+<DefaultBtn@MDButton>:
+    text: ''
+    radius: dp(5)
+    theme_width: 'Custom'
+    theme_height: 'Custom'
+    width: dp(245)
+    height: dp(43)
+    theme_bg_color: 'Custom'
+    md_bg_color: app.theme_cls.surfaceContainerLowColor if not self.disabled else app.theme_cls.surfaceContainerLowestColor
+    opacity: 0.5 if self.disabled else 1
+    ripple_effect: False if self.disabled else True
+
+    MDButtonText:
+        text: root.text
+        theme_font_size: 'Custom'
+        font_size: sp(14)
+        theme_text_color: 'Custom'
+        text_color: app.theme_cls.primaryColor if not root.disabled else app.theme_cls.outlineVariantColor
+        pos_hint: {'center_x': .5, 'center_y': .5}
+
+# Standard numeric keypad button
+<KeypadBtn@MDButton>:
+    text: ''
+    radius: '5dp'
+    theme_width: 'Custom'
+    theme_height: 'Custom'
+    size: '62dp', '49dp'
+    theme_bg_color: 'Custom'
+    md_bg_color: app.theme_cls.surfaceContainerColor
+
+    MDButtonText:
+        text: root.text
+        theme_font_size: 'Custom'
+        font_size: '19sp'
+        theme_text_color: 'Custom'
+        text_color: app.theme_cls.primaryColor
+        pos_hint: {'center_x': .5, 'center_y': .5}
+
+# Punctuation keypad button with larger font
+<KeypadPunctuationBtn@MDButton>:
+    text: ''
+    radius: '5dp'
+    theme_width: 'Custom'
+    theme_height: 'Custom'
+    size: '62dp', '49dp'
+    theme_bg_color: 'Custom'
+    md_bg_color: app.theme_cls.surfaceContainerColor
+
+    MDButtonText:
+        text: root.text
+        theme_font_size: 'Custom'
+        font_size: '30sp'
+        theme_text_color: 'Custom'
+        text_color: app.theme_cls.primaryColor
+        pos_hint: {'center_x': .5, 'center_y': .5}
+
+# Previous button for wizard navigation
+<PreviousBtn@MDButton>:
+    text: 'PREVIOUS'
+    theme_width: 'Custom'
+    theme_height: 'Custom'
+    width: dp(120)
+    height: dp(40)
+    theme_bg_color: 'Custom'
+    md_bg_color: app.theme_cls.surfaceContainerColor
+    radius: dp(5)
+
+    MDButtonText:
+        text: root.text
+        theme_font_size: 'Custom'
+        font_size: sp(14)
+        theme_text_color: 'Custom'
+        text_color: app.theme_cls.primaryColor
+        pos_hint: {'center_x': .5, 'center_y': .5}
+
+# Next button for OOBE navigation
+<NextBtn@MDButton>:
+    text: 'NEXT'
+    theme_width: 'Custom'
+    theme_height: 'Custom'
+    width: dp(120)
+    height: dp(40)
+    theme_bg_color: 'Custom'
+    md_bg_color: app.theme_cls.surfaceContainerColor
+    radius: dp(5)
+
+    MDButtonText:
+        text: root.text
+        theme_font_size: 'Custom'
+        font_size: sp(14)
+        theme_text_color: 'Custom'
+        text_color: app.theme_cls.primaryColor
+        pos_hint: {'center_x': .5, 'center_y': .5}
+
+
+#------------------------------------------------------------------------------
+# MDIconButton WIDGETS
+#------------------------------------------------------------------------------
+
+# Back navigation button
+<BackBtn@MDIconButton>:
+    icon: 'arrow-left-circle-outline'
+    theme_font_size: 'Custom'
+    font_size: sp(28)
+    theme_text_color: 'Custom'
+    text_color: app.theme_cls.primaryColor
+
+# Checkmark button for confirmations
+<CheckmarkBtn@MDIconButton>:
+    icon: 'check-circle-outline'
+    theme_font_size: 'Custom'
+    font_size: sp(28)
+    theme_text_color: 'Custom'
+    text_color: app.theme_cls.primaryColor
+
+# Test/wrench button for maintenance functions
+<TestBtn@MDIconButton>:
+    icon: 'wrench'
+    theme_font_size: 'Custom'
+    font_size: sp(24)
+    theme_text_color: 'Custom'
+    text_color: app.theme_cls.primaryColor
+
+#------------------------------------------------------------------------------
+# MDFabButton WIDGETS
+#------------------------------------------------------------------------------
+
+# Action button for keypad (e.g., Enter, Clear)
+<ActionKeyBtn@MDFabButton>:
+    icon: ''
+    theme_width: 'Custom'
+    theme_height: 'Custom'
+    size: '210dp', '49dp'
+    theme_font_size: 'Custom'
+    font_size: '19sp'
+    theme_text_color: 'Custom'
+    text_color: app.theme_cls.primaryColor
+    theme_bg_color: 'Custom'
+    md_bg_color: app.theme_cls.surfaceContainerColor
+    radius: '5dp'
+    pos_hint: {'center_x': .5, 'center_y': .5}
+
+#------------------------------------------------------------------------------
+# MDLabel WIDGETS
+#------------------------------------------------------------------------------
+
+# Text field for keypad input display
+<KeypadTextField@MDLabel>:
+    text: ''
+    theme_font_size: 'Custom'
+    font_size: '28sp'
+    theme_text_color: 'Custom'
+    text_color: app.theme_cls.primaryColor
+    adaptive_size: True
+
+# Standard information label
+<InfoLabel@MDLabel>:
+    text: ''
+    theme_font_size: 'Custom'
+    font_size: '15sp'
+    theme_text_color: 'Custom'
+    text_color: app.theme_cls.rippleColor
+    adaptive_size: True
+
+# Label for test screens
+<TestTextLabel@MDLabel>:
+    text: ''
+    theme_font_size: 'Custom'
+    font_size: '16sp'
+    theme_text_color: 'Custom'
+    text_color: app.theme_cls.primaryColor
+    pos_hint: {'center_x': .5, 'center_y': .5}
+    adaptive_size: True
+
+# Label for OOBE title
+<OOBETitleLabel@MDLabel>:
+    text: ''
+    font_style: 'Headline'
+    role: 'medium'
+    theme_text_color: 'Custom'
+    text_color: app.theme_cls.secondaryColor
+    adaptive_size: True
+    pos_hint: {'center_x': .5}
+
+# Label for OOBE title secondary
+<OOBETitleSecondaryLabel@MDLabel>:
+    text: ''
+    font_style: 'Title'
+    role: 'large'
+    theme_text_color: 'Custom'
+    text_color: app.theme_cls.secondaryColor
+    adaptive_size: True
+    pos_hint: {'center_x': .5}
+
+# Label for OOBE description
+<OOBEDescriptionLabel@MDLabel>:
+    text: ''
+    font_style: 'Title'
+    role: 'medium'
+    theme_font_size: 'Custom'
+    text_color: app.theme_cls.primaryColor
+    adaptive_size: True
+    pos_hint: {'center_x': .5}
+
+# Label for OOBE screen's primary information
+<OOBEFocusLabel@MDLabel>:
+    text: ''
+    font_style: 'Headline'
+    role: 'large'
+    theme_text_color: 'Custom'
+    text_color: app.theme_cls.secondaryColor
+    adaptive_size: True
+    pos_hint: {'center_x': .5}
+
+# Label for OOBE information display
+<OOBEInfoLabel@MDLabel>:
+    text: ''
+    font_style: 'Title'
+    role: 'large'
+    theme_text_color: 'Custom'
+    text_color: app.theme_cls.primaryColor
+    adaptive_size: True
+    pos_hint: {'center_x': .5}
+
+#------------------------------------------------------------------------------
+# About Screen WIDGETS
+#------------------------------------------------------------------------------
+
+# Reusable styles to eliminate duplication
+<AboutIcon@MDIcon>:
+    theme_icon_color: 'Custom'
+    icon_color: app.theme_cls.primaryColor
+    size_hint_x: None
+    width: dp(30)
+    halign: 'center'
+    valign: 'middle'
+
+<AboutLabel@MDLabel>:
+    theme_text_color: 'Custom'
+    text_color: app.theme_cls.primaryColor
+    font_style: 'Title'
+    role: 'medium'
+    adaptive_size: True
+    halign: 'left'
+    valign: 'middle'
+
+<AboutValue@MDLabel>:
+    text: 'Loading...'
+    theme_text_color: 'Custom'
+    text_color: app.theme_cls.onSurfaceColor
+    font_style: 'Body'
+    role: 'large'
+    adaptive_size: True
+    halign: 'left'
+    valign: 'middle'
+
+<AboutRow@MDBoxLayout>:
+    orientation: 'horizontal'
+    spacing: dp(8)
+    size_hint_y: None
+    height: dp(32)
+    adaptive_size: True
+
+<AboutDivider@MDBoxLayout>:
+    size_hint: None, None
+    width: dp(225)
+    height: dp(1)
+    md_bg_color: app.theme_cls.outlineVariantColor
+    opacity: 0.3

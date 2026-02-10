@@ -6,3 +6,10 @@
 *log
 *.DS_Store
 *app.db
+vst_venv/
+*.old
+modem_backup.py
+**/logfile.csv
+**/log_archives/
+*.db
+!**/lang/*.db

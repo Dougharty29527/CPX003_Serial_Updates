@@ -1,0 +1,87 @@
+#:kivy 2.3.0
+
+<MainScreen>
+    md_bg_color: app.theme_cls.onPrimaryColor
+
+    TopBar:
+
+    MDBoxLayout:
+        adaptive_size: True
+        pos_hint: {'top': .975, 'center_x': .5}
+
+        StatusBar:
+
+    # Main content
+    MDBoxLayout:
+        adaptive_size: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        spacing: '30dp'
+        padding: [0, '45dp', 0, 0]
+
+        MDBoxLayout:
+            adaptive_size: True
+            orientation: 'horizontal'
+            spacing: '30dp'
+            pos_hint: {'center_x': .5}
+
+            MDLabel:
+                id: pressure
+                text: 'UST PRESSURE: '
+                font_style: 'Headline'
+                role: 'large'
+                theme_text_color: 'Custom'
+                text_color: app.theme_cls.secondaryColor
+                adaptive_size: True
+                pos_hint: {'center_x': .5}
+
+            MDLabel:
+                text: app.current_pressure
+                font_style: 'Headline'
+                role: 'large'
+                theme_text_color: 'Custom'
+                text_color: app.theme_cls.errorContainerColor if app.current_pressure == '-99.9' else app.theme_cls.onSurfaceColor
+                adaptive_size: True
+                pos_hint: {'center_x': .5}
+
+        MDBoxLayout:
+            adaptive_size: True
+            orientation: 'horizontal'
+            spacing: '30dp'
+            pos_hint: {'center_x': .5}
+
+            MDLabel:
+                id: run_cycles
+                text: 'RUN CYCLES: '
+                font_style: 'Headline'
+                role: 'large'
+                theme_text_color: 'Custom'
+                text_color: app.theme_cls.secondaryColor
+                adaptive_size: True
+                pos_hint: {'center_x': .5}
+
+            MDLabel:
+                text: app.current_run_cycle_count
+                font_style: 'Headline'
+                role: 'large'
+                theme_text_color: 'Custom'
+                text_color: app.theme_cls.onSurfaceColor
+                adaptive_size: True
+                pos_hint: {'center_x': .5}
+
+        Widget:
+
+    MDBoxLayout:
+        id: alarm_container
+        adaptive_size: True
+        pos_hint: {'center_x': .5, 'center_y': .27}
+
+    FullAccessIndicator:
+
+    StatIndicator:
+
+    VersionIndicator:
+
+    SideBar:
+
+

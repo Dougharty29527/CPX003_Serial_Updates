@@ -1,0 +1,42 @@
+#:kivy 2.3.0
+
+<StatusBar>:
+    theme_bg_color: 'Custom'
+    md_bg_color: app.theme_cls.onErrorColor if app.alarm else (app.success_color if app.active else app.theme_cls.primaryContainerColor)
+    size_hint: None, None
+    adaptive_size: True
+    padding: dp(4)
+    radius: dp(14)
+
+    MDBoxLayout:
+        adaptive_size: True
+        pos_hint: {'center_x': .5}
+        spacing: dp(4)
+        orientation: 'vertical'
+
+        MDBoxLayout:
+            adaptive_size: True
+            orientation: 'vertical'
+            pos_hint: {'top': 1}
+            padding: [dp(16), dp(8), dp(16), dp(8)]
+
+            MDLabel:
+                text: app.gm_status
+                theme_font_size: 'Custom'
+                font_size: sp(18)
+                theme_text_color: 'Custom'
+                text_color: app.theme_cls.onErrorContainerColor if app.alarm else app.theme_cls.onPrimaryContainerColor
+                adaptive_size: True
+
+            MDBoxLayout:
+                orientation: 'horizontal'
+                adaptive_size: True
+                pos_hint: {'center_x': .5}
+
+                MDLabel:
+                    text: app.active_alarms
+                    theme_font_size: 'Custom'
+                    font_size: sp(17)
+                    theme_text_color: 'Custom'
+                    text_color: app.theme_cls.onErrorContainerColor if app.alarm else app.theme_cls.onPrimaryContainerColor
+                    adaptive_size: True

@@ -1,0 +1,121 @@
+#:kivy 2.3.0
+
+<Diagnostics>
+    size_hint_y: None
+    height: '450dp'
+    background_color: app.theme_cls.surfaceColor
+
+    MDBottomSheetDragHandleButton:
+        icon: 'close'
+        on_release: root.set_state('toggle')
+        pos_hint: {'top': 1, 'right': 1}
+
+    MDScrollView:
+        do_scroll_x: False
+
+        MDBoxLayout:
+            orientation: 'vertical'
+            adaptive_height: True
+
+            MDBoxLayout:
+                adaptive_height: True 
+
+                DiagnosticListHeaderLabel:
+                    id: diagnostics
+
+            DiagnosticListItem:
+                id: profile
+                text: 'PROFILE'
+                text_value: app.profile
+
+            DiagnosticListItem:
+                id: device_name
+                text: 'DEVICE NAME'
+                text_value: app.device_name
+
+            DiagnosticListItem:
+                text: 'SOFTWARE'
+                text_value: app.software
+
+            DiagnosticListItem:
+                id: software_version
+                text: 'SOFTWARE VERSION'
+                text_value: app.software_version
+
+            DiagnosticListItem:
+                id: gm_status
+                text: 'GREEN MACHINE STATUS'
+                text_value: app.activity_status
+                supporting_text_color: app.success_color if app.activity_status == 'ACTIVE' else app.theme_cls.primaryColor
+
+            DiagnosticListItem:
+                id: mode
+                text: 'Mode'
+                text_value: app.current_mode
+
+            DiagnosticListItem:
+                id: pin_delay_0
+                text: 'PIN DELAY'
+                text_value: app.pin_delay_string
+
+            DiagnosticListItem:
+                id: run_cycle_check_interval_0
+                text: 'Cycle Check Interval'
+                text_value: app.run_cycle_check_interval_string
+
+            DiagnosticListItem:
+                id: active_relays
+                text: 'Active Relays'
+                text_value: app.active_relays
+
+            DiagnosticListItem:
+                id: run_threshold
+                text: 'RUN THRESHOLD'
+                text_value: app.run_threshold_string
+
+            DiagnosticListItem:
+                id: low_limit
+                text: 'LOW LIMIT'
+                text_value: app.low_limit_string
+
+            DiagnosticListItem:
+                id: high_limit
+                text: 'HIGH LIMIT'
+                text_value: app.high_limit_string
+
+            DiagnosticListItem:
+                id: zero_limit
+                text: 'ZERO LIMIT'
+                text_value: app.zero_limit_string
+
+            DiagnosticListItem:
+                id: variable_limit
+                text: 'VARIABLE LIMIT'
+                text_value: app.variable_limit_string
+
+            DiagnosticListItem:
+                id: vac_failure_limit
+                text: 'VAC FAILURE LIMIT'
+                text_value: app.vac_failure_limit_string
+
+# Diagnostic list constants:
+<DiagnosticListHeaderLabel@MDLabel>:
+    text: ''
+    theme_font_size: 'Custom'
+    font_size: '34sp'
+    adaptive_height: True
+    padding: '10dp', '20dp', 0, 0
+
+<DiagnosticListItem@MDListItem>:
+    text: ''
+    text_value: ''
+    supporting_text_color: app.theme_cls.primaryColor
+    pos_hint: {'center_x': .5, 'center_y': .5}
+
+    MDListItemHeadlineText:
+        text: root.text
+
+    MDListItemSupportingText:
+        text: root.text_value
+        theme_text_color: 'Custom'
+        text_color: root.supporting_text_color

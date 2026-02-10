@@ -1,0 +1,132 @@
+# VST Green Machine Control Panel Configuration
+# This file contains the main configuration settings for the application
+
+# Access level definitions and permissions
+# Each level includes access to all levels below it
+[access_levels]
+# Administrator level
+"4" = [
+    "Admin",
+    "System",
+    "Contractor",
+    "Maintenance"
+]
+# System level
+"3" = [
+    "System",
+    "Contractor",
+    "Maintenance"
+]
+# Contractor level
+"2" = [
+    "Contractor",
+    "Maintenance"
+]
+# Maintenance level
+"1" = [
+    "Maintenance"
+]
+
+# System operational parameters
+# pressure alarm thresholds
+[system.thresholds.pressure]
+low_pressure_current = -40.0
+under_pressure = -6.0
+over_pressure = 2.0
+zero_pressure = 0.15
+variable_pressure = 0.2
+
+# Cycle and timing parameters and thresholds
+[system.thresholds.cycles]
+run_cycle = 0.2
+vac_pump_failure = 10
+run_cycle_check_interval = 43200  # 12 hours
+
+# UI timings
+[system.thresholds.interface]
+pin_delay = 0.02
+access_timeout = 14400  # 4 hours
+
+# Data management configuration
+[data_management]
+# Log archiving settings
+log_max_lines = 1000           # Maximum lines before archiving logfile.csv
+
+# Database cleanup settings
+[data_management.db_cleanup]
+# Table-specific database cleanup settings
+system = { max_records = 500 }      # Maximum records to keep in system table
+user = { max_records = 500 }        # Maximum records to keep in user table
+notifications = { max_records = 1000 } # For backward compatibility
+sys = { max_records = 500 }          # Maximum records to keep in sys table
+
+# UI theme configuration
+[ui]
+theme = "Dark"
+palette = "Steelblue"
+
+# Custom UI color definitions
+[ui.colors]
+success = "#2E7D32"
+admin = "#FFA500"
+
+# Current monitoring configuration
+[system.current_monitoring]
+# Fast buffer for GM fault detection (5-6 seconds response, less sensitive)
+fast_buffer_size = 6
+# Display buffer for smooth UI (5-8 seconds smoothing, faster response)
+display_buffer_size = 8
+# Update frequency (1 second for good balance)
+update_interval = 1.0
+
+# Database configuration
+# Defines database files and their corresponding tables
+[db.translations_db]
+table = "translations"
+path = "lang/translations.db"
+
+[db.auth_db]
+table = "permissions"
+path = "sys/auth.db"
+
+[db.sys_notifs]
+table = "system"
+path = "notifications.db"
+
+[db.usr_notifs]
+table = "user"
+path = "notifications.db"
+
+[db.thresholds_db]
+table = "thresholds"
+path = "app.db"
+
+[db.alarms_db]
+table = "alarms"
+path = "app.db"
+
+[db.user_db]
+table = "user"
+path = "app.db"
+
+[db.gm_db]
+table = "gm"
+path = "app.db"
+
+[db.oobe_db]
+table = "oobe"
+path = "app.db"
+
+# Kivy-specific configuration settings
+[kv.graphics]
+borderless = 1
+width = 800
+height = 480
+resizable = 0
+show_cursor = 0
+fullscreen = 1
+
+[kv.log]
+log_enable = 1
+log_level = "debug"
+log_maxfiles = 10
