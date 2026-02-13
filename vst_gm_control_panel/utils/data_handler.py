@@ -169,33 +169,5 @@ class DataHandler:
             self.logger.error(f"Failed to read calibration: {e}")
             return None
 
-    # Placeholder methods for compatibility with existing code
-    # These would be implemented based on the actual app structure
-
-    def get_current_mode(self):
-        """Get current relay mode - placeholder"""
-        return 0
-
-    @property
-    def device_name(self):
-        """Device name property - placeholder"""
-        return "ESP32-IO-BOARD"
-
-    @property
-    def current_run_cycle_count(self):
-        """Current run cycle count - placeholder"""
-        return 0
-
-    @property
-    def current_pressure(self):
-        """Current pressure reading - placeholder"""
-        return 0.0
-
-    @property
-    def current_amps(self):
-        """Current amperage reading - placeholder"""
-        return 0.0
-
-    def get_active_alarm_names(self):
-        """Get active alarm names - placeholder"""
-        return []
+    # Note: The actual app properties are accessed via self.app.* in the main application
+    # This data_handler serves as a bridge between the modem and the main app
