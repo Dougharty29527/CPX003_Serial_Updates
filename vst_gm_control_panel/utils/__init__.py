@@ -1,15 +1,16 @@
-''' Utils modules. '''
+"""
+VST GM Control Panel - Utility Modules
 
-# Import database manager first since other modules depend on it
-from .database_manager import DatabaseManager
+This package contains utility classes and functions for the VST GM Control Panel
+application, including data handling, modem communication, and system management.
+"""
 
-# Import other modules
-from .alarm_manager import Alarm, AlarmManager
-from .language_handler import LanguageHandler
-from .profile_handler import ProfileHandler
+# Import and export utility classes that exist
 from .data_handler import DataHandler
-from .log_archiver import LogArchiver
-from .db_cleaner import DatabaseCleaner
-from .auth import get_auth
-from .color_formatter import ColorFormatter
-from .cycle_state_manager import CycleStateManager
+from .modem import SerialManager
+
+# Define __all__ to control what gets imported with "from utils import *"
+__all__ = [
+    'DataHandler',
+    'SerialManager'
+]
