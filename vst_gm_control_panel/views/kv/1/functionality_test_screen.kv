@@ -1,0 +1,104 @@
+#:kivy 2.3.0
+
+<FunctionalityTestScreen>
+    md_bg_color: app.theme_cls.onPrimaryColor
+
+    TopBar:
+
+    MDBoxLayout:
+        adaptive_size: True
+        pos_hint: {'top': .975, 'center_x': .5}
+
+        StatusBar:
+
+    MDBoxLayout:
+        adaptive_height: True
+        size_hint_x: .687
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'center_y': .466}
+        spacing: '32dp'
+
+        MDBoxLayout:
+            adaptive_height: True
+            orientation: 'vertical'
+            pos_hint: {'center_x': .5}
+            spacing: '12dp'
+            padding: [0, '6dp', 0, '12dp']
+
+            TestTextLabel:
+                id: func_test_instruct_one
+                text: 'PUSH THE START BUTTON TO BEGIN THE FUNCTIONALITY TEST.'
+                font_size: '20sp' if app.language == 'EN' else '16sp'
+                text_color: app.theme_cls.onSecondaryContainerColor
+                padding: [0, 0, 0, '12dp']
+
+            TestTextLabel:
+                id: func_test_instruct_two
+                text: 'THE TEST ALTERNATES BETWEEN RUN AND PURGE MODES EVERY 60 SECONDS.'
+                font_size: '15sp'
+
+            TestTextLabel:
+                id: func_test_instruct_three
+                text: 'THE TEST WILL END AFTER 10 MINUTES OR WHEN STOP IS PRESSED.'
+                font_size: '15sp'
+
+        DefaultBtnContainer:
+            orientation: 'horizontal'
+
+            DefaultBtn:
+                id: start
+                text: 'START'
+                disabled: False if not app.functionality_test else True
+                on_press: root.confirm_functionality_test() if not app.functionality_test else ''
+
+            DefaultBtn:
+                id: stop
+                text: 'STOP'
+                disabled: True if not app.functionality_test else False
+                on_press: root.stop_functionality_test() if app.functionality_test else ''
+
+        MDBoxLayout:
+            adaptive_size: True
+            spacing: '10dp'
+            pos_hint: {'center_x': .5}
+
+            TestTextLabel:
+                id: time_remaining
+                text: 'TIME REMAINING:'
+                font_size: '17sp'
+                text_color: app.theme_cls.onSurfaceColor
+
+            MDButton:
+                radius: '2dp'
+                theme_width: 'Custom'
+                theme_height: 'Custom'
+                width: '62dp'
+                height: '30dp'
+                padding: 0
+                theme_bg_color: 'Custom'
+                md_bg_color: app.theme_cls.secondaryContainerColor
+                pos_hint: {'center_x': .5, 'center_y': .5}
+
+                MDButtonText:
+                    text: root.time_display
+                    theme_font_size: 'Custom'
+                    font_size: '19sp'
+                    theme_text_color: 'Custom'
+                    text_color: app.theme_cls.onSecondaryContainerColor
+                    pos_hint: {'center_x': .5, 'center_y': .5}
+
+    MDBoxLayout:  # Back Button
+        adaptive_size: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'y': .06}
+
+        BackBtn:
+            on_press: app.switch_screen('Maintenance')
+
+    FullAccessIndicator:
+
+    StatIndicator:
+
+    VersionIndicator:
+
+    SideBar:

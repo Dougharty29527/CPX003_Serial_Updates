@@ -1,0 +1,32 @@
+#:kivy 2.3.0
+
+<FaultsScreen>
+    md_bg_color: app.theme_cls.onPrimaryColor
+
+    TopBar:
+
+    MDBoxLayout:
+        adaptive_size: True
+        pos_hint: {'top': .975, 'center_x': .5}
+
+        StatusBar:
+
+    MDBoxLayout:
+        adaptive_size: True
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        padding: [0, dp(50), 0, 0]
+
+        MDBoxLayout:
+            id: alarms_list
+            orientation: 'vertical'
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            adaptive_size: True
+            spacing: dp(10)
+
+    FullAccessIndicator:
+
+    StatIndicator:
+
+    VersionIndicator:
+
+    SideBar:

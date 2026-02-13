@@ -1,0 +1,22 @@
+[Unit]
+Description=Green Machine Control Panel Service
+After=network.target
+
+[Service]
+WorkingDirectory=/home/cpx003/vst_gm_control_panel
+ExecStartPre=/bin/sleep 10
+ExecStart=/bin/bash /home/cpx003/vst_gm_control_panel/run.sh
+Type=idle
+User=root
+Group=cpx003
+StandardOutput=inherit
+Environment="DISPLAY=:0"
+Environment="HOME=/home/cpx003"
+Environment="KIVY_HOME=/home/cpx003/.kivy"
+Environment="XAUTHORITY=/home/cpx003/.Xauthority"
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,49 @@
+#:kivy 2.3.0
+
+<TopBar>:
+    md_bg_color: app.theme_cls.primaryContainerColor
+    size_hint_y: None
+    pos_hint: {'top': 1}
+    height: dp(80)
+    padding: dp(12), 0, dp(12), 0
+    screen_title: ''
+
+    MDBoxLayout:
+        size_hint_x: .17
+
+        Image:
+            source: 'assets/images/vst_light.png' if app.theme_cls.theme_style == 'Dark' else 'assets/images/vst_dark.png'
+            size_hint: None, None
+            size: dp(85), dp(65)
+            pos_hint: {'center_y': .5}
+
+    MDBoxLayout:
+        size_hint_x: .66
+
+    MDBoxLayout:
+        size_hint_x: .17
+        pos_hint: {'top': 1, 'right': 1}
+        adaptive_size: True
+        padding: [0, dp(12), dp(4), 0]
+
+        MDBoxLayout:
+            adaptive_size: True
+            orientation: 'vertical'
+
+            MDLabel:
+                text: app.current_date
+                text_color: self.theme_cls.onSecondaryContainerColor
+                theme_font_size: 'Custom'
+                font_size: sp(12)
+                adaptive_size: True
+                pos_hint: {'center_x': .5}
+
+            MDLabel:
+                text: app.current_time
+                text_color: self.theme_cls.onPrimaryContainerColor
+                theme_font_size: 'Custom'
+                font_size: sp(27)
+                adaptive_size: True
+                pos_hint: {'center_x': .5}
+
+

@@ -1,0 +1,87 @@
+#:kivy 2.3.0
+
+<BreakerInfoScreen>
+    md_bg_color: '#13202E'
+
+    TopBar:
+
+    MDBoxLayout:
+        adaptive_size: True
+        pos_hint: {'top': .975, 'center_x': .5}
+        StatusBar:
+
+    MDBoxLayout:
+        adaptive_size: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        spacing: '30dp'
+
+        MDBoxLayout:
+            adaptive_size: True
+            orientation: 'vertical'
+            spacing: dp(24)
+            pos_hint: {'center_x': .5}
+            padding: [0, dp(50), 0, 0]
+        
+            MDLabel:
+                id: breaker_info_title
+                text: 'BREAKER INFORMATION'
+                font_style: 'Headline'
+                role: 'medium'
+                theme_text_color: 'Custom'
+                text_color: app.theme_cls.secondaryColor
+                adaptive_size: True
+                pos_hint: {'center_x': .5}
+            
+            MDBoxLayout:
+                adaptive_size: True
+                orientation: 'vertical'
+                spacing: dp(16)
+                pos_hint: {'center_x': .5}
+                padding: [dp(20), dp(20), dp(20), 0]
+                
+                MDLabel:
+                    id: breaker_info_line1
+                    text: app.language_handler.translate('breaker_info_line1', 'Check to ensure the dispenser shutdown breaker')
+                    theme_text_color: 'Custom'
+                    text_color: app.theme_cls.primaryColor
+                    adaptive_size: True
+                    size_hint_x: 0.9
+                    pos_hint: {'center_x': .5}
+                    halign: 'center'
+                
+                MDLabel:
+                    id: breaker_info_line2
+                    text: app.language_handler.translate('breaker_info_line2', 'is currently in the open position.')
+                    theme_text_color: 'Custom'
+                    text_color: app.theme_cls.primaryColor
+                    adaptive_size: True
+                    size_hint_x: 0.9
+                    pos_hint: {'center_x': .5}
+                    halign: 'center'
+        
+        MDBoxLayout:
+            adaptive_size: True
+            orientation: 'vertical'
+            pos_hint: {'center_x': .5}
+            padding: [0, dp(30), 0, 0]
+            
+            # Confirm button
+            DefaultBtn:
+                id: confirm_btn
+                text: 'CONFIRM'
+                width: dp(200)
+                md_bg_color: '#253849'
+                on_press: root.on_continue()
+    
+    # Back button
+    MDBoxLayout:
+        adaptive_size: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'center_y': .09}
+        padding: [0, '27dp', 0, 0]
+
+        BackBtn:
+            on_press: root.go_back()
+
+    StatIndicator:

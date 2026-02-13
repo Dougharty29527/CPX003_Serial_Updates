@@ -1,0 +1,99 @@
+#:kivy 2.3.0
+
+<ProfileScreen>
+    md_bg_color: app.theme_cls.onPrimaryColor
+
+    MDNavigationLayout:
+
+        MDScreenManager:
+
+            MDScreen:
+
+                TopBar:
+
+                StatusBar:
+                    pos_hint: {'top': .975, 'center_x': .5}
+
+                # Outer container for full screen centering
+                MDRelativeLayout:
+                    
+                    # Content container
+                    MDBoxLayout:
+                        orientation: 'vertical'
+                        spacing: '48dp'  # Increased spacing between title and buttons
+                        size_hint: (None, None)  # No size hints
+                        width: dp(400)  # Fixed width
+                        height: self.minimum_height  # Dynamic height
+                        pos_hint: {'center_x': .5, 'center_y': .5}  # Center in both directions
+
+                        # Header-style current profile display
+                        MDLabel:
+                            text: app.language_handler.translate('current_profile', 'Current Profile: {}').format(root.current_profile)
+                            halign: 'center'
+                            theme_text_color: "Custom"
+                            text_color: app.theme_cls.primaryColor
+                            font_size: '32sp'
+                            bold: True
+                            size_hint_y: None
+                            height: self.texture_size[1]
+
+                        # Grid layout for 2x2 button arrangement
+                        MDGridLayout:
+                            cols: 2
+                            spacing: '24dp'
+                            size_hint: (None, None)  # No size hints
+                            width: dp(350)  # Slightly narrower than container
+                            height: self.minimum_height
+                            pos_hint: {'center_x': .5}  # Center in parent
+
+                            DefaultBtn:
+                                text: 'CS2'
+                                size_hint_x: None  # Fixed width buttons
+                                width: dp(160)  # Adjust button width
+                                on_press: root.switch_profile('CS2')
+                                disabled: root.current_profile == 'CS2'
+                                md_bg_color: app.theme_cls.surfaceColor
+                                text_color: app.theme_cls.primaryColor
+
+                            DefaultBtn:
+                                text: 'CS9'
+                                size_hint_x: None
+                                width: dp(160)
+                                on_press: root.switch_profile('CS9')
+                                disabled: root.current_profile == 'CS9'
+                                md_bg_color: app.theme_cls.surfaceColor
+                                text_color: app.theme_cls.primaryColor
+
+                            DefaultBtn:
+                                text: 'CS8'
+                                size_hint_x: None
+                                width: dp(160)
+                                on_press: root.switch_profile('CS8')
+                                disabled: root.current_profile == 'CS8'
+                                md_bg_color: app.theme_cls.surfaceColor
+                                text_color: app.theme_cls.primaryColor
+
+                            DefaultBtn:
+                                text: 'CS12'
+                                size_hint_x: None
+                                width: dp(160)
+                                on_press: root.switch_profile('CS12')
+                                disabled: root.current_profile == 'CS12'
+                                md_bg_color: app.theme_cls.surfaceColor
+                                text_color: app.theme_cls.primaryColor
+
+                MDBoxLayout:  # Back Button
+                    adaptive_size: True
+                    orientation: 'vertical'
+                    pos_hint: {'center_x': .5, 'y': .06}
+
+                    BackBtn:
+                        on_press: app.switch_screen('Admin')
+
+                FullAccessIndicator:
+
+                StatIndicator:
+
+                VersionIndicator:
+
+                SideBar:

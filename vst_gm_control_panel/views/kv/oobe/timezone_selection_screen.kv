@@ -1,0 +1,95 @@
+#:kivy 2.3.0
+
+<TimezoneSelectionScreen>
+    md_bg_color: '#13202E'
+
+    TopBar:
+
+    MDBoxLayout:
+        adaptive_size: True
+        pos_hint: {'top': .975, 'center_x': .5}
+
+        StatusBar:
+
+    # Main content
+    MDBoxLayout:
+        adaptive_size: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'center_y': .409}
+        
+        MDBoxLayout:
+            adaptive_size: True
+            orientation: 'vertical'
+            spacing: dp(20)
+            pos_hint: {'center_x': .5}
+            
+            # Title
+            OOBETitleLabel:
+                id: timezone_verification_title
+                text: 'TIMEZONE VERIFICATION'
+
+            OOBEDescriptionLabel:
+                id: timezone_verification_prompt
+                text: 'Please verify the current system timezone'
+                
+            # Time display
+            OOBEFocusLabel:
+                id: current_time_display
+                text: root.current_time
+                
+            # Timezone display
+            OOBEInfoLabel:
+                id: current_timezone_display
+                text: root.display_timezone
+                
+            # Navigation buttons beneath timezone
+            MDBoxLayout:
+                adaptive_size: True
+                orientation: 'horizontal'
+                spacing: dp(20)
+                pos_hint: {'center_x': .5}
+                
+                # Previous button
+                DefaultBtn:
+                    id: previous_timezone_btn
+                    on_press: root.previous_timezone()
+                    text: 'Previous'
+                    width: dp(110)
+                    height: dp(40)
+                    md_bg_color: app.theme_cls.surfaceContainerColor
+                
+                # Next button
+                DefaultBtn:
+                    id: next_timezone_btn
+                    on_press: root.next_timezone()
+                    text: 'Next'
+                    width: dp(110)
+                    height: dp(40)
+                    md_bg_color: app.theme_cls.surfaceContainerColor
+
+            MDBoxLayout:
+                adaptive_size: True
+                orientation: 'vertical'
+                pos_hint: {'center_x': .5}
+                padding: [0, dp(20), 0, dp(40)]
+                    
+                # Verify button
+                DefaultBtn:
+                    id: verify_btn
+                    text: 'VERIFY'
+                    on_press: root.on_verify()
+                    width: dp(200)
+                    md_bg_color: '#253849'
+                    pos_hint: {'center_x': .5}
+    
+    # Back button
+    MDBoxLayout:
+        adaptive_size: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'center_y': .09}
+        padding: [0, dp(27), 0, 0]
+
+        BackBtn:
+            on_press: root.go_back()
+
+    StatIndicator:

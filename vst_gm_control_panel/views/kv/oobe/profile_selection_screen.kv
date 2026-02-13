@@ -1,0 +1,80 @@
+#:kivy 2.3.0
+
+<ProfileSelectionScreen>
+    md_bg_color: '#13202E'
+
+    TopBar:
+
+    MDBoxLayout:
+        adaptive_size: True
+        pos_hint: {'top': .975, 'center_x': .5}
+
+        StatusBar:
+
+    # Main content
+    MDBoxLayout:
+        adaptive_size: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        spacing: dp(30)
+
+        MDBoxLayout:
+            adaptive_size: True
+            orientation: 'vertical'
+            spacing: dp(24)
+            pos_hint: {'center_x': .5}
+            padding: [0, dp(50), 0, 0]
+        
+            OOBETitleLabel:
+                id: profile_title
+                text: 'SELECT YOUR PROFILE'
+
+            MDBoxLayout:
+                adaptive_size: True
+                orientation: 'horizontal'
+                spacing: dp(50)
+                pos_hint: {'center_x': .5}
+                padding: [0, dp(20), 0, 0]
+
+                DefaultBtn:
+                    text: 'CS2A (USA)'
+                    on_release: root.on_profile_selected('CS2')
+                    width: dp(200)
+                    md_bg_color: '#253849'
+
+                DefaultBtn:
+                    text: 'CS8A (VST)'
+                    on_release: root.on_profile_selected('CS8')
+                    width: dp(200)
+                    md_bg_color: '#253849'
+
+            MDBoxLayout:
+                adaptive_size: True
+                orientation: 'horizontal'
+                spacing: dp(50)
+                pos_hint: {'center_x': .5}
+                padding: [0, dp(20), 0, dp(12)]
+
+                DefaultBtn:
+                    text: 'CS9A (GVR)'
+                    on_release: root.on_profile_selected('CS9')
+                    width: dp(200)
+                    md_bg_color: '#253849'
+        
+                DefaultBtn:
+                    text: 'CS12A (FFS)'
+                    on_release: root.on_profile_selected('CS12')
+                    width: dp(200)
+                    md_bg_color: '#253849'
+            
+    # Back button
+    MDBoxLayout:
+        adaptive_size: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'center_y': .09}
+        padding: [0, dp(27), 0, 0]
+
+        BackBtn:
+            on_press: root.go_back()
+
+    StatIndicator:

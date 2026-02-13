@@ -1,0 +1,92 @@
+#:kivy 2.2.1
+
+<PublicAboutScreen>:
+    md_bg_color: app.theme_cls.onPrimaryColor
+
+    TopBar:
+
+    StatusBar:
+        pos_hint: {'top': .975, 'center_x': .5}
+
+    # Outer container for centering
+    MDRelativeLayout:
+        
+        # Main content area
+        MDBoxLayout:
+            orientation: 'vertical'
+            pos_hint: {'center_x': .72, 'center_y': .5}
+            spacing: dp(5)
+            size_hint: None, None
+            width: dp(600)
+            height: dp(190)
+
+            # OS Information
+            AboutRow:
+                AboutIcon:
+                    icon: 'application-cog'
+                AboutLabel:
+                    text: 'OS'
+                AboutValue:
+                    id: software_info_text
+
+            AboutDivider:
+
+            # Device Name
+            AboutRow:
+                AboutIcon:
+                    icon: 'monitor'
+                AboutLabel:
+                    text: app.language_handler.translate('public_about_device_name', 'Device Name:')
+                AboutValue:
+                    id: device_name_text
+
+            AboutDivider:
+
+            # Profile
+            AboutRow:
+                AboutIcon:
+                    icon: 'account-settings'
+                AboutLabel:
+                    text: app.language_handler.translate('public_about_profile', 'Profile:')
+                AboutValue:
+                    id: profile_info_text
+
+            AboutDivider:
+
+            # Panel Serial Number
+            AboutRow:
+                AboutIcon:
+                    icon: 'card-account-details'
+                AboutLabel:
+                    text: app.language_handler.translate('public_about_panel_sn', 'Panel Serial:')
+                AboutValue:
+                    id: panel_sn_text
+
+            AboutDivider:
+
+            # Green Machine Serial Number
+            AboutRow:
+                AboutIcon:
+                    icon: 'engine'
+                AboutLabel:
+                    text: app.language_handler.translate('public_about_gm_sn', 'GM Serial:')
+                AboutValue:
+                    id: gm_sn_text
+
+        Widget:
+
+    MDBoxLayout:  # Back Button
+        adaptive_size: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'y': .06}
+
+        BackBtn:
+            on_press: app.switch_screen('Main')
+
+    FullAccessIndicator:
+
+    StatIndicator:
+
+    VersionIndicator:
+
+    SideBar:

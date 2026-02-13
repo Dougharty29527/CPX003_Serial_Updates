@@ -1,0 +1,122 @@
+#:kivy 2.2.1
+
+<AboutScreen>:
+    md_bg_color: app.theme_cls.onPrimaryColor
+    
+    MDNavigationLayout:
+        
+        MDScreenManager:
+            
+            MDScreen:
+                TopBar:
+
+                StatusBar:
+                    pos_hint: {'top': .975, 'center_x': .5}
+
+                FullAccessIndicator:
+
+                StatIndicator:
+
+                VersionIndicator:
+
+                SideBar:
+
+                # Back button - top left
+                MDIconButton:
+                    icon: "arrow-left"
+                    pos_hint: {"x": 0, "top": 1}
+                    on_release: root.handle_nav("Admin")
+
+                # Outer container for centering
+                MDRelativeLayout:
+                    
+                    # Main content area - single column, admin-specific info only
+                    MDBoxLayout:
+                        orientation: 'vertical'
+                        pos_hint: {'center_x': .72, 'center_y': .5}
+                        spacing: dp(5)
+                        size_hint: None, None
+                        width: dp(600)
+                        height: dp(220)
+
+                        # Serial Number (admin-specific)
+                        AboutRow:
+                            AboutIcon:
+                                icon: 'chip'
+                            AboutLabel:
+                                text: app.language_handler.translate('admin_about_pi_serial', 'Serial:')
+                            AboutValue:
+                                id: pi_serial_text
+
+                        AboutDivider:
+
+                        # Language (admin-specific)
+                        AboutRow:
+                            AboutIcon:
+                                icon: 'translate'
+                            AboutLabel:
+                                text: app.language_handler.translate('admin_about_language', 'Language:')
+                            AboutValue:
+                                id: language_text
+
+                        AboutDivider:
+
+                        # CRE Number (admin-specific)
+                        AboutRow:
+                            AboutIcon:
+                                icon: 'card-account-details'
+                            AboutLabel:
+                                text: app.language_handler.translate('admin_about_cre', 'CRE Number:')
+                            AboutValue:
+                                id: cre_text
+
+                        AboutDivider:
+
+                        # Network Status (admin-specific)
+                        AboutRow:
+                            AboutIcon:
+                                icon: 'signal'
+                            AboutLabel:
+                                text: app.language_handler.translate('admin_about_network', 'Network:')
+                            AboutValue:
+                                id: network_status_text
+
+                        AboutDivider:
+
+                        # Run Cycles (admin-specific)
+                        AboutRow:
+                            AboutIcon:
+                                icon: 'refresh'
+                            AboutLabel:
+                                text: app.language_handler.translate('admin_about_run_cycles', 'Run Cycles:')
+                            AboutValue:
+                                id: run_cycles_text
+
+                        AboutDivider:
+
+                        # Manual Cycles (admin-specific)
+                        AboutRow:
+                            AboutIcon:
+                                icon: 'refresh-circle'
+                            AboutLabel:
+                                text: app.language_handler.translate('admin_about_manual_cycles', 'Manual Cycles:')
+                            AboutValue:
+                                id: manual_cycles_text
+
+                    Widget:
+
+    MDBoxLayout:  # Back Button
+        adaptive_size: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'y': .06}
+
+        BackBtn:
+            on_press: app.switch_screen('Admin')
+
+    FullAccessIndicator:
+
+    StatIndicator:
+
+    VersionIndicator:
+
+    SideBar:

@@ -1,0 +1,13 @@
+# VST Green Machine Control Panel Application Information
+# This file contains core application identity information
+
+# Application title
+title = "VST: Green Machine Control Panel"
+
+# Path to the application icon used in the UI
+icon = "assets/images/vst_light.png"
+
+# Software version information
+[software]
+name = "CPX-003"      # Application identifier
+version = "0.12.6"     # Current software version

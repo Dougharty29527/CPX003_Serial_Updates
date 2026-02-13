@@ -1,0 +1,107 @@
+#:kivy 2.3.0
+
+<MaintenanceScreen>
+    md_bg_color: app.theme_cls.onPrimaryColor
+
+    TopBar:
+
+    MDBoxLayout:
+        adaptive_size: True
+        pos_hint: {'top': .975, 'center_x': .5}
+
+        StatusBar:
+
+    MDBoxLayout:
+        adaptive_height: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'center_y': .4}
+        spacing: '24dp'
+        padding: [0, dp(24), 0, dp(12)]
+
+        Widget:
+
+        MDBoxLayout:
+            adaptive_size: True
+            orientation: 'horizontal'
+            spacing: dp(24)
+            pos_hint: {'center_x': .5}
+
+            DefaultBtnContainer:
+                spacing: dp(18)
+
+                DefaultBtn:
+                    id: functionality_test
+                    text: 'FUNCTIONALITY TEST'
+                    on_press: app.switch_screen('FunctionalityTest')
+
+                DefaultBtn:
+                    id: leak_test
+                    text: 'LEAK TEST'
+                    on_press: app.switch_screen('LeakTest')
+
+                DefaultBtn:
+                    id: contractor_screen
+                    text: 'CONTRACTOR SCREEN'
+                    on_press: app.elevated_switch_screen('Contractor')
+
+        MDBoxLayout:
+            adaptive_size: True
+            orientation: 'vertical'
+            spacing: dp(8)
+            pos_hint: {'center_x': .5, 'center_y': .3}
+            padding: [0, dp(12), 0, 0]
+
+            MDDivider:
+                size_hint_x: 1
+                pos_hint: {'center_x': .5}
+
+            MDBoxLayout:
+                adaptive_size: True
+                orientation: 'horizontal'
+                spacing: dp(4)
+                pos_hint: {'center_x': .5}
+
+                MDLabel:
+                    id: vac_pump_alarms_label
+                    text: root.vac_pump_alarms_label_text
+                    theme_font_size: 'Custom'
+                    font_size: sp(16)
+                    theme_text_color: 'Custom'
+                    text_color: app.theme_cls.rippleColor
+                    adaptive_size: True
+                    pos_hint: {'center_y': .5}
+
+                MDLabel:
+                    id: vac_pump_alarms_status
+                    text: root.vac_pump_alarms_status_text
+                    theme_font_size: 'Custom'
+                    font_size: sp(16)
+                    theme_text_color: 'Custom'
+                    text_color: root.vac_pump_alarms_color
+                    adaptive_size: True
+                    pos_hint: {'center_y': .5}
+
+            MDBoxLayout:
+                adaptive_size: True
+                pos_hint: {'center_x': .5}
+
+                DefaultBtn:
+                    id: clear
+                    text: 'CLEAR'
+                    width: '225dp'
+                    height: '39dp'
+                    on_press: root.show_clear_alarm_dialog()
+
+            MDDivider:
+                size_hint_x: 1
+                pos_hint: {'center_x': .5}
+
+        Widget:
+
+    FullAccessIndicator:
+
+    StatIndicator:
+
+    VersionIndicator:
+
+    SideBar:

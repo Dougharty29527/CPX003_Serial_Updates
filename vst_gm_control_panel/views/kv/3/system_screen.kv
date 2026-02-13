@@ -1,0 +1,169 @@
+#:kivy 2.3.0
+
+<SystemScreen>
+    md_bg_color: app.theme_cls.onPrimaryColor
+
+    TopBar:
+
+    MDBoxLayout:
+        adaptive_size: True
+        pos_hint: {'top': .975, 'center_x': .5}
+
+        StatusBar:
+
+    MDBoxLayout:
+        adaptive_height: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'center_y': .55}
+        spacing: dp(40)
+        padding: [0, dp(60), 0, dp(37)]
+
+        MDBoxLayout:
+            adaptive_size: True
+            orientation: 'horizontal'
+            spacing: dp(27)
+            pos_hint: {'center_x': .5}
+
+            DefaultBtnContainer:
+                spacing: dp(18)
+                orientation: 'vertical'
+
+                Widget:
+                    size_hint_y: None
+                    height: dp(30)
+
+                DefaultBtn:
+                    id: clean_canister
+                    text: app.language_handler.translate('clean_canister', 'CLEAN CANISTER')
+                    on_press: app.switch_screen('CanisterClean')
+
+                DefaultBtn:
+                    id: efficiency_test
+                    text: app.language_handler.translate('efficiency_test', 'EFFICIENCY TEST')
+                    on_press: app.switch_screen('EfficiencyTest')
+
+                MDBoxLayout:
+                    size_hint_y: None
+                    height: dp(43) if app.profile == 'CS8' or app.admin_mode else 0
+                    opacity: 1 if app.profile == 'CS8' or app.admin_mode else 0
+
+                    DefaultBtn:  # System Config button on bottom - CS8/Admin ONLY
+                        id: system_config
+                        text: app.language_handler.translate('system_config', 'SYSTEM CONFIG')
+                        on_press: app.switch_screen('SystemConfig')
+                        opacity: 1 if app.profile == 'CS8' or app.admin_mode else 0
+                        disabled: app.profile != 'CS8' and not app.admin_mode
+
+        Widget:
+
+    MDBoxLayout:  # Back Button
+        adaptive_size: True
+        orientation: 'vertical'
+        pos_hint: {'center_x': .5, 'y': .06}
+
+        BackBtn:
+            on_press: app.switch_screen('Contractor')
+
+    FullAccessIndicator:
+
+    StatIndicator:
+
+    VersionIndicator:
+
+    SideBar:
+
+    NoDragMDBottomSheet:
+        id: keypad_sheet
+        size_hint: None, None
+        size: dp(525), dp(372)
+        background_color: app.theme_cls.surfaceColor
+
+        MDBottomSheetDragHandleButton:
+            icon: 'close'
+            on_release: keypad_sheet.set_state('toggle')
+            pos_hint: {'top': 1, 'right': 1}
+
+        MDScrollView:
+            do_scroll_x: False
+            do_scroll_y: False
+
+            MDBoxLayout:
+                orientation: 'vertical'
+                adaptive_height: True
+
+                MDBoxLayout:
+                    adaptive_height: True
+                    size_hint_x: .7
+                    orientation: 'vertical'
+                    spacing: dp(12)
+                    pos_hint: {'center_x': .5}
+
+                    MDBoxLayout:
+                        adaptive_width: True
+                        size_hint_y: None
+                        height: dp(75)
+                        pos_hint: {'center_x': .5}
+                        padding: [0, 0, 0, '28dp']
+
+                        KeypadTextField:
+                            id: input_field
+                            text: root.input_string
+
+                    KeypadBtnContainer:
+                        padding: [0, dp(12), 0, 0]
+
+                        KeypadBtn:
+                            text: '1'
+                            on_press: root.add_digit(1)
+
+                        KeypadBtn:
+                            text: '2'
+                            on_press: root.add_digit(2)
+
+                        KeypadBtn:
+                            text: '3'
+                            on_press: root.add_digit(3)
+
+                        KeypadBtn:
+                            text: '4'
+                            on_press: root.add_digit(4)
+
+                        KeypadBtn:
+                            text: '5'
+                            on_press: root.add_digit(5)
+
+                    KeypadBtnContainer:
+
+                        KeypadBtn:
+                            text: '6'
+                            on_press: root.add_digit(6)
+
+                        KeypadBtn:
+                            text: '7'
+                            on_press: root.add_digit(7)
+
+                        KeypadBtn:
+                            text: '8'
+                            on_press: root.add_digit(8)
+
+                        KeypadBtn:
+                            text: '9'
+                            on_press: root.add_digit(9)
+
+                        KeypadBtn:
+                            text: '0'
+                            on_press: root.add_digit(0)
+
+                    KeypadBtnContainer:
+
+                        ActionKeyBtn:
+                            size: dp(173), dp(49)
+                            icon: 'backspace'
+                            text_color: app.theme_cls.tertiaryColor
+                            on_press: root.backspace()
+
+                        ActionKeyBtn:
+                            size: dp(173), dp(49)
+                            icon: 'check-bold'
+                            text_color: app.success_color
+                            on_press: root.submit()

@@ -1,0 +1,178 @@
+#:kivy 2.3.0
+
+<SideBar>
+
+    MDScreenManager:
+
+        MDScreen:
+
+            MDBoxLayout:
+                padding: '12dp'
+
+                MDBoxLayout:
+                    id: closed_nav
+                    size_hint_x: None
+                    adaptive_height: True
+                    md_bg_color: app.theme_cls.primaryContainerColor
+                    width: '53dp'
+                    orientation: 'vertical'
+                    pos_hint: {'center_y': .5}
+                    radius: '16dp'
+                    padding: ['7dp', '4dp', '7dp', '7dp']
+                    spacing: '20dp'
+
+                    MDIconButton:
+                        id: open_nav_button
+                        icon: 'menu-close'
+                        on_release:
+                            self.toggled = True
+                            open_nav.set_state('toggle')
+
+                    MDIconButton:
+                        icon: 'home'
+                        theme_bg_color: 'Custom'
+                        md_bg_color: app.theme_cls.inversePrimaryColor if app.sm.current == 'Main' else app.theme_cls.primaryContainerColor
+                        theme_icon_color: 'Custom'
+                        icon_color: app.theme_cls.primaryColor
+                        on_press: app.switch_screen('Main') if not app.shutdown else app.switch_screen('Shutdown')
+
+                    MDIconButton:
+                        icon: 'alert'
+                        theme_bg_color: 'Custom'
+                        md_bg_color: app.theme_cls.inversePrimaryColor if app.sm.current == 'Faults' else app.theme_cls.primaryContainerColor
+                        theme_icon_color: 'Custom'
+                        icon_color: app.theme_cls.primaryColor
+                        on_press: app.switch_screen('Faults')
+
+                    MDIconButton:
+                        icon: 'wrench'
+                        theme_bg_color: 'Custom'
+                        md_bg_color: app.theme_cls.inversePrimaryColor if app.sm.current == 'Maintenance' else app.theme_cls.primaryContainerColor
+                        theme_icon_color: 'Custom'
+                        icon_color: app.theme_cls.primaryColor
+                        on_press: app.elevated_switch_screen('Maintenance')
+
+                    MDIconButton:
+                        icon: 'information'
+                        theme_bg_color: 'Custom'
+                        md_bg_color: app.theme_cls.inversePrimaryColor if app.sm.current == 'PublicAbout' else app.theme_cls.primaryContainerColor
+                        theme_icon_color: 'Custom'
+                        icon_color: app.theme_cls.primaryColor
+                        on_press: app.switch_screen('PublicAbout')
+
+    MDNavigationDrawer:
+        id: open_nav
+        # width: '260dp'
+        md_bg_color: app.theme_cls.primaryContainerColor
+        radius: 0, '16dp', 0, 0
+
+        MDNavigationDrawerMenu:
+            id: open_nav_drawer
+            padding: '8dp', 0, 0, 0
+            spacing: '25dp'
+
+            MDNavigationDrawerHeader:
+
+                MDIconButton:
+                    id: close_nav_button
+                    icon: 'backburger'
+                    theme_icon_color: 'Custom'
+                    icon_color: app.theme_cls.onPrimaryContainerColor
+                    on_release:
+                        self.toggled = False
+                        open_nav.set_state('toggle')
+
+            NavDrawerItem:
+                md_bg_color: app.theme_cls.inversePrimaryColor if app.sm.current == 'Main' else app.theme_cls.primaryContainerColor
+                on_press:
+                    self.toggled = False
+                    open_nav.set_state('toggle')
+                    app.switch_screen('Main') if not app.shutdown else app.switch_screen('Shutdown')
+
+                MDNavigationDrawerItemLeadingIcon:
+                    icon: 'home'
+                    theme_icon_color: 'Custom'
+                    icon_color: app.theme_cls.onPrimaryContainerColor
+
+                MDNavigationDrawerItemText:
+                    id: main
+                    text: 'MAIN'
+                    font_style: 'Title'
+                    role: 'medium'
+                    theme_text_color: 'Custom'
+                    text_color: app.theme_cls.onPrimaryContainerColor
+
+            NavDrawerItem:
+                md_bg_color: app.theme_cls.inversePrimaryColor if app.sm.current == 'Faults' else app.theme_cls.primaryContainerColor
+                on_press:
+                    self.toggled = False
+                    open_nav.set_state('toggle')
+                    app.switch_screen('Faults')
+
+                MDNavigationDrawerItemLeadingIcon:
+                    icon: 'alert'
+                    theme_icon_color: 'Custom'
+                    icon_color: app.theme_cls.onPrimaryContainerColor
+
+                MDNavigationDrawerItemText:
+                    id: faults
+                    text: 'FAULTS & ALARMS'
+                    font_style: 'Title'
+                    role: 'medium'
+                    theme_text_color: 'Custom'
+                    text_color: app.theme_cls.onPrimaryContainerColor
+
+            NavDrawerItem:
+                md_bg_color: app.theme_cls.inversePrimaryColor if app.sm.current == 'Maintenance' else app.theme_cls.primaryContainerColor
+                on_press:
+                    self.toggled = False
+                    open_nav.set_state('toggle')
+                    app.elevated_switch_screen('Maintenance')
+
+                MDNavigationDrawerItemLeadingIcon:
+                    icon: 'wrench'
+                    theme_icon_color: 'Custom'
+                    icon_color: app.theme_cls.onPrimaryContainerColor
+
+                MDNavigationDrawerItemText:
+                    id: maintenance
+                    text: 'MAINTENANCE'
+                    font_style: 'Title'
+                    role: 'medium'
+                    theme_text_color: 'Custom'
+                    text_color: app.theme_cls.onPrimaryContainerColor
+
+            NavDrawerItem:
+                md_bg_color: app.theme_cls.inversePrimaryColor if app.sm.current == 'PublicAbout' else app.theme_cls.primaryContainerColor
+                on_press:
+                    self.toggled = False
+                    open_nav.set_state('toggle')
+                    app.switch_screen('PublicAbout')
+
+                MDNavigationDrawerItemLeadingIcon:
+                    icon: 'information'
+                    theme_icon_color: 'Custom'
+                    icon_color: app.theme_cls.onPrimaryContainerColor
+
+                MDNavigationDrawerItemText:
+                    id: public_about
+                    text: app.language_handler.translate('public_about', 'ABOUT')
+                    font_style: 'Title'
+                    role: 'medium'
+                    theme_text_color: 'Custom'
+                    text_color: app.theme_cls.onPrimaryContainerColor
+
+            NavDrawerItem:
+                md_bg_color: app.theme_cls.inversePrimaryColor if app.sm.current == 'Test' else app.theme_cls.primaryContainerColor
+                on_press:
+                    self.toggled = False
+                    open_nav.set_state('toggle')
+                    app.switch_screen('Test')
+
+        MDIconButton:
+            id: settings_button
+            icon: 'account-cog'
+            pos_hint: {'bottom': 1, 'right': 1}
+            theme_icon_color: 'Custom'
+            icon_color: app.theme_cls.onPrimaryContainerColor
+            on_press: app.dropdown_menu.settings_menu(self)
