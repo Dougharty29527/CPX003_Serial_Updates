@@ -679,6 +679,47 @@ class SerialManager:
                 except (ValueError, TypeError) as e:
                     self._log('warning', f'Invalid ps_cal value from ESP32: {data.get("ps_cal")} - {e}')
 
+            # ================================================================
+            # BACKFILL DATA: ESP32 sends collected data after passthrough reboot
+            # Format: {"backfill": [{"pressure": -14.22, "current": 0.07, "mode": 0, "fault": 0, "cycles": 484}, ...]}
+            # This data was collected during passthrough mode and stored on SD card.
+            # Linux device adds timestamps and forwards to cloud for CBOR transmission.
+            # ================================================================
+            if 'backfill' in data:
+                try:
+                    backfill_data = data['backfill']
+                    if isinstance(backfill_data, list) and len(backfill_data) > 0:
+                        self._log('info', f'Received backfill data from ESP32: {len(backfill_data)} records')
+
+                        # Store backfill data in database for cloud synchronization
+                        if hasattr(self, 'data_handler') and self.data_handler:
+                            try:
+                                # Add timestamp to each record (current time when received)
+                                import time
+                                current_timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+
+                                processed_records = []
+                                for record in backfill_data:
+                                    if isinstance(record, dict):
+                                        # Add server timestamp to the record
+                                        record_with_timestamp = record.copy()
+                                        record_with_timestamp['server_timestamp'] = current_timestamp
+                                        processed_records.append(record_with_timestamp)
+
+                                # Save to database - this would typically go to a cloud sync queue
+                                self.data_handler.save_backfill_data(processed_records)
+                                self._log('info', f'Successfully processed and stored {len(processed_records)} backfill records')
+
+                            except Exception as e:
+                                self._log('error', f'Failed to save backfill data to database: {e}')
+                        else:
+                            self._log('warning', 'No data_handler available to store backfill data')
+                    else:
+                        self._log('warning', f'Invalid backfill data format: expected non-empty list, got {type(backfill_data)}')
+
+                except Exception as e:
+                    self._log('error', f'Error processing backfill data: {e}')
+
             if 'datetime' in data:
                 self.esp32_datetime = data['datetime']
                 
